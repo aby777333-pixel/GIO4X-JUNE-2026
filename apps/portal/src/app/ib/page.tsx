@@ -1,6 +1,7 @@
 import { Shell } from "@/components/Shell";
 import { PerformanceChart } from "@/components/PerformanceChart";
 import { InstrumentDonut } from "@/components/InstrumentDonut";
+import { IbGrowthPanel } from "@/components/IbGrowthPanel";
 import { Card, CardBody, CardHeader, CardTitle, StatTile, Button } from "@gio4x/ui";
 import {
   Coins,
@@ -140,9 +141,12 @@ export default function IbDashboardPage() {
               <StatTile icon={<UserPlus size={16} />} label="New Clients" value="0" />
               <StatTile icon={<Users size={16} />} label="FTD Clients" value="0" />
             </div>
-            <div className="rounded-xl border border-slate-100 bg-white p-3">
-              <div className="mb-1 px-2 text-xs font-medium text-steel">Rebate</div>
-              <PerformanceChart />
+            <div className="flex flex-col gap-4">
+              <div className="rounded-xl border border-slate-100 bg-white p-3">
+                <div className="mb-1 px-2 text-xs font-medium text-steel">Rebate</div>
+                <PerformanceChart />
+              </div>
+              <IbGrowthPanel />
             </div>
           </div>
         </CardBody>
