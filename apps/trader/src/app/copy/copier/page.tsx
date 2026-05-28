@@ -55,7 +55,7 @@ export default function CopierPage() {
   const totalPnl = following.reduce((s, f) => s + f.pnl, 0);
 
   return (
-    <Shell title="STAR Copy · Copier">
+    <Shell title="GIO4X Copy · Copier">
       <PageHeader
         title="My Copy Trading"
         subtitle="Manage providers you follow and their allocation."

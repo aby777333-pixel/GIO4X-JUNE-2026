@@ -44,7 +44,7 @@ export default function DiscoverPage() {
   });
 
   return (
-    <Shell title="STAR Copy · Discover">
+    <Shell title="GIO4X Copy · Discover">
       <PageHeader
         title="Discover Strategies"
         subtitle="Browse vetted signal providers and copy their trades to your account."

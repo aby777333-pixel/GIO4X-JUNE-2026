@@ -9,7 +9,7 @@ import { Bot, Star, TrendingUp, Zap } from "lucide-react";
 
 const products = [
   {
-    name: "STAR Index — Conservative",
+    name: "GIO4X Index — Conservative",
     risk: "Low",
     target: "8–12% / yr",
     drawdown: "≤ 4%",
@@ -17,7 +17,7 @@ const products = [
     blurb: "Multi-asset basket weighted toward investment-grade carry trades. Monthly rebalance.",
   },
   {
-    name: "STAR Macro — Balanced",
+    name: "GIO4X Macro — Balanced",
     risk: "Medium",
     target: "15–22% / yr",
     drawdown: "≤ 10%",
@@ -26,7 +26,7 @@ const products = [
     badge: "Most popular",
   },
   {
-    name: "STAR Momentum — Aggressive",
+    name: "GIO4X Momentum — Aggressive",
     risk: "High",
     target: "30%+ / yr",
     drawdown: "≤ 25%",
@@ -34,7 +34,7 @@ const products = [
     blurb: "Trend-following on indices and crypto with leverage. Designed for risk-on environments.",
   },
   {
-    name: "STAR AI — GIO Bots",
+    name: "GIO4X AI — GIO Bots",
     risk: "Medium",
     target: "18–28% / yr",
     drawdown: "≤ 15%",
@@ -44,11 +44,11 @@ const products = [
   },
 ];
 
-export default function StarTradingPage() {
+export default function Gio4xTradingPage() {
   return (
-    <Shell title="STAR Trading">
+    <Shell title="GIO4X Trading">
       <PageHeader
-        title="STAR Trading"
+        title="GIO4X Trading"
         subtitle="GIO4X-curated structured strategies. One-click subscribe — we handle execution."
       />
 

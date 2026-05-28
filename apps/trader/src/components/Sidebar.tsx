@@ -77,9 +77,9 @@ const clientNavMain: NavItem[] = [
       { label: "Payment methods", href: "/bank-accounts" },
     ],
   },
-  { label: "STAR Trading", href: "/star-trading", icon: Star, badge: "NEW" },
+  { label: "GIO4X Trading", href: "/gio4x-trading", icon: Star, badge: "NEW" },
   {
-    label: "STAR Copy",
+    label: "GIO4X Copy",
     icon: Users,
     badge: "NEW",
     children: [
@@ -102,7 +102,7 @@ const clientNavSecondary: NavItem[] = [
       { label: "CopyTrade", href: "/tools/copytrade" },
       { label: "WebTrader 4", href: "/tools/webtrader4" },
       { label: "WebTrader 5", href: "/tools/webtrader5" },
-      { label: "Star Matrix", href: "/tools/star-matrix" },
+      { label: "GIO4X Matrix", href: "/tools/gio4x-matrix" },
       { label: "Notional Calculator", href: "/tools/notional-calc" },
     ],
   },

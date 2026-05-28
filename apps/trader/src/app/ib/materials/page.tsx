@@ -19,7 +19,7 @@ const sections = [
     items: [
       { name: "IB partnership deck", size: "4.4 MB", type: "PDF" },
       { name: "Trading conditions sheet", size: "640 KB", type: "PDF" },
-      { name: "STAR Copy explainer", size: "1.1 MB", type: "PDF" },
+      { name: "GIO4X Copy explainer", size: "1.1 MB", type: "PDF" },
       { name: "Account types comparison", size: "320 KB", type: "PDF" },
     ],
   },

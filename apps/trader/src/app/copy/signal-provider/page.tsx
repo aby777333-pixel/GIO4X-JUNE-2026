@@ -7,7 +7,7 @@ import { Award, DollarSign, Star, TrendingUp, Users } from "lucide-react";
 
 export default function SignalProviderPage() {
   return (
-    <Shell title="STAR Copy · Signal Provider">
+    <Shell title="GIO4X Copy · Signal Provider">
       <PageHeader
         title="Become a Signal Provider"
         subtitle="Share your strategy with the GIO4X network and earn a share of follower performance fees."
