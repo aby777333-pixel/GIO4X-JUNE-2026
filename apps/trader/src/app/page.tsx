@@ -4,18 +4,9 @@ import { PromoBanner } from "@/components/PromoBanner";
 import { MarketsTable } from "@/components/MarketsTable";
 import { Card, CardBody, CardHeader, CardTitle } from "@gio4x/ui";
 import { ArrowDownToLine, ArrowUpFromLine, ArrowLeftRight, History, ChevronDown } from "lucide-react";
-
-type TradingAccount = {
-  id: string;
-  balance: string;
-  currency: string;
-  plan: string;
-};
-
-const accounts: TradingAccount[] = [
-  { id: "18433282", balance: "0.02", currency: "USC", plan: "Cent Swap-Free STP" },
-  { id: "15624153", balance: "—", currency: "—", plan: "Swap-Free STP" },
-];
+import { getCurrentUser } from "@/lib/session";
+import { getSupabaseServer } from "@/lib/supabase-server";
+import { loadWalletRollup } from "@/lib/wallet-actions";
 
 const assetActions = [
   { label: "Deposit", href: "/deposits", icon: ArrowDownToLine, primary: true },
@@ -24,7 +15,44 @@ const assetActions = [
   { label: "History", href: "/funds/history", icon: History, primary: false },
 ];
 
-export default function ClientHomePage() {
+const fmt = (n: number) =>
+  new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+
+// Demo fallback when no user is signed in (Netlify AUTH_ENFORCE=false visitor mode).
+const demoAccounts = [
+  { id: "demo-1", number: "18433282", balance: 0.02, currency: "USC", plan: "Cent Swap-Free STP" },
+  { id: "demo-2", number: "15624153", balance: 0, currency: "USD", plan: "Swap-Free STP" },
+];
+
+export default async function ClientHomePage() {
+  const user = await getCurrentUser();
+
+  let totalUsd = 0;
+  let accounts = demoAccounts;
+
+  if (user) {
+    const supabase = getSupabaseServer();
+    const [{ totalUsdEstimate }, accountRows] = await Promise.all([
+      loadWalletRollup(),
+      supabase
+        .from("trading_accounts")
+        .select("id, account_number, balance, base_currency, plan_name, status")
+        .order("created_at", { ascending: false })
+        .limit(3),
+    ]);
+    totalUsd = totalUsdEstimate;
+    accounts = (accountRows.data ?? []).map((a) => ({
+      id: a.id,
+      number: a.account_number,
+      balance: Number(a.balance ?? 0),
+      currency: a.base_currency,
+      plan: a.plan_name,
+    }));
+    if (accounts.length === 0) {
+      accounts = [];
+    }
+  }
+
   return (
     <Shell title="Home">
       <PromoBanner />
@@ -36,7 +64,7 @@ export default function ClientHomePage() {
               <CardTitle>Total assets estimate</CardTitle>
               <span
                 className="flex h-4 w-4 items-center justify-center rounded-full bg-slate-100 text-[10px] text-steel"
-                title="Estimated USD equivalent across all accounts"
+                title="Estimated USD equivalent across all wallets"
               >
                 ?
               </span>
@@ -44,10 +72,10 @@ export default function ClientHomePage() {
           </CardHeader>
           <CardBody>
             <div className="flex items-end gap-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-[10px] text-white">
                 $
               </span>
-              <span className="text-3xl font-bold text-navy">0.00</span>
+              <span className="text-3xl font-bold text-navy">{fmt(totalUsd)}</span>
               <button className="flex items-center gap-1 pb-1 text-sm text-steel">
                 USD <ChevronDown size={14} />
               </button>
@@ -71,6 +99,15 @@ export default function ClientHomePage() {
                 );
               })}
             </div>
+            {!user ? (
+              <div className="mt-4 rounded-lg border border-sky/20 bg-sky/5 px-3 py-2 text-[11px] text-navy">
+                You&apos;re browsing as a visitor.{" "}
+                <Link href="/auth/login" className="font-semibold text-sky hover:underline">
+                  Sign in
+                </Link>{" "}
+                to see your real wallet and accounts.
+              </div>
+            ) : null}
           </CardBody>
         </Card>
 
@@ -82,28 +119,42 @@ export default function ClientHomePage() {
             </Link>
           </CardHeader>
           <CardBody>
-            <ul className="space-y-3">
-              {accounts.map((acc) => (
-                <li
-                  key={acc.id}
-                  className="flex items-center justify-between rounded-xl border border-slate-100 px-4 py-3"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="rounded-md bg-sky/10 px-1.5 py-0.5 text-[10px] font-bold uppercase text-sky">
-                      Raptor
-                    </span>
-                    <span className="text-sm font-medium text-navy">{acc.id}</span>
-                  </div>
-                  <div className="flex items-center gap-5 text-xs">
-                    <div className="text-right">
-                      <div className="font-semibold text-navy">{acc.balance}</div>
-                      <div className="text-[10px] uppercase text-steel-light">{acc.currency}</div>
+            {accounts.length === 0 ? (
+              <div className="rounded-lg border border-dashed border-slate-200 px-4 py-6 text-center text-sm text-steel">
+                You don&apos;t have any trading accounts yet.
+                <div className="mt-2">
+                  <Link
+                    href="/accounts/demo"
+                    className="inline-flex rounded-lg bg-sky px-3 py-1.5 text-xs font-semibold text-white"
+                  >
+                    Create a demo account
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <ul className="space-y-3">
+                {accounts.map((acc) => (
+                  <li
+                    key={acc.id}
+                    className="flex items-center justify-between rounded-xl border border-slate-100 px-4 py-3"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="rounded-md bg-sky/10 px-1.5 py-0.5 text-[10px] font-bold uppercase text-sky">
+                        Raptor
+                      </span>
+                      <span className="text-sm font-medium text-navy">{acc.number}</span>
                     </div>
-                    <div className="hidden text-right text-steel sm:block">{acc.plan}</div>
-                  </div>
-                </li>
-              ))}
-            </ul>
+                    <div className="flex items-center gap-5 text-xs">
+                      <div className="text-right">
+                        <div className="font-semibold text-navy">{fmt(acc.balance)}</div>
+                        <div className="text-[10px] uppercase text-steel-light">{acc.currency}</div>
+                      </div>
+                      <div className="hidden text-right text-steel sm:block">{acc.plan}</div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </CardBody>
         </Card>
       </div>

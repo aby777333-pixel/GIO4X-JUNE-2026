@@ -1,0 +1,78 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { getSupabaseServer } from "./supabase-server";
+import { requireUser } from "./session";
+import type { Enums } from "@gio4x/supabase";
+
+export type ActionResult =
+  | { ok: true; message?: string; id?: string }
+  | { ok: false; error: string };
+
+// Record a kyc_documents row after the browser uploads the file directly
+// to Supabase Storage at `<userId>/<docType>/<filename>`.
+export async function recordKycDocument(input: {
+  docType: Enums<"kyc_doc_type">;
+  storagePath: string;
+  fileName: string;
+  fileSizeBytes: number;
+  mimeType: string;
+}): Promise<ActionResult> {
+  const user = await requireUser().catch(() => null);
+  if (!user) return { ok: false, error: "Not signed in." };
+
+  // Sanity: the storage path must begin with the user's UUID
+  if (!input.storagePath.startsWith(`${user.id}/`)) {
+    return { ok: false, error: "Invalid storage path." };
+  }
+
+  const supabase = getSupabaseServer();
+  const { data, error } = await supabase
+    .from("kyc_documents")
+    .insert({
+      user_id: user.id,
+      doc_type: input.docType,
+      storage_path: input.storagePath,
+      file_name: input.fileName,
+      file_size_bytes: input.fileSizeBytes,
+      mime_type: input.mimeType,
+      status: "pending",
+    })
+    .select("id")
+    .single();
+
+  if (error) return { ok: false, error: error.message };
+
+  // mark the profile kyc_status as in_progress on first document
+  await supabase
+    .from("profiles")
+    .update({ kyc_status: "in_progress" })
+    .eq("id", user.id)
+    .eq("kyc_status", "not_started");
+
+  revalidatePath("/verification");
+  revalidatePath("/");
+  return { ok: true, message: "Document submitted for review.", id: data.id };
+}
+
+export async function deleteKycDocument(docId: string): Promise<ActionResult> {
+  const user = await requireUser().catch(() => null);
+  if (!user) return { ok: false, error: "Not signed in." };
+
+  const supabase = getSupabaseServer();
+  const { data: doc } = await supabase
+    .from("kyc_documents")
+    .select("user_id, status, storage_path")
+    .eq("id", docId)
+    .maybeSingle();
+  if (!doc || doc.user_id !== user.id) return { ok: false, error: "Document not found." };
+  if (doc.status !== "pending")
+    return { ok: false, error: "Only pending documents can be removed." };
+
+  await supabase.storage.from("kyc-documents").remove([doc.storage_path]);
+  const { error } = await supabase.from("kyc_documents").delete().eq("id", docId);
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/verification");
+  return { ok: true, message: "Removed." };
+}

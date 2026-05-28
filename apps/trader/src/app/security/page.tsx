@@ -1,24 +1,54 @@
+import Link from "next/link";
 import { Shell } from "@/components/Shell";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Card, CardBody, CardHeader, CardTitle, Button } from "@gio4x/ui";
-import { Fingerprint, Key, KeyRound, Laptop, ShieldCheck, Smartphone } from "lucide-react";
+import { Fingerprint, KeyRound, ShieldCheck, Smartphone } from "lucide-react";
+import { getCurrentUser } from "@/lib/session";
+import { getSupabaseServer } from "@/lib/supabase-server";
+import { DeviceSessionRow, type SessionRow } from "./session-row";
 
-const sessions = [
-  { id: 1, device: "Chrome on Windows 11 — Vellore, IN", current: true, lastSeen: "Now" },
-  { id: 2, device: "iPhone 15 Pro · Safari — Vellore, IN", current: false, lastSeen: "2 hours ago" },
-  { id: 3, device: "GIO Raptor for Android — Chennai, IN", current: false, lastSeen: "Yesterday" },
-];
+export default async function SecurityPage() {
+  const user = await getCurrentUser();
 
-const apiKeys = [
-  { id: 1, name: "Algo bot — production", created: "2026-04-12", lastUsed: "5 min ago", scopes: ["read", "trade"] },
-  { id: 2, name: "Tax export — TurboTax", created: "2026-01-04", lastUsed: "Apr 2026", scopes: ["read"] },
-];
+  let sessions: SessionRow[] = [];
+  if (user) {
+    const supabase = getSupabaseServer();
+    const { data } = await supabase
+      .from("device_sessions")
+      .select("id, device_label, user_agent, ip_address, last_seen_at, revoked_at")
+      .eq("user_id", user.id)
+      .order("last_seen_at", { ascending: false })
+      .limit(20);
+    sessions = ((data ?? []) as Array<{
+      id: string;
+      device_label: string | null;
+      user_agent: string | null;
+      ip_address: unknown;
+      last_seen_at: string;
+      revoked_at: string | null;
+    }>).map((s) => ({
+      id: s.id,
+      device_label: s.device_label,
+      user_agent: s.user_agent,
+      ip_address: s.ip_address == null ? null : String(s.ip_address),
+      last_seen_at: s.last_seen_at,
+      revoked_at: s.revoked_at,
+    }));
+  }
 
-export default function SecurityPage() {
   return (
     <Shell title="Security">
       <PageHeader title="Security" subtitle="Sign-in, 2FA, sessions, API keys." />
+
+      {!user ? (
+        <div className="mb-4 rounded-lg border border-dashed border-slate-200 px-4 py-3 text-xs text-steel">
+          <Link href="/auth/login?redirect=/security" className="font-medium text-sky hover:underline">
+            Sign in
+          </Link>{" "}
+          to manage security settings.
+        </div>
+      ) : null}
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
@@ -31,10 +61,15 @@ export default function SecurityPage() {
                 <KeyRound size={18} className="mt-0.5 text-sky" />
                 <div>
                   <div className="text-sm font-medium text-navy">Password</div>
-                  <div className="text-[11px] text-steel">Last changed 24 days ago</div>
+                  <div className="text-[11px] text-steel">Managed through GIO4X auth.</div>
                 </div>
               </div>
-              <Button variant="ghost" className="border border-slate-200 !text-xs">Change</Button>
+              <Link
+                href="/auth/forgot"
+                className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-navy"
+              >
+                Reset
+              </Link>
             </div>
             <div className="flex items-start justify-between gap-3 rounded-lg border border-slate-100 p-3">
               <div className="flex items-start gap-3">
@@ -42,12 +77,16 @@ export default function SecurityPage() {
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-navy">Authenticator app (2FA)</span>
-                    <StatusBadge tone="success">Enabled</StatusBadge>
+                    <StatusBadge tone="neutral">Coming soon</StatusBadge>
                   </div>
-                  <div className="text-[11px] text-steel">Google Authenticator · last used Now</div>
+                  <div className="text-[11px] text-steel">
+                    TOTP enrollment will land in the next security update.
+                  </div>
                 </div>
               </div>
-              <Button variant="ghost" className="border border-slate-200 !text-xs">Reconfigure</Button>
+              <Button variant="ghost" className="border border-slate-200 !text-xs" disabled>
+                Configure
+              </Button>
             </div>
             <div className="flex items-start justify-between gap-3 rounded-lg border border-slate-100 p-3">
               <div className="flex items-start gap-3">
@@ -57,17 +96,23 @@ export default function SecurityPage() {
                     <span className="text-sm font-medium text-navy">Biometric / Passkey</span>
                     <StatusBadge tone="neutral">Off</StatusBadge>
                   </div>
-                  <div className="text-[11px] text-steel">Sign in with Face ID, Touch ID, or Windows Hello</div>
+                  <div className="text-[11px] text-steel">
+                    Sign in with Face ID, Touch ID, or Windows Hello.
+                  </div>
                 </div>
               </div>
-              <Button variant="primary" className="!text-xs">Enable</Button>
+              <Button variant="primary" className="!text-xs" disabled>
+                Enable
+              </Button>
             </div>
             <div className="flex items-start justify-between gap-3 rounded-lg border border-slate-100 p-3">
               <div className="flex items-start gap-3">
                 <ShieldCheck size={18} className="mt-0.5 text-sky" />
                 <div>
                   <div className="text-sm font-medium text-navy">Withdrawal 2FA</div>
-                  <div className="text-[11px] text-steel">Always require a second factor for withdrawals</div>
+                  <div className="text-[11px] text-steel">
+                    Always require a second factor for live withdrawals.
+                  </div>
                 </div>
               </div>
               <StatusBadge tone="success">On</StatusBadge>
@@ -78,49 +123,18 @@ export default function SecurityPage() {
         <Card>
           <CardHeader>
             <CardTitle>Active sessions</CardTitle>
-            <button className="text-xs font-medium text-rose-600 hover:underline">Sign out all others</button>
           </CardHeader>
           <CardBody className="space-y-2">
-            {sessions.map((s) => (
-              <div key={s.id} className="flex items-center justify-between rounded-lg border border-slate-100 p-3 text-sm">
-                <div className="flex items-center gap-3">
-                  <Laptop size={16} className="text-steel" />
-                  <div>
-                    <div className="text-navy">{s.device}</div>
-                    <div className="text-[11px] text-steel">{s.lastSeen}</div>
-                  </div>
-                </div>
-                {s.current ? <StatusBadge tone="success">This session</StatusBadge> : <button className="text-xs text-rose-600 hover:underline">Sign out</button>}
+            {sessions.length === 0 ? (
+              <div className="rounded-lg border border-dashed border-slate-200 px-3 py-8 text-center text-xs text-steel">
+                No device sessions on record.
               </div>
-            ))}
+            ) : (
+              sessions.map((s) => <DeviceSessionRow key={s.id} s={s} />)
+            )}
           </CardBody>
         </Card>
       </div>
-
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle>API keys</CardTitle>
-          <Button variant="primary" className="!text-xs">
-            <Key size={12} className="mr-1" /> Generate new key
-          </Button>
-        </CardHeader>
-        <CardBody className="space-y-2">
-          {apiKeys.map((k) => (
-            <div key={k.id} className="flex items-center justify-between rounded-lg border border-slate-100 p-3 text-sm">
-              <div>
-                <div className="font-medium text-navy">{k.name}</div>
-                <div className="text-[11px] text-steel">
-                  Created {k.created} · Last used {k.lastUsed} · Scopes:{" "}
-                  {k.scopes.map((s) => (
-                    <span key={s} className="ml-1 inline-block rounded bg-slate-100 px-1.5 text-[10px] text-steel">{s}</span>
-                  ))}
-                </div>
-              </div>
-              <button className="text-xs text-rose-600 hover:underline">Revoke</button>
-            </div>
-          ))}
-        </CardBody>
-      </Card>
     </Shell>
   );
 }

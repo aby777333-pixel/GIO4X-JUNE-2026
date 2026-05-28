@@ -1,38 +1,88 @@
 import Link from "next/link";
 import { Shell } from "@/components/Shell";
 import { PageHeader } from "@/components/PageHeader";
-import { Card, CardBody, CardHeader, CardTitle, Button } from "@gio4x/ui";
+import { Card, CardBody, CardHeader, CardTitle } from "@gio4x/ui";
 import { DataTable, type Column } from "@/components/DataTable";
 import { StatusBadge } from "@/components/StatusBadge";
 import { LINKS } from "@/lib/constants";
-import { BookOpen, HelpCircle, Mail, MessageCircle, Phone, Plus } from "lucide-react";
+import { BookOpen, HelpCircle, Mail, MessageCircle, Phone } from "lucide-react";
+import { getCurrentUser } from "@/lib/session";
+import { getSupabaseServer } from "@/lib/supabase-server";
+import { NewTicketForm } from "./new-ticket-form";
 
-type Ticket = { id: number; ref: string; subject: string; updated: string; status: "open" | "in-progress" | "resolved" };
+type TicketRow = {
+  id: string;
+  ticket_ref: string;
+  subject: string;
+  status: "open" | "in_progress" | "waiting_customer" | "resolved" | "closed";
+  updated_at: string;
+};
 
-const tickets: Ticket[] = [
-  { id: 1, ref: "T-22411", subject: "Withdrawal pending more than 24h", updated: "3 hours ago", status: "in-progress" },
-  { id: 2, ref: "T-22388", subject: "Cannot login to GIO Raptor account 15624153", updated: "Yesterday", status: "resolved" },
-  { id: 3, ref: "T-22270", subject: "Change registered email address", updated: "1 week ago", status: "resolved" },
+const cols: Column<TicketRow>[] = [
+  {
+    key: "ticket_ref",
+    header: "Ref",
+    render: (r) => <span className="font-mono text-[11px] text-steel">{r.ticket_ref}</span>,
+  },
+  {
+    key: "subject",
+    header: "Subject",
+    render: (r) => (
+      <Link href={`/support/${r.id}`} className="text-navy hover:text-sky">
+        {r.subject}
+      </Link>
+    ),
+  },
+  {
+    key: "updated_at",
+    header: "Updated",
+    render: (r) => (
+      <span className="text-steel">{new Date(r.updated_at).toLocaleDateString()}</span>
+    ),
+  },
+  {
+    key: "status",
+    header: "Status",
+    render: (r) => (
+      <StatusBadge
+        tone={
+          r.status === "resolved" || r.status === "closed"
+            ? "success"
+            : r.status === "in_progress"
+            ? "info"
+            : r.status === "waiting_customer"
+            ? "warning"
+            : "warning"
+        }
+      >
+        {r.status.replace("_", " ")}
+      </StatusBadge>
+    ),
+  },
 ];
 
-const cols: Column<Ticket>[] = [
-  { key: "ref", header: "Ref", render: (r) => <span className="font-mono text-[11px] text-steel">{r.ref}</span> },
-  { key: "subject", header: "Subject", render: (r) => <Link href={`/support/${r.id}`} className="text-navy hover:text-sky">{r.subject}</Link> },
-  { key: "updated", header: "Updated", render: (r) => <span className="text-steel">{r.updated}</span> },
-  { key: "status", header: "Status", render: (r) => <StatusBadge tone={r.status === "resolved" ? "success" : r.status === "in-progress" ? "info" : "warning"}>{r.status}</StatusBadge> },
-];
+export default async function SupportPage() {
+  const user = await getCurrentUser();
+  const signedIn = !!user;
 
-export default function SupportPage() {
+  let tickets: TicketRow[] = [];
+  if (user) {
+    const supabase = getSupabaseServer();
+    const { data } = await supabase
+      .from("support_tickets")
+      .select("id, ticket_ref, subject, status, updated_at")
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false })
+      .limit(50);
+    tickets = (data ?? []) as TicketRow[];
+  }
+
   return (
     <Shell title="Support">
       <PageHeader
         title="Help & Support"
         subtitle="Search the help centre, talk to us live, or open a ticket."
-        actions={
-          <Button variant="primary">
-            <Plus size={14} className="mr-1" /> New ticket
-          </Button>
-        }
+        actions={<NewTicketForm signedIn={signedIn} />}
       />
 
       <div className="mb-6 grid gap-4 md:grid-cols-4">
@@ -63,7 +113,20 @@ export default function SupportPage() {
           <CardTitle>Your tickets</CardTitle>
         </CardHeader>
         <CardBody className="px-0 pt-2">
-          <DataTable columns={cols} rows={tickets} />
+          {!signedIn ? (
+            <div className="px-5 py-8 text-center text-sm text-steel">
+              <Link href="/auth/login?redirect=/support" className="font-medium text-sky hover:underline">
+                Sign in
+              </Link>{" "}
+              to view and open tickets.
+            </div>
+          ) : tickets.length === 0 ? (
+            <div className="px-5 py-8 text-center text-sm text-steel">
+              You haven&apos;t opened any tickets yet.
+            </div>
+          ) : (
+            <DataTable columns={cols} rows={tickets} />
+          )}
         </CardBody>
       </Card>
 

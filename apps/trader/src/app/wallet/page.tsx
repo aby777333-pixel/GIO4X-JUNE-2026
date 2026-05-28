@@ -14,65 +14,101 @@ import {
   TrendingUp,
   Coins,
 } from "lucide-react";
+import { getCurrentUser } from "@/lib/session";
+import { getSupabaseServer } from "@/lib/supabase-server";
 
-type Tx = {
-  id: number;
+type TxRow = {
+  id: string;
   date: string;
-  type: "Deposit" | "Withdrawal" | "Transfer" | "Rebate";
-  account: string;
+  type: string;
   amount: number;
   currency: string;
   method: string;
-  status: "completed" | "pending" | "failed";
+  status: string;
 };
 
-const recent: Tx[] = [
-  { id: 1, date: "2026-05-28 04:21", type: "Deposit", account: "12044510", amount: 500, currency: "USD", method: "Visa ****4421", status: "completed" },
-  { id: 2, date: "2026-05-27 18:55", type: "Rebate", account: "Wallet", amount: 12.4, currency: "USD", method: "IB rebate", status: "completed" },
-  { id: 3, date: "2026-05-26 12:08", type: "Transfer", account: "12044510 → Wallet", amount: 200, currency: "USD", method: "Internal", status: "completed" },
-  { id: 4, date: "2026-05-25 09:14", type: "Withdrawal", account: "Wallet", amount: 150, currency: "USD", method: "USDT TRC20", status: "pending" },
-  { id: 5, date: "2026-05-22 14:00", type: "Deposit", account: "15624153", amount: 1000, currency: "USD", method: "Bank Transfer", status: "completed" },
-];
+const toneFor = (s: string): StatusTone =>
+  s === "completed" ? "success" : s === "pending" || s === "processing" ? "warning" : "danger";
 
-const toneFor: Record<Tx["status"], StatusTone> = {
-  completed: "success",
-  pending: "warning",
-  failed: "danger",
-};
-
-const cols: Column<Tx>[] = [
+const cols: Column<TxRow>[] = [
   { key: "date", header: "Date", render: (r) => <span className="text-steel">{r.date}</span> },
-  {
-    key: "type",
-    header: "Type",
-    render: (r) => <span className="font-medium text-navy">{r.type}</span>,
-  },
-  { key: "account", header: "Account", render: (r) => <span className="text-steel">{r.account}</span> },
+  { key: "type", header: "Type", render: (r) => <span className="font-medium text-navy capitalize">{r.type.replace("_", " ")}</span> },
   { key: "method", header: "Method", render: (r) => <span className="text-steel">{r.method}</span> },
   {
     key: "amount",
     header: "Amount",
     align: "right",
-    render: (r) => (
-      <span className={r.type === "Withdrawal" ? "text-danger" : "text-success font-medium"}>
-        {r.type === "Withdrawal" ? "-" : "+"}
-        {r.amount.toFixed(2)} {r.currency}
-      </span>
-    ),
+    render: (r) => {
+      const out = r.type.startsWith("withdraw") || r.type === "transfer_out" || r.type === "fee";
+      return (
+        <span className={out ? "text-danger" : "text-success font-medium"}>
+          {out ? "-" : "+"}{r.amount.toFixed(2)} {r.currency}
+        </span>
+      );
+    },
   },
-  {
-    key: "status",
-    header: "Status",
-    render: (r) => <StatusBadge tone={toneFor[r.status]}>{r.status}</StatusBadge>,
-  },
+  { key: "status", header: "Status", render: (r) => <StatusBadge tone={toneFor(r.status)}>{r.status}</StatusBadge> },
 ];
 
-export default function WalletPage() {
+const fmt = (n: number) =>
+  new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+
+export default async function WalletPage() {
+  const user = await getCurrentUser();
+  let walletBalance = 1232.4;
+  let walletCurrency = "USD";
+  let recent: TxRow[] = [];
+  let deposited30d = 0;
+  let withdrawn30d = 0;
+  let rebated30d = 0;
+
+  if (user) {
+    const supabase = getSupabaseServer();
+    const { data: mainWallet } = await supabase
+      .from("wallets")
+      .select("id, balance, currency")
+      .eq("user_id", user.id)
+      .eq("type", "main")
+      .maybeSingle();
+    if (mainWallet) {
+      walletBalance = Number(mainWallet.balance);
+      walletCurrency = mainWallet.currency;
+    }
+
+    const { data: txs } = await supabase
+      .from("wallet_transactions")
+      .select("id, type, amount, currency, status, gateway, created_at")
+      .order("created_at", { ascending: false })
+      .limit(10);
+    recent = (txs ?? []).map((t) => ({
+      id: t.id,
+      date: new Date(t.created_at).toISOString().slice(0, 16).replace("T", " "),
+      type: t.type,
+      amount: Number(t.amount),
+      currency: t.currency,
+      method: t.gateway ?? "—",
+      status: t.status,
+    }));
+
+    const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const { data: agg } = await supabase
+      .from("wallet_transactions")
+      .select("type, amount, status")
+      .gte("created_at", since)
+      .eq("status", "completed");
+    for (const t of agg ?? []) {
+      const amt = Number(t.amount);
+      if (t.type === "deposit") deposited30d += amt;
+      else if (t.type === "withdraw") withdrawn30d += amt;
+      else if (t.type === "rebate" || t.type === "commission") rebated30d += amt;
+    }
+  }
+
   return (
     <Shell title="Wallet">
       <PageHeader
         title="Wallet"
-        subtitle="Unified balance and transaction history across all your accounts."
+        subtitle={user ? "Unified balance and transaction history across all your accounts." : "Sign in to see your real wallet."}
         actions={
           <>
             <Link
@@ -104,10 +140,12 @@ export default function WalletPage() {
             <div className="relative">
               <div className="text-xs uppercase tracking-wider text-sky">Wallet Balance</div>
               <div className="mt-2 flex items-baseline gap-3">
-                <span className="text-4xl font-bold text-navy">1,232.40</span>
-                <span className="text-lg text-steel">USD</span>
+                <span className="text-4xl font-bold text-navy">{fmt(walletBalance)}</span>
+                <span className="text-lg text-steel">{walletCurrency}</span>
               </div>
-              <div className="mt-1 text-xs text-steel-light">≈ ₹ 1,02,569.20 · ≈ 0.0146 BTC</div>
+              <div className="mt-1 text-xs text-steel-light">
+                {user ? "Live balance — main wallet" : "Demo value — sign in for live data"}
+              </div>
               <div className="mt-6 flex gap-2">
                 <Link
                   href="/deposits"
@@ -128,40 +166,15 @@ export default function WalletPage() {
             <MetricGrid
               columns={3}
               metrics={[
-                { label: "Total deposited", value: "$2,150.00", icon: <ArrowDownToLine size={14} /> },
-                { label: "Total withdrawn", value: "$405.00", icon: <ArrowUpFromLine size={14} /> },
-                { label: "Total rebates", value: "$24.80", icon: <Coins size={14} /> },
+                { label: "Deposited (30D)", value: `$${fmt(deposited30d)}`, icon: <ArrowDownToLine size={14} /> },
+                { label: "Withdrawn (30D)", value: `$${fmt(withdrawn30d)}`, icon: <ArrowUpFromLine size={14} /> },
+                { label: "Rebates (30D)", value: `$${fmt(rebated30d)}`, icon: <Coins size={14} /> },
               ]}
             />
           </CardBody>
         </Card>
 
         <div className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>This month</CardTitle>
-            </CardHeader>
-            <CardBody>
-              <ul className="space-y-3 text-sm">
-                <li className="flex items-center justify-between">
-                  <span className="text-steel">Deposits</span>
-                  <span className="font-semibold text-navy">$1,500.00</span>
-                </li>
-                <li className="flex items-center justify-between">
-                  <span className="text-steel">Withdrawals</span>
-                  <span className="font-semibold text-navy">$150.00</span>
-                </li>
-                <li className="flex items-center justify-between">
-                  <span className="text-steel">Transfers</span>
-                  <span className="font-semibold text-navy">$200.00</span>
-                </li>
-                <li className="flex items-center justify-between border-t border-slate-100 pt-2">
-                  <span className="text-steel">Net flow</span>
-                  <span className="font-semibold text-success">+$1,150.00</span>
-                </li>
-              </ul>
-            </CardBody>
-          </Card>
           <Card>
             <CardHeader>
               <CardTitle>Quick actions</CardTitle>
@@ -192,7 +205,13 @@ export default function WalletPage() {
           </Link>
         </CardHeader>
         <CardBody className="px-0 pt-2">
-          <DataTable columns={cols} rows={recent} />
+          {recent.length === 0 ? (
+            <div className="px-6 py-10 text-center text-sm text-steel">
+              {user ? "No transactions yet. Try a deposit." : "Sign in to see your real transactions."}
+            </div>
+          ) : (
+            <DataTable columns={cols} rows={recent} />
+          )}
         </CardBody>
       </Card>
     </Shell>

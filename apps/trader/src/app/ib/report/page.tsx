@@ -1,79 +1,151 @@
-"use client";
-
-import { useState } from "react";
+import Link from "next/link";
 import { Shell } from "@/components/Shell";
 import { PageHeader } from "@/components/PageHeader";
-import { ChipFilter } from "@/components/ChipFilter";
 import { MetricGrid } from "@/components/MetricGrid";
 import { DataTable, type Column } from "@/components/DataTable";
-import { PerformanceChart } from "@/components/PerformanceChart";
 import { Card, CardBody, CardHeader, CardTitle } from "@gio4x/ui";
-import { Coins, Download, TrendingUp, Users } from "lucide-react";
+import { Coins, TrendingUp, Users } from "lucide-react";
+import { getCurrentUser } from "@/lib/session";
+import { getSupabaseServer } from "@/lib/supabase-server";
 
-type Row = { id: number; date: string; clients: number; lots: number; volume: number; commission: number };
+type DayRow = {
+  date: string;
+  clients: number;
+  lots: number;
+  commission: number;
+};
 
-const days: Row[] = [
-  { id: 1, date: "2026-05-28", clients: 4, lots: 12.4, volume: 1240000, commission: 12.4 },
-  { id: 2, date: "2026-05-27", clients: 3, lots: 8.2, volume: 820000, commission: 8.2 },
-  { id: 3, date: "2026-05-26", clients: 5, lots: 18.6, volume: 1860000, commission: 18.6 },
-  { id: 4, date: "2026-05-25", clients: 2, lots: 4.4, volume: 440000, commission: 4.4 },
-  { id: 5, date: "2026-05-24", clients: 4, lots: 9.6, volume: 960000, commission: 9.6 },
-];
+type LedgerRow = {
+  id: string;
+  created_at: string;
+  source_user_id: string;
+  amount: number;
+  lots: number;
+  currency: string;
+  settled: boolean;
+};
 
-const cols: Column<Row>[] = [
+function aggregateByDay(rows: LedgerRow[]): DayRow[] {
+  const map = new Map<string, DayRow>();
+  for (const r of rows) {
+    const d = r.created_at.slice(0, 10);
+    const cur = map.get(d) ?? { date: d, clients: 0, lots: 0, commission: 0 };
+    cur.lots += Number(r.lots ?? 0);
+    cur.commission += Number(r.amount ?? 0);
+    map.set(d, cur);
+  }
+  // clients = distinct source_user_id per day
+  const seenPerDay = new Map<string, Set<string>>();
+  for (const r of rows) {
+    const d = r.created_at.slice(0, 10);
+    let s = seenPerDay.get(d);
+    if (!s) {
+      s = new Set();
+      seenPerDay.set(d, s);
+    }
+    s.add(r.source_user_id);
+  }
+  for (const [d, set] of seenPerDay) {
+    const cur = map.get(d);
+    if (cur) cur.clients = set.size;
+  }
+  return [...map.values()].sort((a, b) => b.date.localeCompare(a.date));
+}
+
+const cols: Column<DayRow>[] = [
   { key: "date", header: "Date", render: (r) => <span className="font-medium text-navy">{r.date}</span> },
-  { key: "clients", header: "Active clients", align: "right", render: (r) => <span className="text-navy">{r.clients}</span> },
-  { key: "lots", header: "Lots", align: "right", render: (r) => <span className="text-navy">{r.lots.toFixed(2)}</span> },
-  { key: "volume", header: "Volume (USD)", align: "right", render: (r) => <span className="text-steel">${r.volume.toLocaleString()}</span> },
-  { key: "commission", header: "Commission", align: "right", render: (r) => <span className="font-semibold text-success">+${r.commission.toFixed(2)}</span> },
+  {
+    key: "clients",
+    header: "Active clients",
+    align: "right",
+    render: (r) => <span className="text-navy">{r.clients}</span>,
+  },
+  {
+    key: "lots",
+    header: "Lots",
+    align: "right",
+    render: (r) => <span className="text-navy">{r.lots.toFixed(2)}</span>,
+  },
+  {
+    key: "commission",
+    header: "Commission",
+    align: "right",
+    render: (r) => <span className="font-semibold text-success">+${r.commission.toFixed(2)}</span>,
+  },
 ];
 
-const range = ["7D", "30D", "90D", "YTD"] as const;
+export default async function IbReportPage() {
+  const user = await getCurrentUser();
 
-export default function IbReportPage() {
-  const [r, setR] = useState<(typeof range)[number]>("30D");
-  const total = days.reduce((s, d) => s + d.commission, 0);
+  let ledger: LedgerRow[] = [];
+  if (user) {
+    const supabase = getSupabaseServer();
+    const since = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
+    const { data } = await supabase
+      .from("commission_ledger")
+      .select("id, created_at, source_user_id, amount, lots, currency, settled")
+      .eq("ib_user_id", user.id)
+      .gte("created_at", since)
+      .order("created_at", { ascending: false })
+      .limit(1000);
+    ledger = (data ?? []) as LedgerRow[];
+  }
+
+  const days = aggregateByDay(ledger);
+  const totalCommission = ledger.reduce((s, r) => s + Number(r.amount ?? 0), 0);
+  const totalLots = ledger.reduce((s, r) => s + Number(r.lots ?? 0), 0);
+  const uniqueClients = new Set(ledger.map((r) => r.source_user_id)).size;
 
   return (
     <Shell title="IB Report">
-      <PageHeader
-        title="IB Report"
-        subtitle="Day-by-day breakdown of clients, volume, and commission."
-        actions={
-          <>
-            <ChipFilter options={range} value={r} onChange={setR} />
-            <button className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-navy hover:border-sky/40">
-              <Download size={14} /> Export
-            </button>
-          </>
-        }
-      />
+      <PageHeader title="IB Report" subtitle="Day-by-day breakdown of clients, volume, and commission." />
+
+      {!user ? (
+        <div className="mb-4 rounded-lg border border-dashed border-slate-200 px-4 py-3 text-xs text-steel">
+          <Link href="/auth/login?redirect=/ib/report" className="font-medium text-sky hover:underline">
+            Sign in
+          </Link>{" "}
+          to see your IB report.
+        </div>
+      ) : null}
 
       <MetricGrid
         columns={4}
         metrics={[
-          { label: "Total commission (period)", value: `$${total.toFixed(2)}`, icon: <Coins size={14} />, deltaDirection: "up", delta: "+14% vs prev period" },
-          { label: "Total volume", value: `$${days.reduce((s, d) => s + d.volume, 0).toLocaleString()}`, icon: <TrendingUp size={14} /> },
-          { label: "Active clients", value: String(Math.max(...days.map((d) => d.clients))), icon: <Users size={14} /> },
-          { label: "Avg commission / lot", value: `$${(total / days.reduce((s, d) => s + d.lots, 0)).toFixed(2)}` },
+          {
+            label: "Total commission (90D)",
+            value: `$${totalCommission.toFixed(2)}`,
+            icon: <Coins size={14} />,
+          },
+          {
+            label: "Total lots",
+            value: totalLots.toFixed(2),
+            icon: <TrendingUp size={14} />,
+          },
+          {
+            label: "Active clients",
+            value: String(uniqueClients),
+            icon: <Users size={14} />,
+          },
+          {
+            label: "Avg commission / lot",
+            value: totalLots > 0 ? `$${(totalCommission / totalLots).toFixed(2)}` : "—",
+          },
         ]}
       />
-
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle>Commission trend</CardTitle>
-        </CardHeader>
-        <CardBody>
-          <PerformanceChart />
-        </CardBody>
-      </Card>
 
       <Card className="mt-6">
         <CardHeader>
           <CardTitle>Daily breakdown</CardTitle>
         </CardHeader>
         <CardBody className="px-0 pt-2">
-          <DataTable columns={cols} rows={days} />
+          {days.length === 0 ? (
+            <div className="px-5 py-8 text-center text-sm text-steel">
+              No commission entries in the last 90 days.
+            </div>
+          ) : (
+            <DataTable columns={cols} rows={days.map((d, i) => ({ ...d, id: i }))} />
+          )}
         </CardBody>
       </Card>
     </Shell>
