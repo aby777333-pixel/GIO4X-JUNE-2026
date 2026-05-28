@@ -20,7 +20,6 @@ import {
 
 type Account = {
   id: string;
-  platform: "MT4" | "MT5";
   type: string;
   currency: string;
   balance: number;
@@ -33,7 +32,6 @@ type Account = {
 const accounts: Account[] = [
   {
     id: "18433282",
-    platform: "MT5",
     type: "Cent Swap-Free STP",
     currency: "USC",
     balance: 0.02,
@@ -44,7 +42,6 @@ const accounts: Account[] = [
   },
   {
     id: "15624153",
-    platform: "MT5",
     type: "Swap-Free STP",
     currency: "USD",
     balance: 0,
@@ -55,7 +52,6 @@ const accounts: Account[] = [
   },
   {
     id: "12044510",
-    platform: "MT4",
     type: "Classic",
     currency: "USD",
     balance: 1480.5,
@@ -66,7 +62,6 @@ const accounts: Account[] = [
   },
   {
     id: "99001122",
-    platform: "MT5",
     type: "Premium Demo",
     currency: "USD",
     balance: 10000,
@@ -139,7 +134,7 @@ export default function AccountsPage() {
                   </div>
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <AccountChip platform={acc.platform} />
+                      <AccountChip />
                       <span className="text-lg font-bold text-navy">{acc.id}</span>
                       <StatusBadge tone={acc.status === "live" ? "success" : acc.status === "demo" ? "info" : "neutral"}>
                         {acc.status.toUpperCase()}

@@ -7,15 +7,14 @@ import { ArrowDownToLine, ArrowUpFromLine, ArrowLeftRight, History, ChevronDown 
 
 type TradingAccount = {
   id: string;
-  type: "MT4" | "MT5";
   balance: string;
   currency: string;
   plan: string;
 };
 
 const accounts: TradingAccount[] = [
-  { id: "18433282", type: "MT5", balance: "0.02", currency: "USC", plan: "Cent Swap free STP" },
-  { id: "15624153", type: "MT5", balance: "—", currency: "—", plan: "Swap free STP" },
+  { id: "18433282", balance: "0.02", currency: "USC", plan: "Cent Swap-Free STP" },
+  { id: "15624153", balance: "—", currency: "—", plan: "Swap-Free STP" },
 ];
 
 const assetActions = [
@@ -91,7 +90,7 @@ export default function ClientHomePage() {
                 >
                   <div className="flex items-center gap-3">
                     <span className="rounded-md bg-sky/10 px-1.5 py-0.5 text-[10px] font-bold uppercase text-sky">
-                      {acc.type}
+                      Raptor
                     </span>
                     <span className="text-sm font-medium text-navy">{acc.id}</span>
                   </div>

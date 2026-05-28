@@ -6,7 +6,6 @@ export function Card({ children, className }: { children: ReactNode; className?:
     <div
       className={cn(
         "rounded-glass border border-slate-200/70 bg-white shadow-sm",
-        "dark:border-white/5 dark:bg-white/[0.03]",
         className,
       )}
     >

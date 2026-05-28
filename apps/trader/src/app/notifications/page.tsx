@@ -23,7 +23,7 @@ const all: Notif[] = [
   { id: 3, type: "kyc", title: "Selfie verification in review", body: "We'll notify you within 10 minutes.", time: "2 hours ago", unread: false },
   { id: 4, type: "promo", title: "Trade & Win — 8 days left", body: "You're 12 lots away from the Top 10 in May.", time: "Yesterday", unread: false },
   { id: 5, type: "ib", title: "New client signed up", body: "LOGUPRABHU T joined under your IB code (UID 24819714).", time: "Yesterday", unread: false },
-  { id: 6, type: "system", title: "Maintenance — Sunday 2 AM IST", body: "MT5 servers will be unavailable for ~10 minutes.", time: "2 days ago", unread: false },
+  { id: 6, type: "system", title: "Maintenance — Sunday 2 AM IST", body: "GIO Raptor servers will be unavailable for ~10 minutes.", time: "2 days ago", unread: false },
 ];
 
 const iconFor = {

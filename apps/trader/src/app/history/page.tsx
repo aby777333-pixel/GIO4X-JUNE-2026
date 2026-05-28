@@ -90,9 +90,9 @@ export default function HistoryPage() {
             <div className="flex gap-2 text-xs">
               <select className="rounded-md border border-slate-200 px-2 py-1">
                 <option>All accounts</option>
-                <option>12044510 (MT4)</option>
-                <option>15624153 (MT5)</option>
-                <option>18433282 (MT5 Cent)</option>
+                <option>12044510 (Classic)</option>
+                <option>15624153 (Swap-Free STP)</option>
+                <option>18433282 (Cent)</option>
               </select>
               <select className="rounded-md border border-slate-200 px-2 py-1">
                 <option>All symbols</option>

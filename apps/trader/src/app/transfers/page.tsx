@@ -8,9 +8,9 @@ import { ArrowLeftRight, ArrowRight } from "lucide-react";
 
 const sources = [
   { id: "wallet", label: "Wallet", balance: 1232.4, currency: "USD" },
-  { id: "12044510", label: "12044510 · MT4 · Classic", balance: 1480.5, currency: "USD" },
-  { id: "15624153", label: "15624153 · MT5 · Swap-Free STP", balance: 0, currency: "USD" },
-  { id: "18433282", label: "18433282 · MT5 · Cent", balance: 0.02, currency: "USC" },
+  { id: "12044510", label: "12044510 · Classic", balance: 1480.5, currency: "USD" },
+  { id: "15624153", label: "15624153 · Swap-Free STP", balance: 0, currency: "USD" },
+  { id: "18433282", label: "18433282 · Cent", balance: 0.02, currency: "USC" },
 ];
 
 export default function TransfersPage() {

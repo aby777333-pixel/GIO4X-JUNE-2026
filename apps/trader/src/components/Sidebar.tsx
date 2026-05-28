@@ -100,8 +100,6 @@ const clientNavSecondary: NavItem[] = [
     icon: Wrench,
     children: [
       { label: "CopyTrade", href: "/tools/copytrade" },
-      { label: "WebTrader 4", href: "/tools/webtrader4" },
-      { label: "WebTrader 5", href: "/tools/webtrader5" },
       { label: "GIO4X Matrix", href: "/tools/gio4x-matrix" },
       { label: "Notional Calculator", href: "/tools/notional-calc" },
     ],

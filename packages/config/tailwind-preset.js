@@ -1,8 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 // Brand tokens cloned from GIO4X NEW so the new monorepo stays visually
 // continuous with the marketing site. Treat this file as the source of truth.
+// Light mode only — dark theme support intentionally removed.
 module.exports = {
-  darkMode: ["class", '[data-theme="dark"]'],
   theme: {
     extend: {
       colors: {

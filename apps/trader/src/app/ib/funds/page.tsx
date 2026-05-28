@@ -27,18 +27,21 @@ export default function IbFundsPage() {
 
       <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
         <Card className="overflow-hidden">
-          <div className="relative bg-gradient-to-br from-navy to-navy-dark p-7 text-white">
-            <div className="text-xs uppercase tracking-wider text-sky-light">Available rebate</div>
-            <div className="mt-2 flex items-end gap-2">
-              <span className="text-4xl font-bold">48.30</span>
-              <span className="text-lg text-white/70">USD</span>
-            </div>
-            <div className="mt-1 text-xs text-white/60">Total lifetime: $1,840.20 · This month: $48.30</div>
-            <div className="mt-5 flex gap-2">
-              <Button variant="primary">Withdraw Rebate</Button>
-              <button className="rounded-lg bg-white/10 px-4 py-2 text-xs font-medium text-white backdrop-blur hover:bg-white/20">
-                Transfer to Wallet
-              </button>
+          <div className="relative bg-gradient-to-br from-white via-sky/5 to-sky/15 p-7">
+            <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-sky/20 blur-3xl" />
+            <div className="relative">
+              <div className="text-xs uppercase tracking-wider text-sky">Available rebate</div>
+              <div className="mt-2 flex items-end gap-2">
+                <span className="text-4xl font-bold text-navy">48.30</span>
+                <span className="text-lg text-steel">USD</span>
+              </div>
+              <div className="mt-1 text-xs text-steel-light">Total lifetime: $1,840.20 · This month: $48.30</div>
+              <div className="mt-5 flex gap-2">
+                <Button variant="primary">Withdraw Rebate</Button>
+                <button className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-navy transition hover:border-sky/40">
+                  Transfer to Wallet
+                </button>
+              </div>
             </div>
           </div>
           <CardBody>

@@ -2,16 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Light mode only. Dark theme intentionally not supported in this build. */
 :root {
   --color-bg: #f6f8fb;
   --color-text: #0f172a;
   --sidebar-bg: #ffffff;
-}
-
-[data-theme="dark"] {
-  --color-bg: #0b1220;
-  --color-text: #e2e8f0;
-  --sidebar-bg: #0f172a;
+  color-scheme: light;
 }
 
 html,

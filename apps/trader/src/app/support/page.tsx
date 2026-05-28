@@ -11,7 +11,7 @@ type Ticket = { id: number; ref: string; subject: string; updated: string; statu
 
 const tickets: Ticket[] = [
   { id: 1, ref: "T-22411", subject: "Withdrawal pending more than 24h", updated: "3 hours ago", status: "in-progress" },
-  { id: 2, ref: "T-22388", subject: "Cannot login to MT5 account 15624153", updated: "Yesterday", status: "resolved" },
+  { id: 2, ref: "T-22388", subject: "Cannot login to GIO Raptor account 15624153", updated: "Yesterday", status: "resolved" },
   { id: 3, ref: "T-22270", subject: "Change registered email address", updated: "1 week ago", status: "resolved" },
 ];
 
@@ -76,7 +76,7 @@ export default function SupportPage() {
             {[
               "How long do withdrawals take?",
               "Why is my deposit pending?",
-              "Reset my MT4/MT5 account password",
+              "Reset my GIO Raptor account password",
               "How does the rebate calculation work?",
               "What documents are accepted for KYC?",
               "Switching account currency / leverage",

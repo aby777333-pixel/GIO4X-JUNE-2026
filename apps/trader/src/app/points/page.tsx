@@ -22,28 +22,28 @@ export default function PointsMallPage() {
     <Shell title="POINTS MALL">
       <PageHeader title="POINTS MALL" subtitle="Earn 1 point per traded lot. Redeem for credit, gear, and trading perks." />
 
-      <Card className="mb-6 overflow-hidden border-0">
-        <div className="relative bg-gradient-to-r from-navy via-navy-dark to-sky/30 px-8 py-7 text-white">
-          <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-sky/30 blur-3xl" />
+      <Card className="mb-6 overflow-hidden">
+        <div className="relative bg-gradient-to-r from-white via-sky/5 to-sky/15 px-8 py-7">
+          <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-sky/20 blur-3xl" />
           <div className="relative flex flex-wrap items-end justify-between gap-4">
             <div>
-              <div className="text-xs uppercase tracking-wider text-sky-light">Available Points</div>
+              <div className="text-xs uppercase tracking-wider text-sky">Available Points</div>
               <div className="mt-2 flex items-end gap-2">
-                <span className="text-5xl font-bold">{points.toLocaleString()}</span>
-                <span className="pb-2 text-sm text-white/70">pts</span>
+                <span className="text-5xl font-bold text-navy">{points.toLocaleString()}</span>
+                <span className="pb-2 text-sm text-steel">pts</span>
               </div>
-              <div className="mt-1 text-xs text-white/60">Lifetime earned: 24,820 · Redeemed: 12,340</div>
+              <div className="mt-1 text-xs text-steel-light">Lifetime earned: 24,820 · Redeemed: 12,340</div>
             </div>
             <div className="flex items-center gap-4">
-              <div className="rounded-xl bg-white/10 px-4 py-3 backdrop-blur">
-                <div className="text-[10px] uppercase text-white/70">Tier</div>
-                <div className="mt-1 flex items-center gap-1 text-sm font-bold">
-                  <Trophy size={14} /> Gold
+              <div className="rounded-xl border border-slate-200 bg-white/80 px-4 py-3 backdrop-blur">
+                <div className="text-[10px] uppercase text-steel">Tier</div>
+                <div className="mt-1 flex items-center gap-1 text-sm font-bold text-navy">
+                  <Trophy size={14} className="text-amber-500" /> Gold
                 </div>
               </div>
-              <div className="rounded-xl bg-white/10 px-4 py-3 backdrop-blur">
-                <div className="text-[10px] uppercase text-white/70">Next tier</div>
-                <div className="mt-1 text-sm font-bold">7,520 pts → Platinum</div>
+              <div className="rounded-xl border border-slate-200 bg-white/80 px-4 py-3 backdrop-blur">
+                <div className="text-[10px] uppercase text-steel">Next tier</div>
+                <div className="mt-1 text-sm font-bold text-navy">7,520 pts → Platinum</div>
               </div>
             </div>
           </div>

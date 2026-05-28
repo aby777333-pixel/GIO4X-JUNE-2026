@@ -99,26 +99,29 @@ export default function WalletPage() {
 
       <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
         <Card className="overflow-hidden">
-          <div className="relative bg-gradient-to-br from-navy via-navy-dark to-navy/80 px-8 py-7 text-white">
-            <div className="text-xs uppercase tracking-wider text-sky-light">Wallet Balance</div>
-            <div className="mt-2 flex items-baseline gap-3">
-              <span className="text-4xl font-bold">1,232.40</span>
-              <span className="text-lg text-white/70">USD</span>
-            </div>
-            <div className="mt-1 text-xs text-white/60">≈ ₹ 1,02,569.20 · ≈ 0.0146 BTC</div>
-            <div className="mt-6 flex gap-2">
-              <Link
-                href="/deposits"
-                className="rounded-lg bg-sky px-4 py-2 text-xs font-semibold transition hover:bg-sky-light"
-              >
-                Deposit Now
-              </Link>
-              <Link
-                href="/transfers"
-                className="rounded-lg bg-white/10 px-4 py-2 text-xs font-medium backdrop-blur hover:bg-white/20"
-              >
-                Transfer to Account
-              </Link>
+          <div className="relative bg-gradient-to-br from-white via-sky/5 to-sky/15 px-8 py-7">
+            <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-sky/20 blur-3xl" />
+            <div className="relative">
+              <div className="text-xs uppercase tracking-wider text-sky">Wallet Balance</div>
+              <div className="mt-2 flex items-baseline gap-3">
+                <span className="text-4xl font-bold text-navy">1,232.40</span>
+                <span className="text-lg text-steel">USD</span>
+              </div>
+              <div className="mt-1 text-xs text-steel-light">≈ ₹ 1,02,569.20 · ≈ 0.0146 BTC</div>
+              <div className="mt-6 flex gap-2">
+                <Link
+                  href="/deposits"
+                  className="rounded-lg bg-sky px-4 py-2 text-xs font-semibold text-white transition hover:bg-sky-light"
+                >
+                  Deposit Now
+                </Link>
+                <Link
+                  href="/transfers"
+                  className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-navy transition hover:border-sky/40"
+                >
+                  Transfer to Account
+                </Link>
+              </div>
             </div>
           </div>
           <CardBody className="!pt-5">

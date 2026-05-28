@@ -64,7 +64,7 @@ export default function WithdrawalsPage() {
             <label className="block text-xs font-medium text-steel">Withdraw from</label>
             <select className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm">
               <option>Wallet — $1,232.40 USD</option>
-              <option>12044510 — MT4 · $1,480.50 USD</option>
+              <option>12044510 — Classic · $1,480.50 USD</option>
             </select>
 
             <label className="mt-4 block text-xs font-medium text-steel">Amount</label>

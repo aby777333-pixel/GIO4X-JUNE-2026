@@ -25,8 +25,6 @@ export const LINKS = {
     terminal: `${RAPTOR_BASE}/terminal`,
     login: `${RAPTOR_BASE}/auth/login`,
     register: `${RAPTOR_BASE}/auth/register`,
-    webtrader4: `${RAPTOR_BASE}/terminal?platform=mt4`,
-    webtrader5: `${RAPTOR_BASE}/terminal?platform=mt5`,
   },
   support: {
     email: "support@gio4x.com",
@@ -44,7 +42,6 @@ export const LINKS = {
 } as const;
 
 export type AccountType = "Classic" | "Premium" | "ECN" | "Cent" | "Swap-Free STP";
-export type AccountPlatform = "MT4" | "MT5";
 
 export const ACCOUNT_TYPES: Array<{
   name: AccountType;

@@ -24,9 +24,9 @@ function CardDepositForm() {
         <CardBody>
           <label className="block text-xs font-medium text-steel">Account</label>
           <select className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm">
-            <option>12044510 — MT4 · Classic · USD</option>
-            <option>15624153 — MT5 · Swap-Free STP · USD</option>
-            <option>18433282 — MT5 · Cent · USC</option>
+            <option>12044510 — Classic · USD</option>
+            <option>15624153 — Swap-Free STP · USD</option>
+            <option>18433282 — Cent · USC</option>
           </select>
 
           <label className="mt-4 block text-xs font-medium text-steel">Amount (USD)</label>

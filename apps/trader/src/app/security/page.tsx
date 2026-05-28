@@ -7,7 +7,7 @@ import { Fingerprint, Key, KeyRound, Laptop, ShieldCheck, Smartphone } from "luc
 const sessions = [
   { id: 1, device: "Chrome on Windows 11 — Vellore, IN", current: true, lastSeen: "Now" },
   { id: 2, device: "iPhone 15 Pro · Safari — Vellore, IN", current: false, lastSeen: "2 hours ago" },
-  { id: 3, device: "MT5 Mobile · Android — Chennai, IN", current: false, lastSeen: "Yesterday" },
+  { id: 3, device: "GIO Raptor for Android — Chennai, IN", current: false, lastSeen: "Yesterday" },
 ];
 
 const apiKeys = [

@@ -6,19 +6,19 @@ import { Card, CardBody, CardHeader, CardTitle } from "@gio4x/ui";
 import { AccountChip } from "@/components/AccountChip";
 import { Download } from "lucide-react";
 
-type AcctRow = { id: number; account: string; platform: "MT4" | "MT5"; type: string; client: string; balance: number; volume30d: number; commission30d: number; status: "active" | "dormant" };
+type AcctRow = { id: number; account: string; type: string; client: string; balance: number; volume30d: number; commission30d: number; status: "active" | "dormant" };
 
 const rows: AcctRow[] = [
-  { id: 1, account: "24819714", platform: "MT5", type: "Premium", client: "LOGUPRABHU T", balance: 20920.62, volume30d: 480000, commission30d: 4.8, status: "active" },
-  { id: 2, account: "24819546", platform: "MT5", type: "Classic", client: "Arul B", balance: 20977.94, volume30d: 320000, commission30d: 3.2, status: "active" },
-  { id: 3, account: "24819533", platform: "MT4", type: "Cent", client: "Arul B", balance: 0, volume30d: 0, commission30d: 0, status: "dormant" },
-  { id: 4, account: "24813368", platform: "MT5", type: "ECN", client: "Arul B", balance: 31741.35, volume30d: 920000, commission30d: 9.2, status: "active" },
-  { id: 5, account: "22486049", platform: "MT4", type: "Classic", client: "BHUVANESWARI L", balance: 5104.21, volume30d: 240000, commission30d: 2.4, status: "active" },
+  { id: 1, account: "24819714", type: "Premium", client: "LOGUPRABHU T", balance: 20920.62, volume30d: 480000, commission30d: 4.8, status: "active" },
+  { id: 2, account: "24819546", type: "Classic", client: "Arul B", balance: 20977.94, volume30d: 320000, commission30d: 3.2, status: "active" },
+  { id: 3, account: "24819533", type: "Cent", client: "Arul B", balance: 0, volume30d: 0, commission30d: 0, status: "dormant" },
+  { id: 4, account: "24813368", type: "ECN", client: "Arul B", balance: 31741.35, volume30d: 920000, commission30d: 9.2, status: "active" },
+  { id: 5, account: "22486049", type: "Classic", client: "BHUVANESWARI L", balance: 5104.21, volume30d: 240000, commission30d: 2.4, status: "active" },
 ];
 
 const cols: Column<AcctRow>[] = [
   { key: "account", header: "Account", render: (r) => <span className="font-medium text-navy">{r.account}</span> },
-  { key: "platform", header: "Platform", render: (r) => <AccountChip platform={r.platform} type={r.type} /> },
+  { key: "platform", header: "Platform", render: (r) => <AccountChip type={r.type} /> },
   { key: "client", header: "Client", render: (r) => <span className="text-steel">{r.client}</span> },
   { key: "balance", header: "Balance", align: "right", render: (r) => <span className="text-navy">${r.balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span> },
   { key: "volume", header: "Volume 30D", align: "right", render: (r) => <span className="text-steel">${r.volume30d.toLocaleString()}</span> },
@@ -45,9 +45,12 @@ export default function IbAccountsPage() {
           <div className="flex gap-2 text-xs">
             <input type="search" placeholder="Search account or client" className="rounded-md border border-slate-200 px-2 py-1 w-64" />
             <select className="rounded-md border border-slate-200 px-2 py-1">
-              <option>All platforms</option>
-              <option>MT4</option>
-              <option>MT5</option>
+              <option>All account types</option>
+              <option>Classic</option>
+              <option>Premium</option>
+              <option>ECN</option>
+              <option>Cent</option>
+              <option>Swap-Free STP</option>
             </select>
             <select className="rounded-md border border-slate-200 px-2 py-1">
               <option>All status</option>

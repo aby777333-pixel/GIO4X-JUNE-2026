@@ -17,9 +17,14 @@ export default function DemoAccountPage() {
           <CardBody className="space-y-3">
             <div>
               <label className="block text-xs font-medium text-steel">Platform</label>
-              <div className="mt-2 grid grid-cols-2 gap-2">
-                <button className="rounded-lg border-2 border-sky bg-sky/5 px-3 py-3 text-sm font-medium text-navy">MetaTrader 5</button>
-                <button className="rounded-lg border border-slate-200 px-3 py-3 text-sm font-medium text-steel hover:border-sky/40">MetaTrader 4</button>
+              <div className="mt-2 grid grid-cols-1 gap-2">
+                <button className="flex items-center justify-between rounded-lg border-2 border-sky bg-sky/5 px-3 py-3 text-sm font-medium text-navy">
+                  <span>GIO Raptor</span>
+                  <span className="text-[10px] uppercase tracking-wider text-sky">Selected</span>
+                </button>
+              </div>
+              <div className="mt-1 text-[11px] text-steel-light">
+                One execution engine across web, desktop, and mobile.
               </div>
             </div>
             <div>

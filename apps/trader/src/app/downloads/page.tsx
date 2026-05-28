@@ -1,15 +1,22 @@
 import { Shell } from "@/components/Shell";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardBody, CardHeader, CardTitle } from "@gio4x/ui";
+import { LINKS } from "@/lib/constants";
 import { Apple, Globe, Monitor, Smartphone } from "lucide-react";
 
-const platforms = [
-  { name: "MetaTrader 4", icon: Monitor, downloads: ["Windows", "macOS", "Linux"], type: "Desktop" },
-  { name: "MetaTrader 5", icon: Monitor, downloads: ["Windows", "macOS", "Linux"], type: "Desktop" },
-  { name: "MT4 Mobile", icon: Smartphone, downloads: ["iOS", "Android"], type: "Mobile" },
-  { name: "MT5 Mobile", icon: Smartphone, downloads: ["iOS", "Android"], type: "Mobile" },
-  { name: "GIO Raptor Web", icon: Globe, downloads: ["Open in browser"], type: "Web", external: "https://dashing-hamster-0028ed.netlify.app/terminal" },
-  { name: "GIO4X iOS App", icon: Apple, downloads: ["App Store"], type: "Mobile" },
+type Platform = {
+  name: string;
+  icon: typeof Globe;
+  downloads: string[];
+  type: "Web" | "Desktop" | "Mobile";
+  external?: string;
+};
+
+const platforms: Platform[] = [
+  { name: "GIO Raptor Web", icon: Globe, downloads: ["Launch in browser"], type: "Web", external: LINKS.raptor.terminal },
+  { name: "GIO Raptor Desktop", icon: Monitor, downloads: ["Windows", "macOS", "Linux"], type: "Desktop" },
+  { name: "GIO Raptor for iOS", icon: Apple, downloads: ["App Store"], type: "Mobile" },
+  { name: "GIO Raptor for Android", icon: Smartphone, downloads: ["Google Play"], type: "Mobile" },
 ];
 
 const assets = [

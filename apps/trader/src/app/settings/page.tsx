@@ -2,34 +2,15 @@ import { Shell } from "@/components/Shell";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardBody, CardHeader, CardTitle } from "@gio4x/ui";
 
-const themes = ["System", "Light", "Dark"] as const;
-
 export default function SettingsPage() {
   return (
     <Shell title="Settings">
-      <PageHeader title="Settings" subtitle="Theme, language, time zone, and display preferences." />
+      <PageHeader title="Settings" subtitle="Language, time zone, and display preferences." />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader><CardTitle>Appearance</CardTitle></CardHeader>
           <CardBody className="space-y-3">
-            <div>
-              <label className="block text-xs font-medium text-steel">Theme</label>
-              <div className="mt-2 inline-flex rounded-lg border border-slate-200 bg-white p-0.5 text-xs">
-                {themes.map((t) => (
-                  <button
-                    key={t}
-                    className={
-                      t === "Light"
-                        ? "rounded-md bg-navy px-3 py-1.5 font-medium text-white"
-                        : "rounded-md px-3 py-1.5 font-medium text-steel hover:text-navy"
-                    }
-                  >
-                    {t}
-                  </button>
-                ))}
-              </div>
-            </div>
             <div>
               <label className="block text-xs font-medium text-steel">Density</label>
               <select className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm">
@@ -91,8 +72,8 @@ export default function SettingsPage() {
             <div>
               <label className="block text-xs font-medium text-steel">Default account for new trades</label>
               <select className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm">
-                <option>12044510 — MT4 Classic</option>
-                <option>15624153 — MT5 Swap-Free STP</option>
+                <option>12044510 — Classic</option>
+                <option>15624153 — Swap-Free STP</option>
                 <option>Ask each time</option>
               </select>
             </div>
