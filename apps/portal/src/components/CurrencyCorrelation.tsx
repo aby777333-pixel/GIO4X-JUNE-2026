@@ -1,11 +1,13 @@
+"use client";
+
 // Currency-pair correlation matrix — indicative 30-day rolling values for
 // major FX pairs + gold. Pure presentation, no runtime data fetch; values
 // are intentionally hardcoded "indicative" snapshots so the table renders
-// instantly server-side and survives offline / API-rate-limit conditions.
-// Swap to a live feed (TwelveData / EOD) by lifting `MATRIX` into a server
-// loader; the row/col axes stay the same.
+// instantly and survives offline / API-rate-limit conditions. Hover a pair
+// label (or click on touch devices) to dim everything except that pair's
+// row + column and highlight the pairs it correlates with most strongly.
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 
 export const CORRELATION_PAIRS = [
   "EUR/USD",
@@ -18,23 +20,18 @@ export const CORRELATION_PAIRS = [
   "XAU/USD",
 ] as const;
 
-// 8x8 matrix, symmetric, diagonal = 1. Values are widely-cited indicative
-// 30-day correlations among major pairs (see e.g. Mataf / OANDA correlation
-// tables). Adjust freely — the rendering doesn't care about the magnitudes.
+// 8x8 symmetric matrix, diagonal = 1.
 export const CORRELATION_MATRIX: number[][] = [
-  // EUR/USD  GBP/USD USD/JPY USD/CHF AUD/USD USD/CAD NZD/USD XAU/USD
-  [   1.00,    0.85,  -0.55,  -0.92,   0.75,  -0.55,   0.70,   0.40 ], // EUR/USD
-  [   0.85,    1.00,  -0.45,  -0.78,   0.70,  -0.50,   0.65,   0.35 ], // GBP/USD
-  [  -0.55,   -0.45,   1.00,   0.55,  -0.30,   0.45,  -0.25,  -0.40 ], // USD/JPY
-  [  -0.92,   -0.78,   0.55,   1.00,  -0.65,   0.60,  -0.60,  -0.45 ], // USD/CHF
-  [   0.75,    0.70,  -0.30,  -0.65,   1.00,  -0.55,   0.92,   0.65 ], // AUD/USD
-  [  -0.55,   -0.50,   0.45,   0.60,  -0.55,   1.00,  -0.55,  -0.30 ], // USD/CAD
-  [   0.70,    0.65,  -0.25,  -0.60,   0.92,  -0.55,   1.00,   0.55 ], // NZD/USD
-  [   0.40,    0.35,  -0.40,  -0.45,   0.65,  -0.30,   0.55,   1.00 ], // XAU/USD
+  [  1.00,  0.85, -0.55, -0.92,  0.75, -0.55,  0.70,  0.40 ],
+  [  0.85,  1.00, -0.45, -0.78,  0.70, -0.50,  0.65,  0.35 ],
+  [ -0.55, -0.45,  1.00,  0.55, -0.30,  0.45, -0.25, -0.40 ],
+  [ -0.92, -0.78,  0.55,  1.00, -0.65,  0.60, -0.60, -0.45 ],
+  [  0.75,  0.70, -0.30, -0.65,  1.00, -0.55,  0.92,  0.65 ],
+  [ -0.55, -0.50,  0.45,  0.60, -0.55,  1.00, -0.55, -0.30 ],
+  [  0.70,  0.65, -0.25, -0.60,  0.92, -0.55,  1.00,  0.55 ],
+  [  0.40,  0.35, -0.40, -0.45,  0.65, -0.30,  0.55,  1.00 ],
 ];
 
-// Map a correlation [-1, 1] into a Tailwind background + text tone.
-// Diagonal (== 1) gets a distinct navy treatment so the eye locks on it.
 function cellTone(v: number, isDiagonal: boolean): { bg: string; text: string } {
   if (isDiagonal) return { bg: "bg-navy", text: "text-white" };
   if (v >= 0.8)  return { bg: "bg-emerald-500/90",  text: "text-white" };
@@ -53,6 +50,24 @@ function fmt(v: number): string {
   return v > 0 ? `+${s}` : s;
 }
 
+// When `hovered` is set, decide how to style a header cell for `pair`.
+// The hovered pair itself stays bold/active; pairs strongly correlated to
+// it (|r| ≥ 0.6) get an accent ring; weak pairs fade.
+function headerHighlight(
+  pair: string,
+  hovered: string | null,
+  pairIndex: number,
+  hoveredIndex: number,
+): string {
+  if (!hovered) return "text-navy";
+  if (pair === hovered) return "text-sky font-bold underline decoration-sky decoration-2 underline-offset-4";
+  const r = Math.abs(CORRELATION_MATRIX[hoveredIndex][pairIndex]);
+  if (r >= 0.8) return "text-navy font-semibold";
+  if (r >= 0.6) return "text-navy";
+  if (r >= 0.3) return "text-steel";
+  return "text-steel-light";
+}
+
 function LegendChip({ swatch, label }: { swatch: string; label: ReactNode }) {
   return (
     <span className="inline-flex items-center gap-1.5">
@@ -63,6 +78,14 @@ function LegendChip({ swatch, label }: { swatch: string; label: ReactNode }) {
 }
 
 export function CurrencyCorrelation() {
+  const [hovered, setHovered] = useState<string | null>(null);
+  const hoveredIndex = hovered ? CORRELATION_PAIRS.indexOf(hovered as (typeof CORRELATION_PAIRS)[number]) : -1;
+
+  const hoverOn = (pair: string) => setHovered(pair);
+  const hoverOff = () => setHovered(null);
+  // Touch / keyboard parity: tapping or focusing a pair toggles it.
+  const togglePair = (pair: string) => setHovered((prev) => (prev === pair ? null : pair));
+
   return (
     <div className="space-y-3">
       <div className="flex items-start justify-between gap-3">
@@ -71,8 +94,8 @@ export function CurrencyCorrelation() {
           <div className="mt-0.5 text-base font-semibold text-navy">Pair correlation matrix</div>
           <div className="mt-1 text-[11px] text-steel">
             How major pairs and gold tend to move together. Values are{" "}
-            <span className="font-medium text-navy">indicative · 30-day rolling</span>; refresh on
-            major macro events.
+            <span className="font-medium text-navy">indicative · 30-day rolling</span>. Hover a pair
+            (tap on mobile) to dim the unrelated cells.
           </div>
         </div>
         <div className="hidden flex-wrap items-center justify-end gap-3 sm:flex">
@@ -84,51 +107,92 @@ export function CurrencyCorrelation() {
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto" onMouseLeave={hoverOff}>
         <table className="min-w-[640px] border-separate border-spacing-0 text-[11px]">
           <thead>
             <tr>
               <th className="sticky left-0 z-10 bg-white px-2 py-2 text-left text-steel">Pair</th>
-              {CORRELATION_PAIRS.map((p) => (
-                <th key={p} className="px-2 py-2 text-center font-semibold text-navy">
+              {CORRELATION_PAIRS.map((p, j) => (
+                <th
+                  key={p}
+                  scope="col"
+                  onMouseEnter={() => hoverOn(p)}
+                  onFocus={() => hoverOn(p)}
+                  onClick={() => togglePair(p)}
+                  tabIndex={0}
+                  className={`cursor-pointer select-none px-2 py-2 text-center font-semibold transition-colors ${headerHighlight(
+                    p, hovered, j, hoveredIndex,
+                  )}`}
+                >
                   {p}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {CORRELATION_MATRIX.map((row, i) => (
-              <tr key={CORRELATION_PAIRS[i]}>
-                <th
-                  scope="row"
-                  className="sticky left-0 z-10 bg-white px-2 py-1.5 text-left text-[11px] font-semibold text-navy"
-                >
-                  {CORRELATION_PAIRS[i]}
-                </th>
-                {row.map((v, j) => {
-                  const tone = cellTone(v, i === j);
-                  return (
-                    <td
-                      key={CORRELATION_PAIRS[j]}
-                      className={`px-2 py-1.5 text-center font-mono ${tone.bg} ${tone.text}`}
-                      title={`${CORRELATION_PAIRS[i]} vs ${CORRELATION_PAIRS[j]}: ${fmt(v)}`}
-                    >
-                      {fmt(v)}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
+            {CORRELATION_MATRIX.map((row, i) => {
+              const rowPair = CORRELATION_PAIRS[i];
+              const rowHovered = hovered === rowPair;
+              return (
+                <tr key={rowPair}>
+                  <th
+                    scope="row"
+                    onMouseEnter={() => hoverOn(rowPair)}
+                    onFocus={() => hoverOn(rowPair)}
+                    onClick={() => togglePair(rowPair)}
+                    tabIndex={0}
+                    className={`sticky left-0 z-10 cursor-pointer select-none bg-white px-2 py-1.5 text-left text-[11px] font-semibold transition-colors ${headerHighlight(
+                      rowPair, hovered, i, hoveredIndex,
+                    )}`}
+                  >
+                    {rowPair}
+                  </th>
+                  {row.map((v, j) => {
+                    const colPair = CORRELATION_PAIRS[j];
+                    const tone = cellTone(v, i === j);
+                    const inHoveredRowOrCol = hovered !== null && (rowHovered || hovered === colPair);
+                    const dimmed = hovered !== null && !inHoveredRowOrCol;
+                    const intersection = hovered !== null && rowHovered && hovered === colPair;
+                    return (
+                      <td
+                        key={colPair}
+                        onMouseEnter={() => hoverOn(rowPair)}
+                        className={[
+                          "px-2 py-1.5 text-center font-mono transition-all",
+                          tone.bg,
+                          tone.text,
+                          dimmed ? "opacity-25" : "opacity-100",
+                          inHoveredRowOrCol ? "ring-1 ring-inset ring-navy/40" : "",
+                          intersection ? "outline outline-2 outline-sky" : "",
+                        ].join(" ")}
+                        title={`${rowPair} vs ${colPair}: ${fmt(v)}`}
+                      >
+                        {fmt(v)}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] text-steel-light">
         <span>
-          Read the table cell-by-cell: positive ⇒ the two pairs trend together; negative ⇒ they trend
-          opposite; near 0 ⇒ unrelated over the window.
+          {hovered ? (
+            <>
+              Highlighted: <span className="font-semibold text-navy">{hovered}</span>. Bright cells
+              ⇒ pairs it actually correlates with; faded cells ⇒ ignore for {hovered} sizing.
+            </>
+          ) : (
+            <>
+              Read cell-by-cell: positive ⇒ pairs trend together; negative ⇒ opposite; near 0 ⇒
+              unrelated over the window.
+            </>
+          )}
         </span>
-        <span className="sm:hidden flex flex-wrap gap-2">
+        <span className="flex flex-wrap gap-2 sm:hidden">
           <LegendChip swatch="bg-emerald-500/90" label="+0.8" />
           <LegendChip swatch="bg-slate-100" label="0" />
           <LegendChip swatch="bg-rose-500/90" label="-0.8" />
