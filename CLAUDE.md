@@ -63,15 +63,21 @@ npm run deploy:portal  # build → patch Windows paths → deploy to zippy-piros
 ```
 
 ### Netlify deploy notes — read before deploying
-- The Netlify sites are **NOT git-linked**. `git push` does NOT trigger a
-  deploy. Deploys happen via local CLI uploads (`netlify deploy --build --prod`).
-- On Windows, `@netlify/plugin-nextjs` writes Windows backslash paths into the
-  generated `___netlify-server-handler.mjs`. The Lambda runtime then 502s
-  every route with `Cannot find package 'ar\taskappsportal'` (the `\v` and
-  `\t` are escape-interpreted). Always run
-  `npm run patch:portal-handler` between build and deploy, and pass
-  `--no-build --skip-functions-cache` to deploy so the patched .mjs ships.
-  The combined `npm run deploy:portal` script does this end-to-end.
+- **Default path: `git push origin main`.** `apps/portal` deploys
+  automatically. Mechanism:
+    1. `.github/workflows/deploy-portal.yml` fires on push to main and POSTs
+       to a Netlify build hook (URL in repo secret `NETLIFY_PORTAL_BUILD_HOOK`).
+    2. Netlify clones the repo via SSH deploy key (added 2026-05-28; the
+       Netlify GitHub App is NOT installed for this org, so a key + the
+       Actions-driven webhook are what makes auto-deploy work).
+    3. Build runs on Linux containers — no Windows path bug.
+- **Fallback: manual local deploy from Windows** via `npm run deploy:portal`.
+  Only needed if Actions / Netlify build is broken and you must ship now.
+  This script runs `netlify build → node scripts/patch-netlify-handler-paths.mjs
+  → netlify deploy --prod --no-build --skip-functions-cache` because
+  `@netlify/plugin-nextjs` writes Windows backslash paths into the Lambda
+  handler when built on Windows (every route then 502s with
+  `Cannot find package 'ar\taskappsportal'`). The patcher rewrites to POSIX.
 
 ---
 

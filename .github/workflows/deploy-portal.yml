@@ -1,0 +1,41 @@
+# Triggers a Netlify production build of apps/portal on push to main.
+#
+# Why this exists: the Netlify site (zippy-piroshki-21aa30) is connected to
+# this repo via a deploy key — Netlify can CLONE the repo, but without the
+# Netlify GitHub App installed it can't subscribe to push webhooks itself.
+# This workflow fills that gap: on push to main, POST to the build hook
+# whose URL is stored in the NETLIFY_PORTAL_BUILD_HOOK repo secret. Netlify
+# then clones HEAD of main, runs `npm --workspace apps/portal run build`
+# on Linux (no Windows path bug), and publishes.
+#
+# Path filter: only fires for changes that could affect the portal build.
+# Adjust when shared packages or root configs change layout.
+
+name: Deploy portal to Netlify
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/portal/**'
+      - 'packages/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.base.json'
+      - 'netlify.toml'
+      - 'supabase/migrations/**'
+      - '.github/workflows/deploy-portal.yml'
+  workflow_dispatch: {}
+
+concurrency:
+  group: deploy-portal-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  trigger-netlify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fire Netlify build hook
+        run: |
+          curl --silent --show-error --fail-with-body \
+            -X POST "${{ secrets.NETLIFY_PORTAL_BUILD_HOOK }}?trigger_title=push%3A%20${GITHUB_SHA:0:7}"
