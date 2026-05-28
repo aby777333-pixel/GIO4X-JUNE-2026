@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-bg: #f6f8fb;
+  --color-text: #0f172a;
+  --sidebar-bg: #ffffff;
+}
+
+[data-theme="dark"] {
+  --color-bg: #0b1220;
+  --color-text: #e2e8f0;
+  --sidebar-bg: #0f172a;
+}
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: Inter, system-ui, sans-serif;
+}

@@ -1,0 +1,7 @@
+[build]
+  command = "npm --workspace apps/trader run build"
+  publish = "apps/trader/.next"
+  base = "."
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
