@@ -108,10 +108,24 @@ export function CurrencyCorrelation() {
       </div>
 
       <div className="overflow-x-auto" onMouseLeave={hoverOff}>
-        <table className="min-w-[640px] border-separate border-spacing-0 text-[11px]">
+        {/*
+          w-full + table-fixed makes the matrix occupy the full Card width on
+          desktop while giving every value cell the same column width (so the
+          grid reads as a true heatmap rather than auto-sized to the widest
+          number). min-w preserves the mobile horizontal-scroll fallback.
+        */}
+        <table className="w-full min-w-[720px] table-fixed border-separate border-spacing-0 text-xs">
+          <colgroup>
+            <col className="w-[88px]" />
+            {CORRELATION_PAIRS.map((p) => (
+              <col key={p} />
+            ))}
+          </colgroup>
           <thead>
             <tr>
-              <th className="sticky left-0 z-10 bg-white px-2 py-2 text-left text-steel">Pair</th>
+              <th className="sticky left-0 z-10 bg-white px-3 py-2.5 text-left text-[11px] uppercase tracking-wider text-steel">
+                Pair
+              </th>
               {CORRELATION_PAIRS.map((p, j) => (
                 <th
                   key={p}
@@ -120,7 +134,7 @@ export function CurrencyCorrelation() {
                   onFocus={() => hoverOn(p)}
                   onClick={() => togglePair(p)}
                   tabIndex={0}
-                  className={`cursor-pointer select-none px-2 py-2 text-center font-semibold transition-colors ${headerHighlight(
+                  className={`cursor-pointer select-none px-3 py-2.5 text-center font-semibold transition-colors ${headerHighlight(
                     p, hovered, j, hoveredIndex,
                   )}`}
                 >
@@ -141,7 +155,7 @@ export function CurrencyCorrelation() {
                     onFocus={() => hoverOn(rowPair)}
                     onClick={() => togglePair(rowPair)}
                     tabIndex={0}
-                    className={`sticky left-0 z-10 cursor-pointer select-none bg-white px-2 py-1.5 text-left text-[11px] font-semibold transition-colors ${headerHighlight(
+                    className={`sticky left-0 z-10 cursor-pointer select-none bg-white px-3 py-2.5 text-left text-xs font-semibold transition-colors ${headerHighlight(
                       rowPair, hovered, i, hoveredIndex,
                     )}`}
                   >
@@ -158,7 +172,7 @@ export function CurrencyCorrelation() {
                         key={colPair}
                         onMouseEnter={() => hoverOn(rowPair)}
                         className={[
-                          "px-2 py-1.5 text-center font-mono transition-all",
+                          "px-3 py-2.5 text-center font-mono text-xs transition-all",
                           tone.bg,
                           tone.text,
                           dimmed ? "opacity-25" : "opacity-100",
