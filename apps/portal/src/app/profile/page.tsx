@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { Shell } from "@/components/Shell";
 import { PageHeader } from "@/components/PageHeader";
-import { Card, CardBody, CardHeader, CardTitle, Button } from "@gio4x/ui";
+import { Card, CardBody, Button } from "@gio4x/ui";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Globe2, KeyRound, Mail, MapPin, Phone, ShieldCheck } from "lucide-react";
 import { getCurrentUser } from "@/lib/session";
-import { ProfileEditForm } from "./profile-edit-form";
+import { PersonalInfoCard } from "./personal-info-card";
 
 function initials(name: string | null | undefined): string {
   if (!name) return "G4";
@@ -85,53 +85,18 @@ export default async function ProfilePage() {
         </Card>
 
         <div className="space-y-6 lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Personal information</CardTitle>
-              <ProfileEditForm
-                initial={{
-                  full_name: p?.full_name ?? "",
-                  phone: p?.phone ?? null,
-                  country: p?.country ?? null,
-                  language: p?.language ?? "en",
-                  timezone: p?.timezone ?? "UTC",
-                  avatar_url: p?.avatar_url ?? null,
-                }}
-              />
-            </CardHeader>
-            <CardBody>
-              <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
-                <div>
-                  <dt className="text-[11px] uppercase tracking-wider text-steel-light">Full name</dt>
-                  <dd className="mt-0.5 text-navy">{fullName}</dd>
-                </div>
-                <div>
-                  <dt className="text-[11px] uppercase tracking-wider text-steel-light">Email</dt>
-                  <dd className="mt-0.5 text-navy">{user.email ?? "—"}</dd>
-                </div>
-                <div>
-                  <dt className="text-[11px] uppercase tracking-wider text-steel-light">Phone</dt>
-                  <dd className="mt-0.5 text-navy">{p?.phone ?? "—"}</dd>
-                </div>
-                <div>
-                  <dt className="text-[11px] uppercase tracking-wider text-steel-light">Country</dt>
-                  <dd className="mt-0.5 text-navy">{p?.country ?? "—"}</dd>
-                </div>
-                <div>
-                  <dt className="text-[11px] uppercase tracking-wider text-steel-light">Language</dt>
-                  <dd className="mt-0.5 text-navy">{p?.language ?? "en"}</dd>
-                </div>
-                <div>
-                  <dt className="text-[11px] uppercase tracking-wider text-steel-light">Timezone</dt>
-                  <dd className="mt-0.5 text-navy">{p?.timezone ?? "UTC"}</dd>
-                </div>
-                <div className="col-span-2">
-                  <dt className="text-[11px] uppercase tracking-wider text-steel-light">Referral code</dt>
-                  <dd className="mt-0.5 font-mono text-navy">{p?.referral_code ?? "—"}</dd>
-                </div>
-              </dl>
-            </CardBody>
-          </Card>
+          <PersonalInfoCard
+            data={{
+              full_name: fullName,
+              email: user.email,
+              phone: p?.phone ?? null,
+              country: p?.country ?? null,
+              language: p?.language ?? "en",
+              timezone: p?.timezone ?? "UTC",
+              avatar_url: p?.avatar_url ?? null,
+              referral_code: p?.referral_code ?? null,
+            }}
+          />
 
           <Card className="border-sky/20 bg-sky/5">
             <CardBody className="flex items-center gap-3">
