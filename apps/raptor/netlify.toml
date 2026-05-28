@@ -1,0 +1,21 @@
+# Per-app Netlify config for apps/raptor (GIORAPTOR trading terminal).
+# Use when this app gets its own Netlify site distinct from the portal:
+# point the site's build base at `apps/raptor`, and the build will run from here.
+#
+# Secrets are NEVER committed (CLAUDE.md hard rule #5). Set these in the
+# Netlify site's Environment tab before the first build:
+#   NEXT_PUBLIC_SUPABASE_URL
+#   NEXT_PUBLIC_SUPABASE_ANON_KEY
+#   NEXT_PUBLIC_SITE_URL
+#   NEXT_PUBLIC_TWELVEDATA_API_KEY
+#   TWELVEDATA_API_KEY
+#
+# The values previously hardcoded in the standalone Gioraptor repo are flagged
+# for rotation — do not reuse them as-is for any new deploy.
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

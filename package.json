@@ -7,8 +7,10 @@
     "packages/*"
   ],
   "scripts": {
-    "dev:trader": "npm --workspace apps/trader run dev",
-    "build:trader": "npm --workspace apps/trader run build",
+    "dev:portal": "npm --workspace apps/portal run dev",
+    "build:portal": "npm --workspace apps/portal run build",
+    "dev:raptor": "npm --workspace apps/raptor run dev",
+    "build:raptor": "npm --workspace apps/raptor run build",
     "lint": "npm --workspaces --if-present run lint",
     "typecheck": "npm --workspaces --if-present run typecheck"
   },

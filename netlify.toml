@@ -1,12 +1,12 @@
 # Root Netlify config for the GIO4X JUNE 2026 monorepo.
-# This file targets the Trader Area (apps/trader) — the first deployed app.
-# When other apps (website, crm, platform, dealer) get their own Netlify
+# This file targets the GIO4X client/IB portal (apps/portal) — the first
+# deployed app. When other apps (raptor, crm, dealer) get their own Netlify
 # sites, override `command` and `publish` via the Netlify dashboard or
 # per-app `netlify.toml` with `base = "apps/<name>"`.
 
 [build]
-  command = "npm --workspace apps/trader run build"
-  publish = "apps/trader/.next"
+  command = "npm --workspace apps/portal run build"
+  publish = "apps/portal/.next"
 
 [build.environment]
   NODE_VERSION = "20"

@@ -14,17 +14,21 @@ share UI, a typed Supabase client, and config. Brand: GIO4X navy/cyan,
 - **GitHub:** https://github.com/aby777333-pixel/GIO4X-JUNE-2026
 - **Local:** `C:\Users\GIO4X\Documents\GIO4x JUNE 2026`
 - **Supabase project:** `tdifcayznqnaduchzfqz`
-- **Netlify (trader, current):** https://zippy-piroshki-21aa30.netlify.app/
+- **Netlify (portal, current):** https://zippy-piroshki-21aa30.netlify.app/
 
 ### Layout — respect exactly, do not restructure
+
+Two brands, two roles. **GIO4X** is the client/IB portal (website + sign-in + KYC
++ account opening + IB views). **GIORAPTOR** is the trading terminal users
+enter *after* their formalities are done in the portal.
+
 ```
 apps/
-  trader/      Client + IB portal (Dashboard, Wallet, Deposits, Withdrawals,
-               Transfers, Copy Trading, PAMM, IB)        [IN PROGRESS — primary]
-  website/     Marketing site                             [PLANNED]
-  crm/         Internal CRM                               [PLANNED]
-  platform/    Raptor trading platform                   [PLANNED]
-  dealer/      Dealer console                            [PLANNED]
+  portal/      GIO4X client/IB portal (Dashboard, Wallet, Deposits, Withdrawals,
+               Transfers, Copy Trading, PAMM, IB, KYC, signup) [PRIMARY — in progress]
+  raptor/      GIORAPTOR trading terminal (charts + orders)    [IMPORTED — Next 16/React 19/TW4]
+  crm/         Internal CRM                                    [PLANNED]
+  dealer/      Dealer console                                  [PLANNED]
 packages/
   ui/          Shared React components on GIO4X brand tokens
   supabase/    Typed Supabase client + shared DB types
@@ -32,6 +36,12 @@ packages/
 supabase/
   migrations/  Consolidated SQL migrations for tdifcayznqnaduchzfqz
 ```
+
+Note: `apps/portal` runs Next 14 + React 18 + Tailwind 3. `apps/raptor` was
+imported from the standalone Gioraptor repo on its own stack (Next 16 + React 19
++ Tailwind 4) and is intentionally NOT yet wired into `packages/*`. Stack
+convergence is a future Phase D task — until then, treat the two apps as
+independent within the shared workspace.
 
 ---
 
@@ -46,7 +56,8 @@ supabase/
 ### Commands
 ```
 npm install            # root only — installs all workspace deps
-npm run dev:trader     # → http://localhost:3000
+npm run dev:portal     # GIO4X portal → http://localhost:3000
+npm run dev:raptor     # GIORAPTOR terminal → http://localhost:3001
 npm run build          # must pass for any app you touch, before any checkpoint
 ```
 
@@ -54,8 +65,8 @@ npm run build          # must pass for any app you touch, before any checkpoint
 
 ## 3. HARD RULES (non-negotiable)
 
-1. **Additive only.** Never break existing `apps/trader` routes, components, auth,
-   or schema. You extend; you do not replace.
+1. **Additive only.** Never break existing `apps/portal` or `apps/raptor` routes,
+   components, auth, or schema. You extend; you do not replace.
 2. **Migrations are immutable.** One timestamped migration per unit of work, with a
    rollback note in the header comment. Never edit a committed migration; write a new one.
 3. **Money is `NUMERIC`, never float.** All balance changes happen server-side via
@@ -84,12 +95,13 @@ and wait for an explicit "go." At every checkpoint, output:
 
 Phase order of record:
 - **A** — Audit & schema foundation (no UI)
-- **B** — Authentication suite (apps/trader)
-- **C** — Post-login onboarding & dashboard (apps/trader)
-- **D** — Connected modules (crm / platform / dealer / finance / marketing / security)
+- **B** — Authentication suite (apps/portal)
+- **C** — Post-login onboarding & dashboard (apps/portal)
+- **D** — Connected modules (apps/raptor stack convergence, crm, dealer, finance, marketing, security)
 
 The first action in any fresh session is to re-read this file and the current state
-of `apps/trader`, `packages/*`, and `supabase/migrations` before proposing changes.
+of `apps/portal`, `apps/raptor`, `packages/*`, and `supabase/migrations` before
+proposing changes.
 
 ---
 

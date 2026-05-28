@@ -6,11 +6,11 @@ Unified workspace for GIO4X. Monorepo of independently deployable Next.js apps t
 
 ```
 apps/
-  trader/              Client + IB portal (the "Trader Area" — Dashboard, Wallet,
-                       Deposits, Withdrawals, Transfers, Copy Trading, PAMM, IB)
-  website/             (planned) Marketing site — migrated from GIO4X NEW
-  crm/                 (planned) Internal CRM — migrated from GIOCRM
-  platform/            (planned) Raptor trading platform — migrated from RAPTOR PLATFORM
+  portal/              GIO4X client/IB portal (Dashboard, Wallet, Deposits,
+                       Withdrawals, Transfers, Copy Trading, PAMM, IB, KYC, signup)
+  raptor/              GIORAPTOR trading terminal (charts/orders) — clients enter
+                       here after KYC + account opening in portal
+  crm/                 (planned) Internal CRM — migrated from GIOCRM + RAPTOR MAIN CRM
   dealer/              (planned) Dealer console — migrated from RAPTOR DEALER
 
 packages/
@@ -32,18 +32,21 @@ supabase/
 
 ```bash
 npm install                  # installs all workspace deps
-npm run dev:trader           # starts the Trader Area on http://localhost:3000
+npm run dev:portal           # GIO4X portal on http://localhost:3000
+npm run dev:raptor           # GIORAPTOR terminal on http://localhost:3001
 ```
 
 ## Source projects being consolidated
 
-| Source path                                          | Migrated into        | Status            |
-|------------------------------------------------------|----------------------|-------------------|
-| `Documents/GIO4X NEW`                                | `apps/website`       | planned           |
-| `Documents/RAPTOR BRAND NEW/RAPTOR MAIN CRM`         | `apps/crm`           | planned           |
-| `Documents/RAPTOR BRAND NEW/RAPTOR PLATFORM`         | `apps/platform`      | planned           |
-| `Documents/RAPTOR BRAND NEW/RAPTOR DEALER`           | `apps/dealer`        | planned           |
-| `Documents/GIOCRM`                                   | merge into `apps/crm`| planned           |
-| (new) StarTrader-style Client/IB portal              | `apps/trader`        | in progress       |
+| Source path                                          | Migrated into                       | Status        |
+|------------------------------------------------------|-------------------------------------|---------------|
+| (new) StarTrader-style Client/IB portal              | `apps/portal`                       | shipped       |
+| `Documents/Gioraptor`                                | `apps/raptor`                       | shipped       |
+| `Documents/GIO4X NEW`                                | `apps/portal` public routes (TBD)   | planned       |
+| `Documents/RAPTOR BRAND NEW/RAPTOR MAIN CRM`         | `apps/crm`                          | planned       |
+| `Documents/GIOCRM`                                   | merge into `apps/crm`               | planned       |
+| `Documents/RAPTOR BRAND NEW/RAPTOR DEALER`           | `apps/dealer`                       | planned       |
 
 The source projects remain untouched — this workspace only copies what's needed.
+The standalone Gioraptor repo and its `dashing-hamster-0028ed.netlify.app` deploy
+stay live as the canonical terminal until `apps/raptor` reaches deploy parity.
