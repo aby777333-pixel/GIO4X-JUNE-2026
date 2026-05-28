@@ -12,11 +12,10 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.5"
-  }
+  // The Supabase MCP also emits an __InternalSupabase: { PostgrestVersion }
+  // marker. We omit it here because @supabase/ssr 0.5.x infers
+  // `SchemaName extends keyof Database` and that extra key throws off the
+  // narrowing, breaking .rpc() and .from() typing.
   public: {
     Tables: {
       announcements: {
@@ -916,9 +915,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_login_lockout: {
+        Args: {
+          p_email: string
+          p_max_attempts?: number
+          p_window_minutes?: number
+        }
+        Returns: boolean
+      }
       generate_referral_code: { Args: { p_user_id: string }; Returns: string }
-      is_admin: { Args: never; Returns: boolean }
-      is_staff: { Args: never; Returns: boolean }
+      is_admin: { Args: Record<string, never>; Returns: boolean }
+      is_staff: { Args: Record<string, never>; Returns: boolean }
       process_wallet_transaction: {
         Args: {
           p_amount: number
@@ -932,6 +939,19 @@ export type Database = {
           p_wallet_id: string
         }
         Returns: string
+      }
+      record_login_attempt: {
+        Args: {
+          p_country?: string
+          p_device_id?: string
+          p_email: string
+          p_failure_reason?: string
+          p_ip?: string
+          p_success: boolean
+          p_user_agent?: string
+          p_user_id?: string
+        }
+        Returns: undefined
       }
     }
     Enums: {

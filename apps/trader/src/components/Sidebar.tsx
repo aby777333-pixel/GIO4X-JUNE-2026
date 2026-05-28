@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useSession } from "@/lib/session-provider";
+import { signOut } from "@/lib/auth-actions";
 import {
   Home,
   ShieldCheck,
@@ -236,12 +238,21 @@ export function Sidebar() {
   const pathname = usePathname();
   const isIbRoute = pathname.startsWith("/ib");
   const [mode, setMode] = useState<"client" | "ib">(isIbRoute ? "ib" : "client");
+  const { userId, profile, email } = useSession();
 
   useEffect(() => {
     setMode(isIbRoute ? "ib" : "client");
   }, [isIbRoute]);
 
   const homeHref = mode === "ib" ? "/ib" : "/";
+  const displayName = profile?.full_name?.trim() || email?.split("@")[0] || "Guest";
+  const uidShort = userId ? userId.slice(0, 8) : "—";
+  const roleLabel = profile?.role ? profile.role.toUpperCase() : "VISITOR";
+  const initials = displayName
+    .split(/\s+/)
+    .map((p) => p[0]?.toUpperCase() ?? "")
+    .slice(0, 2)
+    .join("") || "G";
 
   return (
     <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white">
@@ -261,10 +272,14 @@ export function Sidebar() {
 
       <div className="px-5">
         <div className="flex items-center gap-3 rounded-xl bg-slate-50 px-3 py-2">
-          <div className="h-9 w-9 rounded-full bg-gradient-to-br from-sky to-navy" />
-          <div className="leading-tight">
-            <div className="text-sm font-semibold text-navy">Sankar G</div>
-            <div className="text-[11px] text-steel">UID: 1701808</div>
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-sky to-navy text-[11px] font-bold text-white">
+            {initials}
+          </div>
+          <div className="leading-tight min-w-0">
+            <div className="truncate text-sm font-semibold text-navy">{displayName}</div>
+            <div className="text-[11px] text-steel">
+              {userId ? `UID: ${uidShort} · ${roleLabel}` : "Not signed in"}
+            </div>
           </div>
         </div>
 
@@ -307,13 +322,15 @@ export function Sidebar() {
           </>
         )}
 
-        <button
-          type="button"
-          className="mt-4 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-steel transition hover:bg-slate-50 hover:text-danger"
-        >
-          <LogOut size={16} />
-          <span>Logout</span>
-        </button>
+        <form action={signOut} className="mt-4">
+          <button
+            type="submit"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-steel transition hover:bg-slate-50 hover:text-danger"
+          >
+            <LogOut size={16} />
+            <span>{userId ? "Logout" : "Sign in"}</span>
+          </button>
+        </form>
       </nav>
 
       <div className="border-t border-slate-100 px-5 py-3 text-[10px] text-steel-light">
