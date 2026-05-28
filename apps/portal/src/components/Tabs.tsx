@@ -5,8 +5,29 @@ import { cn } from "@gio4x/ui";
 
 export type Tab = { id: string; label: string; content: ReactNode };
 
-export function Tabs({ tabs, initial }: { tabs: Tab[]; initial?: string }) {
-  const [active, setActive] = useState(initial ?? tabs[0]?.id);
+/**
+ * Tabs — uncontrolled by default. Pass `value` + `onChange` together to make
+ * it controlled (e.g. when an external trigger like a method tile should
+ * change the active tab). `initial` is ignored in controlled mode.
+ */
+export function Tabs({
+  tabs,
+  initial,
+  value,
+  onChange,
+}: {
+  tabs: Tab[];
+  initial?: string;
+  value?: string;
+  onChange?: (id: string) => void;
+}) {
+  const isControlled = value !== undefined && typeof onChange === "function";
+  const [internal, setInternal] = useState(initial ?? tabs[0]?.id);
+  const active = isControlled ? value! : internal;
+  const setActive = (id: string) => {
+    if (isControlled) onChange!(id);
+    else setInternal(id);
+  };
   const current = tabs.find((t) => t.id === active);
   return (
     <div>
@@ -16,6 +37,7 @@ export function Tabs({ tabs, initial }: { tabs: Tab[]; initial?: string }) {
           return (
             <button
               key={t.id}
+              type="button"
               onClick={() => setActive(t.id)}
               className={cn(
                 "relative px-4 py-2.5 text-sm transition",

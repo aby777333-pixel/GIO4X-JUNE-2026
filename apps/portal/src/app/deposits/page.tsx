@@ -1,231 +1,110 @@
-"use client";
+// Deposits page — server component.
+// Loads the current session + the user's wallets + the DB-driven deposit
+// funding sources (bank accounts, crypto addresses) and hands them to the
+// interactive DepositsClient. Renders for signed-out visitors too (they see
+// the bank / crypto info but the submit buttons route to /auth/login).
 
-import { useState } from "react";
 import { Shell } from "@/components/Shell";
 import { PageHeader } from "@/components/PageHeader";
-import { Tabs } from "@/components/Tabs";
-import { Card, CardBody, CardHeader, CardTitle, Button } from "@gio4x/ui";
 import { DEPOSIT_METHODS } from "@/lib/constants";
-import { Banknote, Bitcoin, CreditCard, Shield, Smartphone, Wallet } from "lucide-react";
+import { getCurrentUser } from "@/lib/session";
+import { getSupabaseServer } from "@/lib/supabase-server";
+import {
+  DepositsClient,
+  type BankAccount,
+  type CryptoNetworkOption,
+  type DepositMethod,
+  type WalletOption,
+} from "./deposits-client";
 
-const iconFor: Record<string, React.ReactNode> = {
-  card: <CreditCard size={18} />,
-  bank: <Banknote size={18} />,
-  crypto: <Bitcoin size={18} />,
-  upi: <Smartphone size={18} />,
-  skrill: <Wallet size={18} />,
-};
+// Funding sources may change without a deploy (admin edits the tables); render
+// fresh on each request.
+export const dynamic = "force-dynamic";
 
-function CardDepositForm() {
-  const [amount, setAmount] = useState(100);
-  return (
-    <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
-      <Card>
-        <CardBody>
-          <label className="block text-xs font-medium text-steel">Account</label>
-          <select className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm">
-            <option>12044510 — Classic · USD</option>
-            <option>15624153 — Swap-Free STP · USD</option>
-            <option>18433282 — Cent · USC</option>
-          </select>
+export default async function DepositsPage() {
+  const user = await getCurrentUser();
+  const supabase = getSupabaseServer();
 
-          <label className="mt-4 block text-xs font-medium text-steel">Amount (USD)</label>
-          <div className="mt-1 flex items-center rounded-lg border border-slate-200 px-3 py-2">
-            <span className="mr-2 text-steel">$</span>
-            <input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
-              className="w-full bg-transparent text-sm outline-none"
-            />
-          </div>
-          <div className="mt-2 flex flex-wrap gap-1">
-            {[50, 100, 250, 500, 1000, 5000].map((v) => (
-              <button
-                key={v}
-                onClick={() => setAmount(v)}
-                className="rounded-md border border-slate-200 px-2 py-1 text-[11px] text-steel transition hover:border-sky/40 hover:text-navy"
-              >
-                ${v}
-              </button>
-            ))}
-          </div>
+  const [bankRes, cryptoRes, walletsRes] = await Promise.all([
+    supabase
+      .from("deposit_bank_accounts")
+      .select(
+        "id, region, label, beneficiary, bank, swift_code, iban, ifsc, account_number, reference_template, sort_order, is_active",
+      )
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true }),
+    supabase
+      .from("deposit_crypto_addresses")
+      .select(
+        "id, network, symbol, address, min_confirmations, min_amount_usd, sort_order, is_active",
+      )
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true }),
+    user
+      ? supabase
+          .from("wallets")
+          .select("id, wallet_id, currency, type, status")
+          .eq("user_id", user.id)
+          .eq("status", "active")
+          .order("created_at", { ascending: true })
+      : Promise.resolve({ data: [] as Array<{
+          id: string;
+          wallet_id: string;
+          currency: string;
+          type: string;
+          status: string;
+        }> }),
+  ]);
 
-          <label className="mt-4 block text-xs font-medium text-steel">Card details</label>
-          <div className="mt-1 space-y-2">
-            <input
-              placeholder="Card number"
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
-            />
-            <div className="grid grid-cols-2 gap-2">
-              <input placeholder="MM / YY" className="rounded-lg border border-slate-200 px-3 py-2 text-sm" />
-              <input placeholder="CVV" className="rounded-lg border border-slate-200 px-3 py-2 text-sm" />
-            </div>
-            <input placeholder="Cardholder name" className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" />
-          </div>
+  const wallets: WalletOption[] = (walletsRes.data ?? []).map((w) => ({
+    id: w.id,
+    label: `${w.wallet_id} — ${w.type} · ${w.currency}`,
+    currency: w.currency,
+    ref: w.wallet_id,
+  }));
 
-          <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
-            <div className="flex items-center gap-2 text-[11px] text-steel">
-              <Shield size={14} className="text-sky" /> 3-D Secure · PCI DSS Level 1
-            </div>
-            <Button variant="primary">Deposit ${amount.toLocaleString()}</Button>
-          </div>
-        </CardBody>
-      </Card>
+  const bankAccounts: BankAccount[] = (bankRes.data ?? []).map((r) => ({
+    id: r.id,
+    region: r.region,
+    label: r.label,
+    beneficiary: r.beneficiary,
+    bank: r.bank,
+    swift: r.swift_code,
+    iban: r.iban,
+    ifsc: r.ifsc,
+    account: r.account_number,
+    referenceTemplate: r.reference_template,
+  }));
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Summary</CardTitle>
-        </CardHeader>
-        <CardBody>
-          <ul className="space-y-3 text-sm">
-            <li className="flex items-center justify-between">
-              <span className="text-steel">Deposit amount</span>
-              <span className="font-medium text-navy">${amount.toLocaleString()}</span>
-            </li>
-            <li className="flex items-center justify-between">
-              <span className="text-steel">Fee</span>
-              <span className="font-medium text-success">$0.00</span>
-            </li>
-            <li className="flex items-center justify-between">
-              <span className="text-steel">Conversion</span>
-              <span className="font-medium text-navy">1:1</span>
-            </li>
-            <li className="flex items-center justify-between border-t border-slate-100 pt-2 text-base">
-              <span className="font-semibold text-navy">You will receive</span>
-              <span className="font-bold text-navy">${amount.toLocaleString()}</span>
-            </li>
-          </ul>
-          <div className="mt-4 rounded-lg bg-sky/5 px-3 py-2 text-[11px] text-navy">
-            Funds appear in your trading account within 1–2 minutes after card authorisation.
-          </div>
-        </CardBody>
-      </Card>
-    </div>
-  );
-}
+  const cryptoNetworks: CryptoNetworkOption[] = (cryptoRes.data ?? []).map((r) => ({
+    id: r.id,
+    network: r.network,
+    symbol: r.symbol,
+    address: r.address,
+    minConfirmations: r.min_confirmations,
+    minAmountUsd: Number(r.min_amount_usd),
+  }));
 
-function CryptoForm() {
-  return (
-    <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-      <Card>
-        <CardBody>
-          <label className="block text-xs font-medium text-steel">Network</label>
-          <div className="mt-2 grid grid-cols-3 gap-2">
-            {["USDT TRC20", "USDT ERC20", "BTC", "ETH", "USDC", "BNB"].map((n) => (
-              <button
-                key={n}
-                className="rounded-lg border border-slate-200 px-3 py-3 text-xs font-medium text-navy transition hover:border-sky/40"
-              >
-                {n}
-              </button>
-            ))}
-          </div>
+  const methods: DepositMethod[] = DEPOSIT_METHODS.map((m) => ({
+    id: m.id,
+    name: m.name,
+    fee: m.fee,
+    processing: m.processing,
+  }));
 
-          <label className="mt-5 block text-xs font-medium text-steel">Deposit address</label>
-          <div className="mt-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 font-mono text-xs text-navy">
-            TQn9Y2khEsLJW1ChVWFMSMeRDow5KcbLSE
-          </div>
-          <div className="mt-2 flex gap-2 text-[11px]">
-            <button className="rounded-md bg-sky/10 px-2 py-1 text-sky">Copy</button>
-            <button className="rounded-md bg-slate-100 px-2 py-1 text-steel">Show QR</button>
-          </div>
-
-          <div className="mt-5 rounded-lg bg-amber-50 px-3 py-2 text-[11px] text-amber-900">
-            Send only on the network selected above. Wrong-network deposits cannot be recovered.
-          </div>
-        </CardBody>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Live rate</CardTitle>
-        </CardHeader>
-        <CardBody>
-          <ul className="space-y-2 text-sm">
-            <li className="flex justify-between"><span className="text-steel">USDT/USD</span><span className="font-medium text-navy">1.0001</span></li>
-            <li className="flex justify-between"><span className="text-steel">BTC/USD</span><span className="font-medium text-navy">84,521.30</span></li>
-            <li className="flex justify-between"><span className="text-steel">ETH/USD</span><span className="font-medium text-navy">3,120.50</span></li>
-          </ul>
-          <div className="mt-4 text-[11px] text-steel-light">
-            We credit at the live rate when the deposit reaches the network minimum confirmations.
-          </div>
-        </CardBody>
-      </Card>
-    </div>
-  );
-}
-
-function BankForm() {
-  return (
-    <Card>
-      <CardBody>
-        <div className="grid gap-6 lg:grid-cols-2">
-          <div>
-            <h4 className="text-sm font-semibold text-navy">SWIFT / Wire</h4>
-            <dl className="mt-3 space-y-2 text-sm">
-              <div className="flex justify-between"><dt className="text-steel">Beneficiary</dt><dd className="text-navy">GIO4X Ltd.</dd></div>
-              <div className="flex justify-between"><dt className="text-steel">Bank</dt><dd className="text-navy">Standard Chartered, UAE</dd></div>
-              <div className="flex justify-between"><dt className="text-steel">SWIFT</dt><dd className="font-mono text-navy">SCBLAEADXXX</dd></div>
-              <div className="flex justify-between"><dt className="text-steel">Account</dt><dd className="font-mono text-navy">0210448122001</dd></div>
-              <div className="flex justify-between"><dt className="text-steel">Reference</dt><dd className="font-mono text-navy">GIO4X-1701808</dd></div>
-            </dl>
-          </div>
-          <div>
-            <h4 className="text-sm font-semibold text-navy">India (NEFT / RTGS)</h4>
-            <dl className="mt-3 space-y-2 text-sm">
-              <div className="flex justify-between"><dt className="text-steel">Beneficiary</dt><dd className="text-navy">GIO4X Payments</dd></div>
-              <div className="flex justify-between"><dt className="text-steel">Bank</dt><dd className="text-navy">ICICI Bank</dd></div>
-              <div className="flex justify-between"><dt className="text-steel">IFSC</dt><dd className="font-mono text-navy">ICIC0000001</dd></div>
-              <div className="flex justify-between"><dt className="text-steel">Account</dt><dd className="font-mono text-navy">000105588421</dd></div>
-              <div className="flex justify-between"><dt className="text-steel">Reference</dt><dd className="font-mono text-navy">GIO4X-1701808</dd></div>
-            </dl>
-          </div>
-        </div>
-        <div className="mt-5 rounded-lg bg-sky/5 px-3 py-2 text-[11px] text-navy">
-          Always include the reference code. Without it, deposits take longer to reconcile.
-        </div>
-      </CardBody>
-    </Card>
-  );
-}
-
-export default function DepositsPage() {
   return (
     <Shell title="Deposits">
       <PageHeader
         title="Deposit Funds"
         subtitle="Choose a method and we'll credit the account within minutes."
       />
-
-      <div className="mb-5 grid gap-2 md:grid-cols-3 lg:grid-cols-5">
-        {DEPOSIT_METHODS.map((m) => (
-          <div
-            key={m.id}
-            className="flex items-start gap-3 rounded-glass border border-slate-200 bg-white p-4"
-          >
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sky/10 text-sky">
-              {iconFor[m.id]}
-            </div>
-            <div className="min-w-0">
-              <div className="text-sm font-semibold text-navy">{m.name}</div>
-              <div className="mt-0.5 text-[11px] text-steel">Fee {m.fee} · {m.processing}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <Card>
-        <CardBody>
-          <Tabs
-            tabs={[
-              { id: "card", label: "Card", content: <CardDepositForm /> },
-              { id: "crypto", label: "Crypto", content: <CryptoForm /> },
-              { id: "bank", label: "Bank Transfer", content: <BankForm /> },
-            ]}
-          />
-        </CardBody>
-      </Card>
+      <DepositsClient
+        signedIn={!!user}
+        wallets={wallets}
+        methods={methods}
+        bankAccounts={bankAccounts}
+        cryptoNetworks={cryptoNetworks}
+      />
     </Shell>
   );
 }

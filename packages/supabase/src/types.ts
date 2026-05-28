@@ -276,6 +276,102 @@ export type Database = {
           },
         ]
       }
+      deposit_bank_accounts: {
+        Row: {
+          account_number: string
+          bank: string
+          beneficiary: string
+          created_at: string
+          iban: string | null
+          id: string
+          ifsc: string | null
+          is_active: boolean
+          label: string
+          notes: string | null
+          reference_template: string
+          region: string
+          sort_order: number
+          swift_code: string | null
+          updated_at: string
+        }
+        Insert: {
+          account_number: string
+          bank: string
+          beneficiary: string
+          created_at?: string
+          iban?: string | null
+          id?: string
+          ifsc?: string | null
+          is_active?: boolean
+          label: string
+          notes?: string | null
+          reference_template?: string
+          region: string
+          sort_order?: number
+          swift_code?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account_number?: string
+          bank?: string
+          beneficiary?: string
+          created_at?: string
+          iban?: string | null
+          id?: string
+          ifsc?: string | null
+          is_active?: boolean
+          label?: string
+          notes?: string | null
+          reference_template?: string
+          region?: string
+          sort_order?: number
+          swift_code?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      deposit_crypto_addresses: {
+        Row: {
+          address: string
+          created_at: string
+          id: string
+          is_active: boolean
+          min_amount_usd: number
+          min_confirmations: number
+          network: string
+          sort_order: number
+          symbol: string
+          updated_at: string
+          warning: string | null
+        }
+        Insert: {
+          address: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          min_amount_usd?: number
+          min_confirmations?: number
+          network: string
+          sort_order?: number
+          symbol: string
+          updated_at?: string
+          warning?: string | null
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          min_amount_usd?: number
+          min_confirmations?: number
+          network?: string
+          sort_order?: number
+          symbol?: string
+          updated_at?: string
+          warning?: string | null
+        }
+        Relationships: []
+      }
       device_sessions: {
         Row: {
           created_at: string
@@ -924,8 +1020,8 @@ export type Database = {
         Returns: boolean
       }
       generate_referral_code: { Args: { p_user_id: string }; Returns: string }
-      is_admin: { Args: Record<string, never>; Returns: boolean }
-      is_staff: { Args: Record<string, never>; Returns: boolean }
+      is_admin: { Args: never; Returns: boolean }
+      is_staff: { Args: never; Returns: boolean }
       process_wallet_transaction: {
         Args: {
           p_amount: number
