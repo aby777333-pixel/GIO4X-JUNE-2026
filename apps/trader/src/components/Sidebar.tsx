@@ -8,9 +8,6 @@ import {
   Home,
   ShieldCheck,
   Wallet,
-  ArrowDownToLine,
-  ArrowUpFromLine,
-  ArrowLeftRight,
   Users,
   PieChart,
   FileBarChart,
@@ -28,6 +25,16 @@ import {
   ChevronDown,
   ChevronRight,
   LayoutDashboard,
+  ChartLine,
+  History,
+  FileText,
+  CreditCard,
+  KeyRound,
+  Bell,
+  HelpCircle,
+  Calendar,
+  Settings,
+  Image as ImageIcon,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@gio4x/ui";
@@ -51,17 +58,23 @@ type NavItem = NavLeaf | NavBranch;
 const isBranch = (item: NavItem): item is NavBranch =>
   (item as NavBranch).children !== undefined;
 
-const clientNav: NavItem[] = [
+// ----- CLIENT NAV (mode = "client") -----
+const clientNavMain: NavItem[] = [
   { label: "Home", href: "/", icon: Home },
   { label: "Accounts", href: "/accounts", icon: Briefcase },
+  { label: "Open Positions", href: "/positions", icon: ChartLine },
+  { label: "Trade History", href: "/history", icon: History },
   {
     label: "Funds",
     icon: Wallet,
     children: [
+      { label: "Wallet", href: "/wallet" },
       { label: "Deposit", href: "/deposits" },
       { label: "Withdrawal", href: "/withdrawals" },
       { label: "Transfer", href: "/transfers" },
       { label: "History", href: "/funds/history" },
+      { label: "Statements", href: "/statements" },
+      { label: "Payment methods", href: "/bank-accounts" },
     ],
   },
   { label: "STAR Trading", href: "/star-trading", icon: Star, badge: "NEW" },
@@ -75,33 +88,57 @@ const clientNav: NavItem[] = [
       { label: "Signal Provider", href: "/copy/signal-provider" },
     ],
   },
+  { label: "PAMM", href: "/pamm", icon: PieChart },
+];
+
+const clientNavSecondary: NavItem[] = [
   { label: "Promotions", href: "/promotions", icon: Gift },
-  { label: "Downloads", href: "/downloads", icon: Download },
+  { label: "POINTS MALL", href: "/points", icon: Sparkles },
+  { label: "Calendar & News", href: "/calendar", icon: Calendar },
   {
     label: "Tools",
     icon: Wrench,
     children: [
       { label: "CopyTrade", href: "/tools/copytrade" },
-      { label: "WebTrader4", href: "/tools/webtrader4" },
-      { label: "WebTrader5", href: "/tools/webtrader5" },
-      { label: "Star Matrix Tools", href: "/tools/star-matrix" },
-      { label: "Notional Volume Calculator", href: "/tools/notional-calc" },
+      { label: "WebTrader 4", href: "/tools/webtrader4" },
+      { label: "WebTrader 5", href: "/tools/webtrader5" },
+      { label: "Star Matrix", href: "/tools/star-matrix" },
+      { label: "Notional Calculator", href: "/tools/notional-calc" },
     ],
   },
-  { label: "POINTS MALL", href: "/points", icon: Sparkles },
+];
+
+const clientNavAccount: NavItem[] = [
+  { label: "Verification", href: "/verification", icon: ShieldCheck },
+  { label: "Security", href: "/security", icon: KeyRound },
+  { label: "Notifications", href: "/notifications", icon: Bell },
+  { label: "Downloads", href: "/downloads", icon: Download },
+  { label: "Support", href: "/support", icon: HelpCircle },
+  { label: "Settings", href: "/settings", icon: Settings },
   { label: "Profile", href: "/profile", icon: UserCircle2 },
 ];
 
-const ibNav: NavItem[] = [
+// ----- IB NAV (mode = "ib") -----
+const ibNavMain: NavItem[] = [
   { label: "Dashboard", href: "/ib", icon: LayoutDashboard },
   { label: "IB Report", href: "/ib/report", icon: FileBarChart },
   { label: "Multi-Level IB", href: "/ib/tree", icon: Network },
   { label: "Account Report", href: "/ib/accounts", icon: Briefcase },
   { label: "Client Report", href: "/ib/clients", icon: Users },
+  { label: "Sub-IB Management", href: "/ib/sub-ibs", icon: Network },
+];
+
+const ibNavSecondary: NavItem[] = [
   { label: "Funds", href: "/ib/funds", icon: Wallet },
-  { label: "IB Profile", href: "/ib/profile", icon: UserCircle2 },
   { label: "Referral Links", href: "/ib/referrals", icon: Link2 },
   { label: "Campaign Links", href: "/ib/campaigns", icon: Megaphone },
+  { label: "Marketing Materials", href: "/ib/materials", icon: ImageIcon },
+];
+
+const ibNavAccount: NavItem[] = [
+  { label: "IB Profile", href: "/ib/profile", icon: UserCircle2 },
+  { label: "Notifications", href: "/notifications", icon: Bell },
+  { label: "Support", href: "/support", icon: HelpCircle },
 ];
 
 function NavBranchItem({ branch, pathname }: { branch: NavBranch; pathname: string }) {
@@ -121,9 +158,7 @@ function NavBranchItem({ branch, pathname }: { branch: NavBranch; pathname: stri
         onClick={() => setOpen((v) => !v)}
         className={cn(
           "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition",
-          hasActiveChild
-            ? "font-semibold text-navy"
-            : "text-steel hover:bg-slate-50 hover:text-navy",
+          hasActiveChild ? "font-semibold text-navy" : "text-steel hover:bg-slate-50 hover:text-navy",
         )}
       >
         <Icon size={16} />
@@ -168,9 +203,7 @@ function NavLeafItem({ leaf, pathname }: { leaf: NavLeaf; pathname: string }) {
       href={leaf.href}
       className={cn(
         "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition",
-        active
-          ? "bg-sky/10 font-semibold text-sky"
-          : "text-steel hover:bg-slate-50 hover:text-navy",
+        active ? "bg-sky/10 font-semibold text-sky" : "text-steel hover:bg-slate-50 hover:text-navy",
       )}
     >
       {Icon ? <Icon size={16} /> : null}
@@ -184,6 +217,23 @@ function NavLeafItem({ leaf, pathname }: { leaf: NavLeaf; pathname: string }) {
   );
 }
 
+function Section({ title, items, pathname }: { title: string; items: NavItem[]; pathname: string }) {
+  return (
+    <div className="space-y-0.5">
+      <div className="px-3 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-wider text-steel-light">
+        {title}
+      </div>
+      {items.map((item) =>
+        isBranch(item) ? (
+          <NavBranchItem key={item.label} branch={item} pathname={pathname} />
+        ) : (
+          <NavLeafItem key={item.href} leaf={item} pathname={pathname} />
+        ),
+      )}
+    </div>
+  );
+}
+
 export function Sidebar() {
   const pathname = usePathname();
   const isIbRoute = pathname.startsWith("/ib");
@@ -193,7 +243,6 @@ export function Sidebar() {
     setMode(isIbRoute ? "ib" : "client");
   }, [isIbRoute]);
 
-  const items = mode === "ib" ? ibNav : clientNav;
   const homeHref = mode === "ib" ? "/ib" : "/";
 
   return (
@@ -245,68 +294,47 @@ export function Sidebar() {
         </div>
       </div>
 
-      {mode === "client" ? (
-        <div className="mt-3 space-y-0.5 px-3">
-          <Link
-            href="/verification"
-            className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition",
-              pathname === "/verification"
-                ? "bg-sky/10 font-semibold text-sky"
-                : "text-steel hover:bg-slate-50 hover:text-navy",
-            )}
-          >
-            <ShieldCheck size={16} />
-            <span>Verification</span>
-          </Link>
-          <Link
-            href="/downloads"
-            className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition",
-              pathname === "/downloads"
-                ? "bg-sky/10 font-semibold text-sky"
-                : "text-steel hover:bg-slate-50 hover:text-navy",
-            )}
-          >
-            <Download size={16} />
-            <span>Download</span>
-          </Link>
-          <button
-            type="button"
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-steel transition hover:bg-slate-50 hover:text-danger"
-          >
-            <LogOut size={16} />
-            <span>Logout</span>
-          </button>
-        </div>
-      ) : null}
-
-      <nav className="mt-3 flex-1 space-y-0.5 overflow-y-auto px-3 pb-4">
-        <div className="px-3 pb-2 pt-1 text-[10px] font-semibold uppercase tracking-wider text-steel-light">
-          {mode === "ib" ? "Partner" : "Trading"}
-        </div>
-        {items.map((item) =>
-          isBranch(item) ? (
-            <NavBranchItem key={item.label} branch={item} pathname={pathname} />
-          ) : (
-            <NavLeafItem key={item.href} leaf={item} pathname={pathname} />
-          ),
+      <nav className="mt-3 flex-1 overflow-y-auto px-3 pb-4">
+        {mode === "client" ? (
+          <>
+            <Section title="Trading" items={clientNavMain} pathname={pathname} />
+            <Section title="Engage" items={clientNavSecondary} pathname={pathname} />
+            <Section title="Account" items={clientNavAccount} pathname={pathname} />
+          </>
+        ) : (
+          <>
+            <Section title="Performance" items={ibNavMain} pathname={pathname} />
+            <Section title="Grow" items={ibNavSecondary} pathname={pathname} />
+            <Section title="Account" items={ibNavAccount} pathname={pathname} />
+          </>
         )}
-        {mode === "ib" ? (
-          <button
-            type="button"
-            className="mt-4 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-steel transition hover:bg-slate-50 hover:text-danger"
-          >
-            <LogOut size={16} />
-            <span>Logout</span>
-          </button>
-        ) : null}
+
+        <button
+          type="button"
+          className="mt-4 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-steel transition hover:bg-slate-50 hover:text-danger"
+        >
+          <LogOut size={16} />
+          <span>Logout</span>
+        </button>
       </nav>
 
       <div className="border-t border-slate-100 px-5 py-3 text-[10px] text-steel-light">
-        Home →{" "}
-        <Link href={homeHref} className="text-sky hover:underline">
-          {mode === "ib" ? "/ib" : "/"}
+        <Link
+          href="https://lustrous-youtiao-52c8ea.netlify.app"
+          target="_blank"
+          rel="noreferrer"
+          className="hover:text-sky"
+        >
+          gio4x.com →
+        </Link>{" "}
+        ·{" "}
+        <Link
+          href="https://dashing-hamster-0028ed.netlify.app/terminal"
+          target="_blank"
+          rel="noreferrer"
+          className="hover:text-sky"
+        >
+          Raptor terminal →
         </Link>
       </div>
     </aside>

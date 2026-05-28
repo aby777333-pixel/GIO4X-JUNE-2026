@@ -1,10 +1,87 @@
-import { PlaceholderPage } from "@/components/PlaceholderPage";
+import { Shell } from "@/components/Shell";
+import { PageHeader } from "@/components/PageHeader";
+import { Card, CardBody, CardHeader, CardTitle } from "@gio4x/ui";
+import { Apple, Globe, Monitor, Smartphone } from "lucide-react";
 
-export default function Page() {
+const platforms = [
+  { name: "MetaTrader 4", icon: Monitor, downloads: ["Windows", "macOS", "Linux"], type: "Desktop" },
+  { name: "MetaTrader 5", icon: Monitor, downloads: ["Windows", "macOS", "Linux"], type: "Desktop" },
+  { name: "MT4 Mobile", icon: Smartphone, downloads: ["iOS", "Android"], type: "Mobile" },
+  { name: "MT5 Mobile", icon: Smartphone, downloads: ["iOS", "Android"], type: "Mobile" },
+  { name: "GIO Raptor Web", icon: Globe, downloads: ["Open in browser"], type: "Web", external: "https://dashing-hamster-0028ed.netlify.app/terminal" },
+  { name: "GIO4X iOS App", icon: Apple, downloads: ["App Store"], type: "Mobile" },
+];
+
+const assets = [
+  { name: "Brand kit (logos, colours)", size: "12 MB", type: "ZIP" },
+  { name: "Product one-pager", size: "1.2 MB", type: "PDF" },
+  { name: "Trading conditions sheet", size: "640 KB", type: "PDF" },
+  { name: "IB partnership deck", size: "4.4 MB", type: "PDF" },
+];
+
+export default function DownloadsPage() {
   return (
-    <PlaceholderPage
-      title="Downloads"
-      blurb="MT4 / MT5 desktop and mobile installers, plus brand assets."
-    />
+    <Shell title="Downloads">
+      <PageHeader
+        title="Downloads"
+        subtitle="Get the trading platforms and brand assets."
+      />
+
+      <h3 className="mb-3 text-sm font-semibold text-navy">Trading platforms</h3>
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {platforms.map((p) => {
+          const Icon = p.icon;
+          return (
+            <Card key={p.name}>
+              <CardBody>
+                <div className="flex items-start gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky/10 text-sky">
+                    <Icon size={20} />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-bold text-navy">{p.name}</div>
+                    <div className="text-[11px] text-steel">{p.type}</div>
+                  </div>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {p.downloads.map((d) => (
+                    <a
+                      key={d}
+                      href={p.external ?? "#"}
+                      target={p.external ? "_blank" : undefined}
+                      rel={p.external ? "noreferrer" : undefined}
+                      className="rounded-lg bg-sky px-3 py-1.5 text-xs font-medium text-white transition hover:bg-sky-light"
+                    >
+                      {d}
+                    </a>
+                  ))}
+                </div>
+              </CardBody>
+            </Card>
+          );
+        })}
+      </div>
+
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle>Brand & marketing assets</CardTitle>
+        </CardHeader>
+        <CardBody>
+          <ul className="divide-y divide-slate-100">
+            {assets.map((a) => (
+              <li key={a.name} className="flex items-center justify-between py-3">
+                <div>
+                  <div className="text-sm font-medium text-navy">{a.name}</div>
+                  <div className="text-[11px] text-steel">{a.type} · {a.size}</div>
+                </div>
+                <button className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-navy hover:border-sky/40">
+                  Download
+                </button>
+              </li>
+            ))}
+          </ul>
+        </CardBody>
+      </Card>
+    </Shell>
   );
 }
