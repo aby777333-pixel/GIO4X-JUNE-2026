@@ -256,22 +256,27 @@ export function Sidebar() {
 
   return (
     <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white">
-      <Link href={homeHref} className="block px-5 pb-3 pt-5" aria-label="GIO4X home">
+      <Link href={homeHref} className="block px-5 pb-4 pt-6" aria-label="GIO4X home">
         <Image
           src="/logo.png"
           alt="GIO4X"
           width={2924}
           height={976}
           priority
-          className="h-9 w-auto"
+          // Larger lockup so the brand is the visual anchor of the sidebar.
+          className="h-14 w-auto"
         />
-        <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-steel">
+        <div className="mt-1.5 text-[10px] uppercase tracking-[0.18em] text-steel">
           {mode === "ib" ? "IB Portal" : "Client Area"}
         </div>
       </Link>
 
       <div className="px-5">
-        <div className="flex items-center gap-3 rounded-xl bg-slate-50 px-3 py-2">
+        <Link
+          href={userId ? "/profile" : "/auth/login"}
+          className="flex items-center gap-3 rounded-xl bg-slate-50 px-3 py-2 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-sky/30"
+          aria-label={userId ? "Open profile" : "Sign in"}
+        >
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-sky to-navy text-[11px] font-bold text-white">
             {initials}
           </div>
@@ -281,7 +286,7 @@ export function Sidebar() {
               {userId ? `UID: ${uidShort} · ${roleLabel}` : "Not signed in"}
             </div>
           </div>
-        </div>
+        </Link>
 
         <div className="mt-3 grid grid-cols-2 overflow-hidden rounded-lg border border-slate-200 text-xs font-medium">
           <Link
@@ -322,15 +327,25 @@ export function Sidebar() {
           </>
         )}
 
-        <form action={signOut} className="mt-4">
-          <button
-            type="submit"
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-steel transition hover:bg-slate-50 hover:text-danger"
+        {userId ? (
+          <form action={signOut} className="mt-4">
+            <button
+              type="submit"
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-steel transition hover:bg-slate-50 hover:text-danger"
+            >
+              <LogOut size={16} />
+              <span>Logout</span>
+            </button>
+          </form>
+        ) : (
+          <Link
+            href={`/auth/login${pathname && pathname !== "/" ? `?redirect=${encodeURIComponent(pathname)}` : ""}`}
+            className="mt-4 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-steel transition hover:bg-slate-50 hover:text-sky"
           >
             <LogOut size={16} />
-            <span>{userId ? "Logout" : "Sign in"}</span>
-          </button>
-        </form>
+            <span>Sign in</span>
+          </Link>
+        )}
       </nav>
 
       <div className="border-t border-slate-100 px-5 py-3 text-[10px] text-steel-light">
