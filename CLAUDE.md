@@ -1,16 +1,133 @@
-# Working in this repo
+# CLAUDE.md — GIO4X-JUNE-2026 Working Agreement
 
-## Rules
+> Persistent rules for any agent working in this repo. Read this fully before
+> touching code. These rules override convenience. When in doubt, STOP and ask.
 
-1. **Never break a deployed source project.** This repo only copies from `GIO4X NEW`, `RAPTOR BRAND NEW`, `GIOCRM`, etc. Don't edit those source paths from here.
-2. **Monorepo with npm workspaces.** Apps live in `apps/*`, shared code in `packages/*`. Don't add another package manager.
-3. **Brand tokens live in `packages/config/tailwind-preset.js`** — use them, don't redefine colors per-app.
-4. **Supabase client comes from `@gio4x/supabase`** — apps must not import `@supabase/supabase-js` directly.
-5. **One Supabase project for everything:** `tdifcayznqnaduchzfqz`. New tables need explicit GRANT to anon/authenticated (the public-schema flip lands 2026-10-30).
-6. **Deploy cadence per the owner's standing rule:** build → test → push → deploy. Don't run `next build` while `next dev` is running. Use Netlify CLI for env secrets.
+---
 
-## Per-app dev
+## 1. WHAT THIS REPO IS
 
-```bash
-npm run dev:trader      # apps/trader on :3000
+Unified GIO4X workspace — a monorepo of independently deployable Next.js apps that
+share UI, a typed Supabase client, and config. Brand: GIO4X navy/cyan,
+"The Gentleman's Forex Broker."
+
+- **GitHub:** https://github.com/aby777333-pixel/GIO4X-JUNE-2026
+- **Local:** `C:\Users\GIO4X\Documents\GIO4x JUNE 2026`
+- **Supabase project:** `tdifcayznqnaduchzfqz`
+- **Netlify (trader, current):** https://zippy-piroshki-21aa30.netlify.app/
+
+### Layout — respect exactly, do not restructure
 ```
+apps/
+  trader/      Client + IB portal (Dashboard, Wallet, Deposits, Withdrawals,
+               Transfers, Copy Trading, PAMM, IB)        [IN PROGRESS — primary]
+  website/     Marketing site                             [PLANNED]
+  crm/         Internal CRM                               [PLANNED]
+  platform/    Raptor trading platform                   [PLANNED]
+  dealer/      Dealer console                            [PLANNED]
+packages/
+  ui/          Shared React components on GIO4X brand tokens
+  supabase/    Typed Supabase client + shared DB types
+  config/      Shared tsconfig, tailwind preset, eslint config
+supabase/
+  migrations/  Consolidated SQL migrations for tdifcayznqnaduchzfqz
+```
+
+---
+
+## 2. STACK — DO NOT DEVIATE
+
+- TypeScript **strict** (repo is 99%+ TS). No `any` on public boundaries.
+- Next.js **App Router**.
+- Supabase: Postgres + Auth (PKCE) + RLS + Storage + Realtime.
+- **npm workspaces.** One root lockfile. Never introduce yarn/pnpm or a second lockfile.
+- Netlify: one site per app.
+
+### Commands
+```
+npm install            # root only — installs all workspace deps
+npm run dev:trader     # → http://localhost:3000
+npm run build          # must pass for any app you touch, before any checkpoint
+```
+
+---
+
+## 3. HARD RULES (non-negotiable)
+
+1. **Additive only.** Never break existing `apps/trader` routes, components, auth,
+   or schema. You extend; you do not replace.
+2. **Migrations are immutable.** One timestamped migration per unit of work, with a
+   rollback note in the header comment. Never edit a committed migration; write a new one.
+3. **Money is `NUMERIC`, never float.** All balance changes happen server-side via
+   `SECURITY DEFINER` functions, are idempotent (idempotency key), and are audited.
+   No client ever writes a balance directly.
+4. **RLS on every table, default deny.** Users access only their own rows; staff/admin
+   access is scoped via `profiles.role`.
+5. **Secrets via env only.** The service-role key must NEVER appear in a client bundle.
+   Keep `.env.example` current. Never commit real keys.
+6. **Shared code lives in `packages/*` and is imported.** No copy-paste between apps.
+7. **Brand tokens from `packages/ui` only.** No hardcoded hex anywhere.
+8. **Mobile-responsive** by default on every screen.
+
+---
+
+## 4. HOW TO WORK — PHASES & CHECKPOINTS
+
+Work in phases. Never attempt the whole system in one pass. After each phase, STOP
+and wait for an explicit "go." At every checkpoint, output:
+
+1. Inventory / diff summary
+2. New & changed file paths
+3. New migration names
+4. How to test locally
+5. Risks I should review
+
+Phase order of record:
+- **A** — Audit & schema foundation (no UI)
+- **B** — Authentication suite (apps/trader)
+- **C** — Post-login onboarding & dashboard (apps/trader)
+- **D** — Connected modules (crm / platform / dealer / finance / marketing / security)
+
+The first action in any fresh session is to re-read this file and the current state
+of `apps/trader`, `packages/*`, and `supabase/migrations` before proposing changes.
+
+---
+
+## 5. DATA MODEL SOURCE OF TRUTH
+
+Canonical tables (see migrations for authoritative DDL):
+`profiles`, `crm_profiles`, `wallets`, `wallet_transactions`, `kyc_documents`,
+`trading_accounts`, `ib_relationships`, `commission_plans`, `commission_ledger`,
+`referrals`, `support_tickets`, `ticket_messages`, `notifications`, `announcements`,
+`audit_logs`, `login_history`, `device_sessions`.
+
+Provisioning trigger `handle_new_user()` creates, atomically, on signup:
+profile → crm_profile → main wallet → referral code.
+
+Connectivity chain that must always hold:
+```
+Website → Auth → CRM profile → Wallet → Raptor Platform → IB → Support → Admin → Analytics
+```
+
+---
+
+## 6. ADAPTERS — KEEP INTEGRATIONS SWAPPABLE
+
+Wrap all external dependencies behind typed interfaces so providers can change
+without touching feature code:
+- **SMS/OTP** → `packages/supabase/sms.ts` (stub provider first)
+- **Payments** → fiat + crypto behind a single payment adapter interface
+- **Market data + order execution** (platform) → typed adapter, stub before live feed
+
+---
+
+## 7. DEFINITION OF DONE (per change)
+
+- [ ] Additive; nothing existing broken
+- [ ] Migration timestamped + rollback note; not editing a prior migration
+- [ ] RLS written and tested (default deny)
+- [ ] Money paths server-side, idempotent, audited
+- [ ] Types regenerated into `packages/supabase`
+- [ ] `npm run build` passes for touched app
+- [ ] No secrets committed; `.env.example` updated if envs changed
+- [ ] Mobile-responsive; brand tokens only
