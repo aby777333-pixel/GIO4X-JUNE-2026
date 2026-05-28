@@ -36,6 +36,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Fire Netlify build hook
+        env:
+          HOOK_URL: ${{ secrets.NETLIFY_PORTAL_BUILD_HOOK }}
         run: |
-          curl --silent --show-error --fail-with-body \
-            -X POST "${{ secrets.NETLIFY_PORTAL_BUILD_HOOK }}?trigger_title=push%3A%20${GITHUB_SHA:0:7}"
+          set -euo pipefail
+          SHORT_SHA="${GITHUB_SHA:0:7}"
+          URL="${HOOK_URL}?trigger_title=push%3A%20${SHORT_SHA}"
+          # Echo a redacted line for the run log so a future reader sees what was hit.
+          echo "POST https://api.netlify.com/build_hooks/<redacted>?trigger_title=push:%20${SHORT_SHA}"
+          curl --silent --show-error --fail -X POST "${URL}"
+          echo "ok"
