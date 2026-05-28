@@ -12,7 +12,9 @@
     "dev:raptor": "npm --workspace apps/raptor run dev",
     "build:raptor": "npm --workspace apps/raptor run build",
     "lint": "npm --workspaces --if-present run lint",
-    "typecheck": "npm --workspaces --if-present run typecheck"
+    "typecheck": "npm --workspaces --if-present run typecheck",
+    "patch:portal-handler": "node scripts/patch-netlify-handler-paths.mjs apps/portal",
+    "deploy:portal": "netlify build --filter @gio4x/portal && node scripts/patch-netlify-handler-paths.mjs apps/portal && netlify deploy --prod --filter @gio4x/portal --no-build --skip-functions-cache"
   },
   "engines": {
     "node": ">=18.18.0"

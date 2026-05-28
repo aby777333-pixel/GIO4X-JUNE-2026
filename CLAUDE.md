@@ -59,7 +59,19 @@ npm install            # root only — installs all workspace deps
 npm run dev:portal     # GIO4X portal → http://localhost:3000
 npm run dev:raptor     # GIORAPTOR terminal → http://localhost:3001
 npm run build          # must pass for any app you touch, before any checkpoint
+npm run deploy:portal  # build → patch Windows paths → deploy to zippy-piroshki
 ```
+
+### Netlify deploy notes — read before deploying
+- The Netlify sites are **NOT git-linked**. `git push` does NOT trigger a
+  deploy. Deploys happen via local CLI uploads (`netlify deploy --build --prod`).
+- On Windows, `@netlify/plugin-nextjs` writes Windows backslash paths into the
+  generated `___netlify-server-handler.mjs`. The Lambda runtime then 502s
+  every route with `Cannot find package 'ar\taskappsportal'` (the `\v` and
+  `\t` are escape-interpreted). Always run
+  `npm run patch:portal-handler` between build and deploy, and pass
+  `--no-build --skip-functions-cache` to deploy so the patched .mjs ships.
+  The combined `npm run deploy:portal` script does this end-to-end.
 
 ---
 
