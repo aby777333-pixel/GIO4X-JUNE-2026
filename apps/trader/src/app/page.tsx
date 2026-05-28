@@ -1,244 +1,130 @@
+import Link from "next/link";
 import { Shell } from "@/components/Shell";
-import { PerformanceChart } from "@/components/PerformanceChart";
-import { InstrumentDonut } from "@/components/InstrumentDonut";
-import { Card, CardBody, CardHeader, CardTitle, StatTile, Button } from "@gio4x/ui";
-import {
-  Coins,
-  TrendingUp,
-  ArrowDownToLine,
-  ArrowUpFromLine,
-  UserPlus,
-  Users,
-  Briefcase,
-} from "lucide-react";
+import { PromoBanner } from "@/components/PromoBanner";
+import { MarketsTable } from "@/components/MarketsTable";
+import { Card, CardBody, CardHeader, CardTitle } from "@gio4x/ui";
+import { ArrowDownToLine, ArrowUpFromLine, ArrowLeftRight, History, ChevronDown } from "lucide-react";
 
-const topAccounts = [
-  { account: "7457705", name: "SIVANESAN P", volume: "238.25 Micro", rebate: "4.76" },
-  { account: "21641714", name: "GANESAN P", volume: "20.52 Micro", rebate: "1.03" },
-  { account: "20511674", name: "MD AFSAR", volume: "17.31 Micro", rebate: "0.87" },
-  { account: "22486049", name: "BHUVANESWARI L", volume: "10.26 Micro", rebate: "0.51" },
+type TradingAccount = {
+  id: string;
+  type: "MT4" | "MT5";
+  balance: string;
+  currency: string;
+  plan: string;
+};
+
+const accounts: TradingAccount[] = [
+  { id: "18433282", type: "MT5", balance: "0.02", currency: "USC", plan: "Cent Swap free STP" },
+  { id: "15624153", type: "MT5", balance: "—", currency: "—", plan: "Swap free STP" },
 ];
 
-const recentAccounts = [
-  { account: "24819714", name: "LOGUPRABHU T", balance: "20,920.62" },
-  { account: "24819546", name: "Arul B", balance: "20,977.94" },
-  { account: "24819533", name: "Arul B", balance: "0.00" },
-  { account: "24813368", name: "Arul B", balance: "31,741.35" },
+const assetActions = [
+  { label: "Deposit", href: "/deposits", icon: ArrowDownToLine, primary: true },
+  { label: "Withdrawal", href: "/withdrawals", icon: ArrowUpFromLine, primary: false },
+  { label: "Transfer", href: "/transfers", icon: ArrowLeftRight, primary: false },
+  { label: "History", href: "/funds/history", icon: History, primary: false },
 ];
 
-export default function DashboardPage() {
+export default function ClientHomePage() {
   return (
-    <Shell title="Dashboard">
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
+    <Shell title="Home">
+      <PromoBanner />
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
           <CardHeader>
-            <div>
-              <CardTitle>Rebate Account · 34496</CardTitle>
-              <div className="mt-1 text-[11px] uppercase tracking-wider text-steel">
-                Total Commission
-              </div>
+            <div className="flex items-center gap-2">
+              <CardTitle>Total assets estimate</CardTitle>
+              <span
+                className="flex h-4 w-4 items-center justify-center rounded-full bg-slate-100 text-[10px] text-steel"
+                title="Estimated USD equivalent across all accounts"
+              >
+                ?
+              </span>
             </div>
-            <button className="text-xs font-medium text-sky hover:underline">
-              Transaction History →
-            </button>
           </CardHeader>
           <CardBody>
             <div className="flex items-end gap-2">
-              <span className="text-3xl font-bold text-navy">10.08</span>
-              <span className="pb-1 text-sm text-steel">USD</span>
-              <button className="ml-auto text-xs font-medium text-sky hover:underline">
-                ↳ Apply For Rebate
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
+                $
+              </span>
+              <span className="text-3xl font-bold text-navy">0.00</span>
+              <button className="flex items-center gap-1 pb-1 text-sm text-steel">
+                USD <ChevronDown size={14} />
               </button>
             </div>
-            <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
-              <div>
-                <div className="text-xs text-steel">Available Balance</div>
-                <div className="text-sm font-semibold text-navy">0.00 USD</div>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="primary">Withdraw Rebate</Button>
-                <Button variant="ghost" className="border border-slate-200">
-                  Transfer Rebate
-                </Button>
-              </div>
+            <div className="mt-5 flex flex-wrap gap-2">
+              {assetActions.map((a) => {
+                const Icon = a.icon;
+                return (
+                  <Link
+                    key={a.label}
+                    href={a.href}
+                    className={
+                      a.primary
+                        ? "inline-flex items-center gap-1.5 rounded-lg bg-sky px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-sky-light"
+                        : "inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-navy transition hover:border-sky/40"
+                    }
+                  >
+                    <Icon size={12} />
+                    {a.label}
+                  </Link>
+                );
+              })}
             </div>
           </CardBody>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Link</CardTitle>
-            <button className="text-xs font-medium text-sky hover:underline">More →</button>
+            <CardTitle>Trading Account</CardTitle>
+            <Link href="/accounts" className="text-xs font-medium text-sky hover:underline">
+              View all →
+            </Link>
           </CardHeader>
           <CardBody>
-            <div className="text-xs text-steel">IB Plan</div>
-            <select className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm">
-              <option>Swap Free STP (USC only)</option>
-            </select>
-            <div className="mt-5 text-xs text-steel">live account invitation link</div>
-            <div className="mt-1 truncate rounded-lg border border-slate-200 px-3 py-2 text-xs text-navy">
-              https://www.gio4x.com/live-account/?affid=MzQ0OTY...
-            </div>
+            <ul className="space-y-3">
+              {accounts.map((acc) => (
+                <li
+                  key={acc.id}
+                  className="flex items-center justify-between rounded-xl border border-slate-100 px-4 py-3"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="rounded-md bg-sky/10 px-1.5 py-0.5 text-[10px] font-bold uppercase text-sky">
+                      {acc.type}
+                    </span>
+                    <span className="text-sm font-medium text-navy">{acc.id}</span>
+                  </div>
+                  <div className="flex items-center gap-5 text-xs">
+                    <div className="text-right">
+                      <div className="font-semibold text-navy">{acc.balance}</div>
+                      <div className="text-[10px] uppercase text-steel-light">{acc.currency}</div>
+                    </div>
+                    <div className="hidden text-right text-steel sm:block">{acc.plan}</div>
+                  </div>
+                </li>
+              ))}
+            </ul>
           </CardBody>
         </Card>
       </div>
 
       <Card className="mt-6">
         <CardHeader>
-          <CardTitle>Performance</CardTitle>
-          <div className="flex items-center gap-2 text-xs">
-            <select className="rounded-lg border border-slate-200 px-2 py-1">
-              <option>Month To Date</option>
-              <option>Last 30 Days</option>
-              <option>Year To Date</option>
-            </select>
-            <input
-              type="date"
-              defaultValue="2026-05-01"
-              className="rounded-lg border border-slate-200 px-2 py-1"
-            />
-            <span className="text-steel">—</span>
-            <input
-              type="date"
-              defaultValue="2026-05-28"
-              className="rounded-lg border border-slate-200 px-2 py-1"
-            />
-            <Button variant="primary" className="px-3 py-1">
-              Update
-            </Button>
-          </div>
+          <CardTitle>Markets</CardTitle>
         </CardHeader>
-        <CardBody>
-          <div className="grid gap-4 lg:grid-cols-[1fr_2fr]">
-            <div className="grid grid-cols-3 gap-3 lg:grid-cols-2">
-              <StatTile icon={<Coins size={16} />} label="Rebate" value="9.80" unit="USD" active />
-              <StatTile
-                icon={<TrendingUp size={16} />}
-                label="Notional Value"
-                value="1,485,088.63"
-                unit="USD"
-              />
-              <StatTile
-                icon={<Briefcase size={16} />}
-                label="Net Funding"
-                value="365.00"
-                unit="USD"
-              />
-              <StatTile
-                icon={<ArrowDownToLine size={16} />}
-                label="Deposits"
-                value="770.00"
-                unit="USD"
-              />
-              <StatTile
-                icon={<ArrowUpFromLine size={16} />}
-                label="Withdraw"
-                value="405.00"
-                unit="USD"
-              />
-              <StatTile icon={<Briefcase size={16} />} label="Opened Account" value="0" />
-              <StatTile icon={<UserPlus size={16} />} label="New Clients" value="0" />
-              <StatTile icon={<Users size={16} />} label="FTD Clients" value="0" />
-            </div>
-            <div className="rounded-xl border border-slate-100 bg-white p-3">
-              <div className="mb-1 px-2 text-xs font-medium text-steel">Rebate</div>
-              <PerformanceChart />
-            </div>
-          </div>
+        <CardBody className="px-0 pt-2">
+          <MarketsTable />
         </CardBody>
       </Card>
 
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle>Most Traded Instruments</CardTitle>
-        </CardHeader>
-        <CardBody>
-          <div className="grid gap-6 lg:grid-cols-2">
-            <div>
-              <div className="mb-2 text-xs text-steel">Micro Lots</div>
-              <InstrumentDonut />
-              <div className="mt-2 flex flex-wrap gap-3 text-xs">
-                <span className="flex items-center gap-1">
-                  <span className="h-2 w-2 rounded-full bg-blue-500" />
-                  XAUUSD.c
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="h-2 w-2 rounded-full bg-blue-300" />
-                  NZDUSD.c
-                </span>
-              </div>
-            </div>
-            <div className="rounded-xl bg-slate-50 p-5">
-              <div className="text-sm font-semibold text-navy">XAUUSD.c</div>
-              <div className="mt-1 text-xs text-steel">Notional Value</div>
-            </div>
-          </div>
-        </CardBody>
-      </Card>
-
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Top Performing Accounts for this month</CardTitle>
-          </CardHeader>
-          <CardBody>
-            <table className="w-full text-sm">
-              <thead className="text-left text-xs text-steel">
-                <tr>
-                  <th className="pb-2 font-medium">Account No</th>
-                  <th className="pb-2 font-medium">Name</th>
-                  <th className="pb-2 font-medium">Volume</th>
-                  <th className="pb-2 font-medium">Rebate</th>
-                </tr>
-              </thead>
-              <tbody>
-                {topAccounts.map((row) => (
-                  <tr key={row.account} className="border-t border-slate-100">
-                    <td className="py-2 text-navy">{row.account}</td>
-                    <td className="py-2 text-steel">{row.name}</td>
-                    <td className="py-2 text-steel">{row.volume}</td>
-                    <td className="py-2 font-medium text-navy">{row.rebate}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Recently Opened Accounts</CardTitle>
-          </CardHeader>
-          <CardBody>
-            <table className="w-full text-sm">
-              <thead className="text-left text-xs text-steel">
-                <tr>
-                  <th className="pb-2 font-medium">Account No</th>
-                  <th className="pb-2 font-medium">Name</th>
-                  <th className="pb-2 font-medium">Balance</th>
-                  <th className="pb-2 font-medium">Contact</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentAccounts.map((row) => (
-                  <tr key={row.account} className="border-t border-slate-100">
-                    <td className="py-2 text-navy">{row.account}</td>
-                    <td className="py-2 text-steel">{row.name}</td>
-                    <td className="py-2 font-medium text-navy">{row.balance}</td>
-                    <td className="py-2 text-sky">☎</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </CardBody>
-        </Card>
-      </div>
-
-      <div className="mt-6 rounded-lg bg-amber-50 px-4 py-3 text-[11px] leading-relaxed text-amber-900">
-        <strong>Risk warning:</strong> Trading Forex and CFDs involves significant risk and can
-        result in the loss of your invested capital. Trading leveraged products may not be suitable
-        for all investors. Before trading, please take into consideration your level of experience,
-        investment objectives and seek independent financial advice if necessary.
+      <div className="mt-6 rounded-lg bg-slate-50 px-5 py-4 text-[11px] leading-relaxed text-steel">
+        <strong className="text-navy">RISK STATEMENT:</strong> All investments entail risks and may
+        result in both profits and losses. In particular, trading leveraged derivative products such
+        as Foreign Exchange (Forex) and Contracts for Difference (CFDs) carries a high level of
+        risk to your capital. All these derivative products, many of which are leveraged, may not
+        be appropriate for all investors. The effect of leverage is that both gains and losses are
+        magnified. Please trade responsibly.
       </div>
     </Shell>
   );
