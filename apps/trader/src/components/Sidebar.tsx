@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -197,17 +198,19 @@ export function Sidebar() {
 
   return (
     <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white">
-      <div className="flex items-center gap-2 px-5 py-5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-navy text-white">
-          <span className="text-sm font-bold">G4</span>
+      <Link href={homeHref} className="block px-5 pb-3 pt-5" aria-label="GIO4X home">
+        <Image
+          src="/logo.png"
+          alt="GIO4X"
+          width={2924}
+          height={976}
+          priority
+          className="h-9 w-auto"
+        />
+        <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-steel">
+          {mode === "ib" ? "IB Portal" : "Client Area"}
         </div>
-        <div className="leading-tight">
-          <div className="text-sm font-bold text-navy">GIO4X</div>
-          <div className="text-[10px] uppercase tracking-wider text-steel">
-            {mode === "ib" ? "IB Portal" : "Client Area"}
-          </div>
-        </div>
-      </div>
+      </Link>
 
       <div className="px-5">
         <div className="flex items-center gap-3 rounded-xl bg-slate-50 px-3 py-2">
