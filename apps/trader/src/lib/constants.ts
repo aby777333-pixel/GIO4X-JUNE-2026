@@ -2,11 +2,13 @@
 // One source of truth so the marketing site, the Raptor platform, and
 // the support channels can be updated in a single place.
 
-// The new monorepo trader area IS GIO Raptor.
-// Internal links use relative paths; absolute URL kept for outbound shares
-// (referral links, marketing site CTAs) — point this at the canonical domain
-// once raptor.gio4x.com is live.
+// This trader area is the "hub" between the GIO Raptor client portal and the
+// actual chart-based trading terminal. RAPTOR_BASE points at this app for
+// outbound referral URLs; TERMINAL_URL points at the live chart terminal
+// hosted inside the Gioraptor portal.
 export const RAPTOR_BASE = "https://zippy-piroshki-21aa30.netlify.app";
+export const TERMINAL_URL = "https://dashing-hamster-0028ed.netlify.app/terminal";
+export const PORTAL_URL = "https://dashing-hamster-0028ed.netlify.app";
 export const WEBSITE_BASE = "https://lustrous-youtiao-52c8ea.netlify.app";
 
 export const LINKS = {

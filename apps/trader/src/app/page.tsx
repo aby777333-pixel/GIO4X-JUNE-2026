@@ -3,10 +3,19 @@ import { Shell } from "@/components/Shell";
 import { PromoBanner } from "@/components/PromoBanner";
 import { MarketsTable } from "@/components/MarketsTable";
 import { Card, CardBody, CardHeader, CardTitle } from "@gio4x/ui";
-import { ArrowDownToLine, ArrowUpFromLine, ArrowLeftRight, History, ChevronDown } from "lucide-react";
+import {
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  ArrowLeftRight,
+  History,
+  ChevronDown,
+  LineChart,
+  ExternalLink,
+} from "lucide-react";
 import { getCurrentUser } from "@/lib/session";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { loadWalletRollup } from "@/lib/wallet-actions";
+import { TERMINAL_URL } from "@/lib/constants";
 
 const assetActions = [
   { label: "Deposit", href: "/deposits", icon: ArrowDownToLine, primary: true },
@@ -56,6 +65,28 @@ export default async function ClientHomePage() {
   return (
     <Shell title="Home">
       <PromoBanner />
+
+      <Link
+        href={TERMINAL_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-sky/30 bg-gradient-to-r from-sky/10 via-sky/5 to-transparent px-5 py-4 transition hover:border-sky/60 hover:shadow-lg"
+      >
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-sky text-white shadow-md">
+            <LineChart size={22} />
+          </div>
+          <div>
+            <div className="text-base font-bold text-navy">Open Trading Terminal</div>
+            <div className="mt-0.5 text-xs text-steel">
+              Launch the GIO Raptor charts, order book, and execution engine in a new tab.
+            </div>
+          </div>
+        </div>
+        <span className="inline-flex items-center gap-1.5 rounded-lg bg-sky px-4 py-2 text-xs font-semibold text-white">
+          Launch Terminal <ExternalLink size={12} />
+        </span>
+      </Link>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
