@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Shell } from "@/components/Shell";
 import { PromoBanner } from "@/components/PromoBanner";
 import { MarketsTable } from "@/components/MarketsTable";
+import { CurrencyCorrelation } from "@/components/CurrencyCorrelation";
 import { Card, CardBody, CardHeader, CardTitle } from "@gio4x/ui";
 import {
   ArrowDownToLine,
@@ -196,6 +197,12 @@ export default async function ClientHomePage() {
         </CardHeader>
         <CardBody className="px-0 pt-2">
           <MarketsTable />
+        </CardBody>
+      </Card>
+
+      <Card className="mt-6">
+        <CardBody>
+          <CurrencyCorrelation />
         </CardBody>
       </Card>
 
