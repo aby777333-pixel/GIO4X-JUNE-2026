@@ -2,7 +2,11 @@
 // One source of truth so the marketing site, the Raptor platform, and
 // the support channels can be updated in a single place.
 
-export const RAPTOR_BASE = "https://dashing-hamster-0028ed.netlify.app";
+// The new monorepo trader area IS GIO Raptor.
+// Internal links use relative paths; absolute URL kept for outbound shares
+// (referral links, marketing site CTAs) — point this at the canonical domain
+// once raptor.gio4x.com is live.
+export const RAPTOR_BASE = "https://zippy-piroshki-21aa30.netlify.app";
 export const WEBSITE_BASE = "https://lustrous-youtiao-52c8ea.netlify.app";
 
 export const LINKS = {
@@ -21,10 +25,10 @@ export const LINKS = {
     faq: `${WEBSITE_BASE}/faq`,
   },
   raptor: {
-    home: RAPTOR_BASE,
-    terminal: `${RAPTOR_BASE}/terminal`,
-    login: `${RAPTOR_BASE}/auth/login`,
-    register: `${RAPTOR_BASE}/auth/register`,
+    home: "/",
+    terminal: "/",
+    login: "/auth/login",
+    register: "/auth/signup",
   },
   support: {
     email: "support@gio4x.com",

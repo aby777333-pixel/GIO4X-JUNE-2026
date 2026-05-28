@@ -3,7 +3,7 @@ import { Shell } from "@/components/Shell";
 import { PageHeader } from "@/components/PageHeader";
 import { MetricGrid } from "@/components/MetricGrid";
 import { Card, CardBody, CardHeader, CardTitle } from "@gio4x/ui";
-import { LINKS } from "@/lib/constants";
+import { LINKS, RAPTOR_BASE } from "@/lib/constants";
 import { Link2, MousePointerClick, QrCode, Users } from "lucide-react";
 import { getCurrentUser } from "@/lib/session";
 import { getSupabaseServer } from "@/lib/supabase-server";
@@ -21,14 +21,14 @@ type ReferralRow = {
 };
 
 const DEST_TO_URL: Record<string, string> = {
-  register: LINKS.raptor.register,
-  "register-demo": `${LINKS.raptor.register}?demo=1`,
+  register: `${RAPTOR_BASE}/auth/signup`,
+  "register-demo": `${RAPTOR_BASE}/auth/signup?demo=1`,
   home: LINKS.website.home,
-  raptor: LINKS.raptor.terminal,
+  raptor: `${RAPTOR_BASE}/`,
 };
 
 function buildUrl(r: ReferralRow): string {
-  const base = DEST_TO_URL[r.destination] ?? LINKS.raptor.register;
+  const base = DEST_TO_URL[r.destination] ?? `${RAPTOR_BASE}/auth/signup`;
   const u = new URL(base);
   u.searchParams.set("ref", r.code);
   if (r.sub_id) u.searchParams.set("sub", r.sub_id);

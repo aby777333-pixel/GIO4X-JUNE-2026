@@ -343,12 +343,7 @@ export function Sidebar() {
           gio4x.com →
         </Link>{" "}
         ·{" "}
-        <Link
-          href="https://dashing-hamster-0028ed.netlify.app/terminal"
-          target="_blank"
-          rel="noreferrer"
-          className="hover:text-sky"
-        >
+        <Link href="/" className="hover:text-sky">
           Raptor terminal →
         </Link>
       </div>
