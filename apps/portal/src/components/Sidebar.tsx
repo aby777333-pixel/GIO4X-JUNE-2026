@@ -38,6 +38,8 @@ import {
   Settings,
   Image as ImageIcon,
   Headset,
+  Contact,
+  KanbanSquare,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@gio4x/ui";
@@ -340,6 +342,20 @@ export function Sidebar() {
             >
               <Headset size={16} />
               <span className="flex-1">Service Console</span>
+            </Link>
+            <Link
+              href="/staff/crm"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-steel transition hover:bg-slate-50 hover:text-navy"
+            >
+              <Contact size={16} />
+              <span className="flex-1">Leads &amp; CRM</span>
+            </Link>
+            <Link
+              href="/staff/crm/pipeline"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-steel transition hover:bg-slate-50 hover:text-navy"
+            >
+              <KanbanSquare size={16} />
+              <span className="flex-1">Sales Pipeline</span>
             </Link>
           </div>
         ) : null}

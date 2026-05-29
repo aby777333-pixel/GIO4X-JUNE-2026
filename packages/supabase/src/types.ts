@@ -1,7 +1,6 @@
 // AUTO-GENERATED — DO NOT EDIT BY HAND
 // Source: Supabase MCP `generate_typescript_types` against project tdifcayznqnaduchzfqz
 // Regenerate after every migration by running the MCP tool and pasting the output here.
-// (Or, with the Supabase CLI: `npx supabase gen types typescript --project-id tdifcayznqnaduchzfqz`.)
 
 export type Json =
   | string
@@ -12,10 +11,11 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // The Supabase MCP also emits an __InternalSupabase: { PostgrestVersion }
-  // marker. We omit it here because @supabase/ssr 0.5.x infers
-  // `SchemaName extends keyof Database` and that extra key throws off the
-  // narrowing, breaking .rpc() and .from() typing.
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.5"
+  }
   public: {
     Tables: {
       announcements: {
@@ -318,6 +318,138 @@ export type Database = {
         }
         Relationships: []
       }
+      crm_lead_activities: {
+        Row: {
+          actor_id: string | null
+          body: string
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["crm_activity_kind"]
+          lead_id: string
+          metadata: Json
+        }
+        Insert: {
+          actor_id?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["crm_activity_kind"]
+          lead_id: string
+          metadata?: Json
+        }
+        Update: {
+          actor_id?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["crm_activity_kind"]
+          lead_id?: string
+          metadata?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_lead_activities_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_lead_activities_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "crm_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_leads: {
+        Row: {
+          assigned_staff: string | null
+          campaign: string | null
+          converted_profile_id: string | null
+          country: string | null
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          last_activity_at: string
+          lost_reason: string | null
+          metadata: Json
+          next_follow_up_at: string | null
+          owner_notes: string
+          phone: string | null
+          referral_code: string | null
+          score: number
+          source: string
+          stage: Database["public"]["Enums"]["crm_lead_stage"]
+          status: Database["public"]["Enums"]["crm_lead_status"]
+          updated_at: string
+          utm: Json
+        }
+        Insert: {
+          assigned_staff?: string | null
+          campaign?: string | null
+          converted_profile_id?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          last_activity_at?: string
+          lost_reason?: string | null
+          metadata?: Json
+          next_follow_up_at?: string | null
+          owner_notes?: string
+          phone?: string | null
+          referral_code?: string | null
+          score?: number
+          source?: string
+          stage?: Database["public"]["Enums"]["crm_lead_stage"]
+          status?: Database["public"]["Enums"]["crm_lead_status"]
+          updated_at?: string
+          utm?: Json
+        }
+        Update: {
+          assigned_staff?: string | null
+          campaign?: string | null
+          converted_profile_id?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          last_activity_at?: string
+          lost_reason?: string | null
+          metadata?: Json
+          next_follow_up_at?: string | null
+          owner_notes?: string
+          phone?: string | null
+          referral_code?: string | null
+          score?: number
+          source?: string
+          stage?: Database["public"]["Enums"]["crm_lead_stage"]
+          status?: Database["public"]["Enums"]["crm_lead_status"]
+          updated_at?: string
+          utm?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_leads_assigned_staff_fkey"
+            columns: ["assigned_staff"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_leads_converted_profile_id_fkey"
+            columns: ["converted_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_profiles: {
         Row: {
           assigned_staff: string | null
@@ -371,6 +503,80 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: true
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_tasks: {
+        Row: {
+          assigned_to: string | null
+          client_id: string | null
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          due_at: string | null
+          id: string
+          lead_id: string | null
+          priority: Database["public"]["Enums"]["ticket_priority"]
+          status: Database["public"]["Enums"]["crm_task_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          client_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          due_at?: string | null
+          id?: string
+          lead_id?: string | null
+          priority?: Database["public"]["Enums"]["ticket_priority"]
+          status?: Database["public"]["Enums"]["crm_task_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          client_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          due_at?: string | null
+          id?: string
+          lead_id?: string | null
+          priority?: Database["public"]["Enums"]["ticket_priority"]
+          status?: Database["public"]["Enums"]["crm_task_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_tasks_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_tasks_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_tasks_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_tasks_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "crm_leads"
             referencedColumns: ["id"]
           },
         ]
@@ -509,6 +715,76 @@ export type Database = {
           {
             foreignKeyName: "device_sessions_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events_outbox: {
+        Row: {
+          actor_id: string | null
+          attempts: number
+          created_at: string
+          id: string
+          payload: Json
+          processed_at: string | null
+          topic: string
+        }
+        Insert: {
+          actor_id?: string | null
+          attempts?: number
+          created_at?: string
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+          topic: string
+        }
+        Update: {
+          actor_id?: string | null
+          attempts?: number
+          created_at?: string
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+          topic?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_outbox_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feature_flags: {
+        Row: {
+          description: string
+          enabled: boolean
+          key: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          description?: string
+          enabled?: boolean
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          description?: string
+          enabled?: boolean
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feature_flags_updated_by_fkey"
+            columns: ["updated_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -1154,6 +1430,25 @@ export type Database = {
       account_status: "active" | "archived" | "suspended"
       audit_action: "INSERT" | "UPDATE" | "DELETE"
       chat_status: "open" | "active" | "closed"
+      crm_activity_kind:
+        | "note"
+        | "call"
+        | "email"
+        | "whatsapp"
+        | "sms"
+        | "meeting"
+        | "stage_change"
+        | "assignment"
+        | "system"
+      crm_lead_stage:
+        | "new"
+        | "contacted"
+        | "qualified"
+        | "proposal"
+        | "won"
+        | "lost"
+      crm_lead_status: "open" | "converted" | "lost"
+      crm_task_status: "open" | "done" | "cancelled"
       kyc_doc_status: "pending" | "in_review" | "approved" | "rejected"
       kyc_doc_type:
         | "passport"
@@ -1356,6 +1651,27 @@ export const Constants = {
       account_status: ["active", "archived", "suspended"],
       audit_action: ["INSERT", "UPDATE", "DELETE"],
       chat_status: ["open", "active", "closed"],
+      crm_activity_kind: [
+        "note",
+        "call",
+        "email",
+        "whatsapp",
+        "sms",
+        "meeting",
+        "stage_change",
+        "assignment",
+        "system",
+      ],
+      crm_lead_stage: [
+        "new",
+        "contacted",
+        "qualified",
+        "proposal",
+        "won",
+        "lost",
+      ],
+      crm_lead_status: ["open", "converted", "lost"],
+      crm_task_status: ["open", "done", "cancelled"],
       kyc_doc_status: ["pending", "in_review", "approved", "rejected"],
       kyc_doc_type: [
         "passport",
