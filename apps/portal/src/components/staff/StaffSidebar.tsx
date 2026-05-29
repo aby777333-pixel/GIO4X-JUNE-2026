@@ -12,6 +12,7 @@ import {
   Receipt,
   BookOpen,
   Banknote,
+  Radio,
   ArrowLeft,
   LogOut,
   type LucideIcon,
@@ -30,6 +31,7 @@ const nav: Item[] = [
   { label: "Funds & Settlement", href: "/staff/funds", icon: Banknote },
   { label: "Fee Engine", href: "/staff/fees", icon: Receipt },
   { label: "General Ledger", href: "/staff/ledger", icon: BookOpen },
+  { label: "Event Bus", href: "/staff/events", icon: Radio },
 ];
 
 export function StaffSidebar({

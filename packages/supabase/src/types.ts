@@ -1,5 +1,5 @@
 // AUTO-GENERATED -- DO NOT EDIT BY HAND
-// Regenerate with: supabase gen types typescript (or the Supabase MCP)
+// Regenerate with: npm run gen:types
 
 export type Json =
   | string
@@ -1978,6 +1978,7 @@ export type Database = {
         }
         Returns: Json
       }
+      dispatch_outbox_events: { Args: { p_limit?: number }; Returns: number }
       distribute_rebate: {
         Args: {
           p_created_by?: string

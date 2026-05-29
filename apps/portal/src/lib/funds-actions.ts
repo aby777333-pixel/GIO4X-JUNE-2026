@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getSupabaseServer } from "./supabase-server";
 import { getCurrentUser } from "./session";
+import { runDispatch } from "./events-actions";
 import type { Enums, Tables } from "@gio4x/supabase";
 
 // ---------------------------------------------------------------------------
@@ -89,6 +90,9 @@ export async function settleTransaction(
   });
   if (rpcErr) return { ok: false, error: rpcErr.message };
 
+  // Fan out the fee.charged / *.failed events this settlement just emitted.
+  await runDispatch();
+
   revalidatePath("/staff/funds");
   revalidatePath("/staff/ledger");
   revalidatePath("/staff/fees");
@@ -155,6 +159,9 @@ export async function recordTrade(input: RecordTradeInput): Promise<FundsActionR
     p_source: "manual",
   });
   if (rpcErr) return { ok: false, error: rpcErr.message };
+
+  // Fan out the trade.closed / rebate.distributed events this booking emitted.
+  await runDispatch();
 
   revalidatePath("/staff/funds");
   revalidatePath("/staff/ledger");
