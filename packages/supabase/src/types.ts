@@ -109,6 +109,96 @@ export type Database = {
           },
         ]
       }
+      chat_conversations: {
+        Row: {
+          assigned_staff: string | null
+          created_at: string
+          id: string
+          last_message_at: string
+          status: Database["public"]["Enums"]["chat_status"]
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_staff?: string | null
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          status?: Database["public"]["Enums"]["chat_status"]
+          subject?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_staff?: string | null
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          status?: Database["public"]["Enums"]["chat_status"]
+          subject?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_conversations_assigned_staff_fkey"
+            columns: ["assigned_staff"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_conversations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_messages: {
+        Row: {
+          author_id: string | null
+          body: string
+          conversation_id: string
+          created_at: string
+          id: string
+          is_staff_reply: boolean
+        }
+        Insert: {
+          author_id?: string | null
+          body: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          is_staff_reply?: boolean
+        }
+        Update: {
+          author_id?: string | null
+          body?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          is_staff_reply?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       commission_ledger: {
         Row: {
           amount: number
@@ -1054,6 +1144,7 @@ export type Database = {
       account_kind: "demo" | "live" | "copy" | "prop" | "managed"
       account_status: "active" | "archived" | "suspended"
       audit_action: "INSERT" | "UPDATE" | "DELETE"
+      chat_status: "open" | "active" | "closed"
       kyc_doc_status: "pending" | "in_review" | "approved" | "rejected"
       kyc_doc_type:
         | "passport"
@@ -1255,6 +1346,7 @@ export const Constants = {
       account_kind: ["demo", "live", "copy", "prop", "managed"],
       account_status: ["active", "archived", "suspended"],
       audit_action: ["INSERT", "UPDATE", "DELETE"],
+      chat_status: ["open", "active", "closed"],
       kyc_doc_status: ["pending", "in_review", "approved", "rejected"],
       kyc_doc_type: [
         "passport",

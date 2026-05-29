@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { SessionProvider } from "@/lib/session-provider";
 import { getCurrentUser } from "@/lib/session";
+import { LiveChatWidget } from "@/components/LiveChatWidget";
 
 export const metadata: Metadata = {
   title: "GIO4X Trader Area",
@@ -25,6 +26,7 @@ export default async function RootLayout({
           }}
         >
           {children}
+          <LiveChatWidget />
         </SessionProvider>
       </body>
     </html>

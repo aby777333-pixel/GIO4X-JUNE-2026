@@ -9,6 +9,7 @@ import { BookOpen, HelpCircle, Mail, MessageCircle, Phone } from "lucide-react";
 import { getCurrentUser } from "@/lib/session";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { NewTicketForm } from "./new-ticket-form";
+import { LiveChatButton } from "./live-chat-button";
 
 type TicketRow = {
   id: string;
@@ -87,7 +88,7 @@ export default async function SupportPage() {
 
       <div className="mb-6 grid gap-4 md:grid-cols-4">
         {[
-          { icon: MessageCircle, label: "Live chat", detail: "24/7 · avg response < 90s", action: "Start chat" },
+          { icon: MessageCircle, label: "Live chat", detail: "24/7 · avg response < 90s", action: "Start chat", live: true },
           { icon: Mail, label: "Email", detail: LINKS.support.email, action: "Send" },
           { icon: Phone, label: "Phone", detail: LINKS.support.phone, action: "Call" },
           { icon: BookOpen, label: "Help centre", detail: "260+ articles", action: "Browse" },
@@ -101,7 +102,11 @@ export default async function SupportPage() {
                 </div>
                 <div className="mt-3 text-sm font-semibold text-navy">{c.label}</div>
                 <div className="mt-0.5 text-[11px] text-steel">{c.detail}</div>
-                <button className="mt-3 text-xs font-medium text-sky hover:underline">{c.action} →</button>
+                {c.live ? (
+                  <LiveChatButton label={c.action} />
+                ) : (
+                  <button className="mt-3 text-xs font-medium text-sky hover:underline">{c.action} →</button>
+                )}
               </CardBody>
             </Card>
           );
