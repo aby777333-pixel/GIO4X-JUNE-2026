@@ -1551,6 +1551,198 @@ export type Database = {
           },
         ]
       }
+      pamm_funds: {
+        Row: {
+          aum: number
+          created_at: string
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          headline: string | null
+          high_water_nav: number
+          id: string
+          lockup_days: number
+          management_fee_bps: number
+          manager_id: string
+          manager_share_bps: number
+          min_investment: number
+          name: string
+          nav_per_unit: number
+          performance_fee_bps: number
+          status: Database["public"]["Enums"]["pamm_fund_status"]
+          trading_account_id: string | null
+          units_outstanding: number
+          updated_at: string
+        }
+        Insert: {
+          aum?: number
+          created_at?: string
+          currency?: Database["public"]["Enums"]["wallet_currency"]
+          headline?: string | null
+          high_water_nav?: number
+          id?: string
+          lockup_days?: number
+          management_fee_bps?: number
+          manager_id: string
+          manager_share_bps?: number
+          min_investment?: number
+          name: string
+          nav_per_unit?: number
+          performance_fee_bps?: number
+          status?: Database["public"]["Enums"]["pamm_fund_status"]
+          trading_account_id?: string | null
+          units_outstanding?: number
+          updated_at?: string
+        }
+        Update: {
+          aum?: number
+          created_at?: string
+          currency?: Database["public"]["Enums"]["wallet_currency"]
+          headline?: string | null
+          high_water_nav?: number
+          id?: string
+          lockup_days?: number
+          management_fee_bps?: number
+          manager_id?: string
+          manager_share_bps?: number
+          min_investment?: number
+          name?: string
+          nav_per_unit?: number
+          performance_fee_bps?: number
+          status?: Database["public"]["Enums"]["pamm_fund_status"]
+          trading_account_id?: string | null
+          units_outstanding?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pamm_funds_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pamm_funds_trading_account_id_fkey"
+            columns: ["trading_account_id"]
+            isOneToOne: false
+            referencedRelation: "trading_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pamm_investments: {
+        Row: {
+          created_at: string
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          fees_paid: number
+          fund_id: string
+          id: string
+          invested_amount: number
+          investor_id: string
+          locked_until: string | null
+          realized_pnl: number
+          status: Database["public"]["Enums"]["pamm_investment_status"]
+          units: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: Database["public"]["Enums"]["wallet_currency"]
+          fees_paid?: number
+          fund_id: string
+          id?: string
+          invested_amount?: number
+          investor_id: string
+          locked_until?: string | null
+          realized_pnl?: number
+          status?: Database["public"]["Enums"]["pamm_investment_status"]
+          units?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: Database["public"]["Enums"]["wallet_currency"]
+          fees_paid?: number
+          fund_id?: string
+          id?: string
+          invested_amount?: number
+          investor_id?: string
+          locked_until?: string | null
+          realized_pnl?: number
+          status?: Database["public"]["Enums"]["pamm_investment_status"]
+          units?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pamm_investments_fund_id_fkey"
+            columns: ["fund_id"]
+            isOneToOne: false
+            referencedRelation: "pamm_funds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pamm_investments_investor_id_fkey"
+            columns: ["investor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pamm_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          fund_id: string
+          id: string
+          investor_id: string | null
+          kind: Database["public"]["Enums"]["pamm_txn_kind"]
+          metadata: Json
+          nav_at: number
+          units_delta: number
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          currency?: Database["public"]["Enums"]["wallet_currency"]
+          fund_id: string
+          id?: string
+          investor_id?: string | null
+          kind: Database["public"]["Enums"]["pamm_txn_kind"]
+          metadata?: Json
+          nav_at?: number
+          units_delta?: number
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: Database["public"]["Enums"]["wallet_currency"]
+          fund_id?: string
+          id?: string
+          investor_id?: string | null
+          kind?: Database["public"]["Enums"]["pamm_txn_kind"]
+          metadata?: Json
+          nav_at?: number
+          units_delta?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pamm_transactions_fund_id_fkey"
+            columns: ["fund_id"]
+            isOneToOne: false
+            referencedRelation: "pamm_funds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pamm_transactions_investor_id_fkey"
+            columns: ["investor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -2327,6 +2519,129 @@ export type Database = {
       }
       is_admin: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
+      pamm_create_fund: {
+        Args: {
+          p_headline?: string
+          p_lockup_days?: number
+          p_management_fee_bps?: number
+          p_min_investment?: number
+          p_name: string
+          p_performance_fee_bps?: number
+          p_trading_account_id?: string
+        }
+        Returns: {
+          aum: number
+          created_at: string
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          headline: string | null
+          high_water_nav: number
+          id: string
+          lockup_days: number
+          management_fee_bps: number
+          manager_id: string
+          manager_share_bps: number
+          min_investment: number
+          name: string
+          nav_per_unit: number
+          performance_fee_bps: number
+          status: Database["public"]["Enums"]["pamm_fund_status"]
+          trading_account_id: string | null
+          units_outstanding: number
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "pamm_funds"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      pamm_invest: {
+        Args: { p_amount: number; p_fund_id: string }
+        Returns: {
+          created_at: string
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          fees_paid: number
+          fund_id: string
+          id: string
+          invested_amount: number
+          investor_id: string
+          locked_until: string | null
+          realized_pnl: number
+          status: Database["public"]["Enums"]["pamm_investment_status"]
+          units: number
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "pamm_investments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      pamm_list_funds: {
+        Args: never
+        Returns: {
+          aum: number
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          fund_id: string
+          headline: string
+          investors: number
+          lockup_days: number
+          management_fee_bps: number
+          manager_id: string
+          manager_name: string
+          min_investment: number
+          name: string
+          nav_per_unit: number
+          performance_fee_bps: number
+          return_pct: number
+          trades_count: number
+          win_rate: number
+        }[]
+      }
+      pamm_my_investments: {
+        Args: never
+        Returns: {
+          created_at: string
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          current_value: number
+          fees_paid: number
+          fund_id: string
+          fund_name: string
+          invested_amount: number
+          investment_id: string
+          locked_until: string
+          nav_per_unit: number
+          realized_pnl: number
+          status: Database["public"]["Enums"]["pamm_investment_status"]
+          units: number
+          unrealized_pnl: number
+        }[]
+      }
+      pamm_redeem: {
+        Args: { p_investment_id: string; p_units?: number }
+        Returns: {
+          created_at: string
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          fees_paid: number
+          fund_id: string
+          id: string
+          invested_amount: number
+          investor_id: string
+          locked_until: string | null
+          realized_pnl: number
+          status: Database["public"]["Enums"]["pamm_investment_status"]
+          units: number
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "pamm_investments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       post_journal_entry: {
         Args: {
           p_created_by?: string
@@ -2504,6 +2819,38 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      staff_set_fund_status: {
+        Args: {
+          p_fund_id: string
+          p_status: Database["public"]["Enums"]["pamm_fund_status"]
+        }
+        Returns: {
+          aum: number
+          created_at: string
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          headline: string | null
+          high_water_nav: number
+          id: string
+          lockup_days: number
+          management_fee_bps: number
+          manager_id: string
+          manager_share_bps: number
+          min_investment: number
+          name: string
+          nav_per_unit: number
+          performance_fee_bps: number
+          status: Database["public"]["Enums"]["pamm_fund_status"]
+          trading_account_id: string | null
+          units_outstanding: number
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "pamm_funds"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       staff_set_provider_status: {
         Args: {
           p_provider_id: string
@@ -2637,6 +2984,9 @@ export type Database = {
         | "promo"
         | "system"
         | "security"
+      pamm_fund_status: "pending" | "active" | "paused" | "closed"
+      pamm_investment_status: "active" | "redeemed"
+      pamm_txn_kind: "invest" | "redeem" | "fee" | "nav"
       ticket_category:
         | "account"
         | "kyc"
@@ -2899,6 +3249,9 @@ export const Constants = {
         "system",
         "security",
       ],
+      pamm_fund_status: ["pending", "active", "paused", "closed"],
+      pamm_investment_status: ["active", "redeemed"],
+      pamm_txn_kind: ["invest", "redeem", "fee", "nav"],
       ticket_category: [
         "account",
         "kyc",

@@ -14,6 +14,7 @@ import {
   Banknote,
   Network,
   Copy,
+  PieChart,
   Radio,
   ArrowLeft,
   LogOut,
@@ -34,6 +35,7 @@ const nav: Item[] = [
   { label: "Fee Engine", href: "/staff/fees", icon: Receipt },
   { label: "IB Network", href: "/staff/ib", icon: Network },
   { label: "Copy Trading", href: "/staff/copy", icon: Copy },
+  { label: "PAMM / MAM", href: "/staff/pamm", icon: PieChart },
   { label: "General Ledger", href: "/staff/ledger", icon: BookOpen },
   { label: "Event Bus", href: "/staff/events", icon: Radio },
 ];
