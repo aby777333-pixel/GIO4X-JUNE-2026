@@ -1,6 +1,5 @@
 // AUTO-GENERATED -- DO NOT EDIT BY HAND
-// Source: Supabase MCP `generate_typescript_types` against project tdifcayznqnaduchzfqz
-// Regenerate after every migration by running the MCP tool and pasting the output here.
+// Regenerate with: supabase gen types typescript (or the Supabase MCP)
 
 export type Json =
   | string
@@ -1623,6 +1622,90 @@ export type Database = {
           },
         ]
       }
+      trades: {
+        Row: {
+          close_price: number | null
+          closed_at: string | null
+          commission: number
+          created_at: string
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          id: string
+          lots: number
+          metadata: Json
+          open_price: number | null
+          opened_at: string
+          pnl: number
+          side: Database["public"]["Enums"]["trade_side"]
+          source: string
+          status: Database["public"]["Enums"]["trade_status"]
+          swap: number
+          symbol: string
+          ticket: number | null
+          trading_account_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          close_price?: number | null
+          closed_at?: string | null
+          commission?: number
+          created_at?: string
+          currency?: Database["public"]["Enums"]["wallet_currency"]
+          id?: string
+          lots?: number
+          metadata?: Json
+          open_price?: number | null
+          opened_at?: string
+          pnl?: number
+          side?: Database["public"]["Enums"]["trade_side"]
+          source?: string
+          status?: Database["public"]["Enums"]["trade_status"]
+          swap?: number
+          symbol?: string
+          ticket?: number | null
+          trading_account_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          close_price?: number | null
+          closed_at?: string | null
+          commission?: number
+          created_at?: string
+          currency?: Database["public"]["Enums"]["wallet_currency"]
+          id?: string
+          lots?: number
+          metadata?: Json
+          open_price?: number | null
+          opened_at?: string
+          pnl?: number
+          side?: Database["public"]["Enums"]["trade_side"]
+          source?: string
+          status?: Database["public"]["Enums"]["trade_status"]
+          swap?: number
+          symbol?: string
+          ticket?: number | null
+          trading_account_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trades_trading_account_id_fkey"
+            columns: ["trading_account_id"]
+            isOneToOne: false
+            referencedRelation: "trading_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trades_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trading_accounts: {
         Row: {
           account_kind: Database["public"]["Enums"]["account_kind"]
@@ -2013,6 +2096,74 @@ export type Database = {
         }
         Returns: string
       }
+      staff_record_trade: {
+        Args: {
+          p_close_price?: number
+          p_lots: number
+          p_open_price?: number
+          p_pnl?: number
+          p_side: Database["public"]["Enums"]["trade_side"]
+          p_source?: string
+          p_status?: Database["public"]["Enums"]["trade_status"]
+          p_symbol: string
+          p_ticket?: number
+          p_trading_account_id: string
+        }
+        Returns: {
+          close_price: number | null
+          closed_at: string | null
+          commission: number
+          created_at: string
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          id: string
+          lots: number
+          metadata: Json
+          open_price: number | null
+          opened_at: string
+          pnl: number
+          side: Database["public"]["Enums"]["trade_side"]
+          source: string
+          status: Database["public"]["Enums"]["trade_status"]
+          swap: number
+          symbol: string
+          ticket: number | null
+          trading_account_id: string
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "trades"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      staff_settle_wallet_transaction: {
+        Args: { p_action?: string; p_gateway_ref?: string; p_tx_id: string }
+        Returns: {
+          amount: number
+          balance_after: number
+          created_at: string
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          gateway: string | null
+          gateway_ref: string | null
+          id: string
+          idempotency_key: string
+          metadata: Json
+          related_user_id: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["transaction_status"]
+          type: Database["public"]["Enums"]["transaction_type"]
+          updated_at: string
+          wallet_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "wallet_transactions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
       account_kind: "demo" | "live" | "copy" | "prop" | "managed"
@@ -2106,6 +2257,8 @@ export type Database = {
         | "waiting_customer"
         | "resolved"
         | "closed"
+      trade_side: "buy" | "sell"
+      trade_status: "open" | "closed" | "cancelled"
       transaction_status:
         | "pending"
         | "processing"
@@ -2365,6 +2518,8 @@ export const Constants = {
         "resolved",
         "closed",
       ],
+      trade_side: ["buy", "sell"],
+      trade_status: ["open", "closed", "cancelled"],
       transaction_status: [
         "pending",
         "processing",

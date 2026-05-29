@@ -11,6 +11,7 @@ import {
   Contact,
   Receipt,
   BookOpen,
+  Banknote,
   ArrowLeft,
   LogOut,
   type LucideIcon,
@@ -26,6 +27,7 @@ const nav: Item[] = [
   { label: "Tickets", href: "/staff/tickets", icon: Ticket },
   { label: "Leads & CRM", href: "/staff/crm", icon: Contact },
   { label: "Customers", href: "/staff/customers", icon: Users },
+  { label: "Funds & Settlement", href: "/staff/funds", icon: Banknote },
   { label: "Fee Engine", href: "/staff/fees", icon: Receipt },
   { label: "General Ledger", href: "/staff/ledger", icon: BookOpen },
 ];
