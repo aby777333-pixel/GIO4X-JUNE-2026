@@ -12,6 +12,7 @@ import {
   Receipt,
   BookOpen,
   Banknote,
+  Network,
   Radio,
   ArrowLeft,
   LogOut,
@@ -30,6 +31,7 @@ const nav: Item[] = [
   { label: "Customers", href: "/staff/customers", icon: Users },
   { label: "Funds & Settlement", href: "/staff/funds", icon: Banknote },
   { label: "Fee Engine", href: "/staff/fees", icon: Receipt },
+  { label: "IB Network", href: "/staff/ib", icon: Network },
   { label: "General Ledger", href: "/staff/ledger", icon: BookOpen },
   { label: "Event Bus", href: "/staff/events", icon: Radio },
 ];

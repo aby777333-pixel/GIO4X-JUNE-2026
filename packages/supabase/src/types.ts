@@ -1990,6 +1990,18 @@ export type Database = {
         Returns: number
       }
       generate_referral_code: { Args: { p_user_id: string }; Returns: string }
+      ib_downline_summary: {
+        Args: { p_ib_user_id: string }
+        Returns: {
+          commission: number
+          full_name: string
+          last_activity: string
+          level: number
+          lots: number
+          member_id: string
+          member_status: string
+        }[]
+      }
       is_admin: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
       post_journal_entry: {
@@ -2031,6 +2043,14 @@ export type Database = {
           p_user_id?: string
         }
         Returns: undefined
+      }
+      settle_ib_commissions: {
+        Args: {
+          p_currency?: Database["public"]["Enums"]["wallet_currency"]
+          p_ib_user_id: string
+          p_idempotency_key?: string
+        }
+        Returns: number
       }
       staff_charge_fee: {
         Args: {
@@ -2086,6 +2106,28 @@ export type Database = {
           p_trading_account_id: string
         }
         Returns: number
+      }
+      staff_link_ib: {
+        Args: {
+          p_child_id: string
+          p_commission_plan_id?: string
+          p_parent_id: string
+        }
+        Returns: {
+          child_id: string
+          commission_plan_id: string | null
+          created_at: string
+          id: string
+          level: number
+          parent_id: string
+          share_override: number | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "ib_relationships"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       staff_post_journal_entry: {
         Args: {
