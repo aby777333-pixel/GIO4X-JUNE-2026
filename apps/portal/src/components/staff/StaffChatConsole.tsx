@@ -11,10 +11,12 @@ export type ConversationRow = {
   id: string;
   subject: string;
   status: "open" | "active" | "closed";
-  user_id: string;
+  user_id: string | null;
   assigned_staff: string | null;
   last_message_at: string;
   created_at: string;
+  guest_name: string | null;
+  source: string;
   customer_name: string;
 };
 
@@ -57,17 +59,19 @@ export function StaffChatConsole({
     const supabase = createBrowserSupabaseClient();
     const { data } = await supabase
       .from("chat_conversations")
-      .select("id, subject, status, user_id, assigned_staff, last_message_at, created_at")
+      .select("id, subject, status, user_id, assigned_staff, last_message_at, created_at, guest_name, source")
       .order("last_message_at", { ascending: false })
       .limit(100);
     if (!data) return;
     setConversations((prev) => {
       const nameById = new Map(prev.map((c) => [c.id, c.customer_name]));
-      const nameByUser = new Map(prev.map((c) => [c.user_id, c.customer_name]));
-      return data.map((c) => ({
-        ...(c as Omit<ConversationRow, "customer_name">),
-        customer_name: nameById.get(c.id) ?? nameByUser.get(c.user_id) ?? "Customer",
-      }));
+      return data.map((c) => {
+        const row = c as Omit<ConversationRow, "customer_name">;
+        return {
+          ...row,
+          customer_name: nameById.get(row.id) ?? row.guest_name ?? "Customer",
+        };
+      });
     });
   }, []);
 
@@ -201,7 +205,14 @@ export function StaffChatConsole({
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="truncate text-sm font-medium text-navy">{c.customer_name}</span>
+                    <span className="flex min-w-0 items-center gap-1.5">
+                      <span className="truncate text-sm font-medium text-navy">{c.customer_name}</span>
+                      {c.source !== "portal" ? (
+                        <span className="shrink-0 rounded bg-slate-100 px-1 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-steel">
+                          Web
+                        </span>
+                      ) : null}
+                    </span>
                     <StatusBadge tone={statusTone(c.status)}>{c.status}</StatusBadge>
                   </div>
                   <div className="truncate text-[11px] text-steel-light">

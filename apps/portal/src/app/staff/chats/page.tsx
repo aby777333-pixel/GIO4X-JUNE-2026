@@ -13,14 +13,16 @@ export default async function StaffChatsPage({
 
   const { data: convs } = await supabase
     .from("chat_conversations")
-    .select("id, subject, status, user_id, assigned_staff, last_message_at, created_at")
+    .select("id, subject, status, user_id, assigned_staff, last_message_at, created_at, guest_name, source")
     .order("last_message_at", { ascending: false })
     .limit(100);
 
   const conversations = (convs ?? []) as Omit<ConversationRow, "customer_name">[];
 
-  // Resolve customer display names in one round-trip.
-  const userIds = Array.from(new Set(conversations.map((c) => c.user_id)));
+  // Resolve customer display names in one round-trip (guests carry their own name).
+  const userIds = Array.from(
+    new Set(conversations.map((c) => c.user_id).filter((id): id is string => !!id)),
+  );
   const nameMap = new Map<string, string>();
   if (userIds.length > 0) {
     const { data: profiles } = await supabase
@@ -34,7 +36,8 @@ export default async function StaffChatsPage({
 
   const rows: ConversationRow[] = conversations.map((c) => ({
     ...c,
-    customer_name: nameMap.get(c.user_id) ?? "Customer",
+    customer_name:
+      (c.user_id ? nameMap.get(c.user_id) : null) ?? c.guest_name ?? "Customer",
   }));
 
   return (

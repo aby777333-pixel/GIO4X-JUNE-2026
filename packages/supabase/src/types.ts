@@ -113,32 +113,41 @@ export type Database = {
         Row: {
           assigned_staff: string | null
           created_at: string
+          guest_email: string | null
+          guest_name: string | null
           id: string
           last_message_at: string
+          source: string
           status: Database["public"]["Enums"]["chat_status"]
           subject: string
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           assigned_staff?: string | null
           created_at?: string
+          guest_email?: string | null
+          guest_name?: string | null
           id?: string
           last_message_at?: string
+          source?: string
           status?: Database["public"]["Enums"]["chat_status"]
           subject?: string
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           assigned_staff?: string | null
           created_at?: string
+          guest_email?: string | null
+          guest_name?: string | null
           id?: string
           last_message_at?: string
+          source?: string
           status?: Database["public"]["Enums"]["chat_status"]
           subject?: string
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
