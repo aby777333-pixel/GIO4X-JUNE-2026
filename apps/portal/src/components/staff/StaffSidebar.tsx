@@ -8,6 +8,9 @@ import {
   MessagesSquare,
   Ticket,
   Users,
+  Contact,
+  Receipt,
+  BookOpen,
   ArrowLeft,
   LogOut,
   type LucideIcon,
@@ -21,7 +24,10 @@ const nav: Item[] = [
   { label: "Dashboard", href: "/staff", icon: LayoutDashboard },
   { label: "Live Chats", href: "/staff/chats", icon: MessagesSquare },
   { label: "Tickets", href: "/staff/tickets", icon: Ticket },
+  { label: "Leads & CRM", href: "/staff/crm", icon: Contact },
   { label: "Customers", href: "/staff/customers", icon: Users },
+  { label: "Fee Engine", href: "/staff/fees", icon: Receipt },
+  { label: "General Ledger", href: "/staff/ledger", icon: BookOpen },
 ];
 
 export function StaffSidebar({

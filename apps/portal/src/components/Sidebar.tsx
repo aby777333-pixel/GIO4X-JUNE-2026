@@ -40,6 +40,8 @@ import {
   Headset,
   Contact,
   KanbanSquare,
+  Receipt,
+  BookOpen,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@gio4x/ui";
@@ -356,6 +358,20 @@ export function Sidebar() {
             >
               <KanbanSquare size={16} />
               <span className="flex-1">Sales Pipeline</span>
+            </Link>
+            <Link
+              href="/staff/fees"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-steel transition hover:bg-slate-50 hover:text-navy"
+            >
+              <Receipt size={16} />
+              <span className="flex-1">Fee Engine</span>
+            </Link>
+            <Link
+              href="/staff/ledger"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-steel transition hover:bg-slate-50 hover:text-navy"
+            >
+              <BookOpen size={16} />
+              <span className="flex-1">General Ledger</span>
             </Link>
           </div>
         ) : null}

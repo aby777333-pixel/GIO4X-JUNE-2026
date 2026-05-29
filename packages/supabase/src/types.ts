@@ -1,4 +1,4 @@
-// AUTO-GENERATED — DO NOT EDIT BY HAND
+// AUTO-GENERATED -- DO NOT EDIT BY HAND
 // Source: Supabase MCP `generate_typescript_types` against project tdifcayznqnaduchzfqz
 // Regenerate after every migration by running the MCP tool and pasting the output here.
 
@@ -216,6 +216,7 @@ export type Database = {
           ib_user_id: string
           id: string
           lots: number
+          metadata: Json
           period_end: string | null
           period_start: string | null
           settled: boolean
@@ -230,6 +231,7 @@ export type Database = {
           ib_user_id: string
           id?: string
           lots?: number
+          metadata?: Json
           period_end?: string | null
           period_start?: string | null
           settled?: boolean
@@ -244,6 +246,7 @@ export type Database = {
           ib_user_id?: string
           id?: string
           lots?: number
+          metadata?: Json
           period_end?: string | null
           period_start?: string | null
           settled?: boolean
@@ -791,6 +794,259 @@ export type Database = {
           },
         ]
       }
+      fee_charges: {
+        Row: {
+          base_amount: number
+          calc_method: Database["public"]["Enums"]["fee_calc_method"] | null
+          computed_amount: number
+          created_at: string
+          created_by: string | null
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          fee_type: Database["public"]["Enums"]["fee_type"]
+          id: string
+          idempotency_key: string
+          journal_entry_id: string | null
+          lots: number | null
+          metadata: Json
+          notes: string | null
+          rule_id: string | null
+          schedule_id: string | null
+          source_id: string | null
+          source_type: string | null
+          status: Database["public"]["Enums"]["fee_charge_status"]
+          trading_account_id: string | null
+          updated_at: string
+          user_id: string | null
+          wallet_id: string | null
+          wallet_tx_id: string | null
+        }
+        Insert: {
+          base_amount?: number
+          calc_method?: Database["public"]["Enums"]["fee_calc_method"] | null
+          computed_amount: number
+          created_at?: string
+          created_by?: string | null
+          currency?: Database["public"]["Enums"]["wallet_currency"]
+          fee_type: Database["public"]["Enums"]["fee_type"]
+          id?: string
+          idempotency_key: string
+          journal_entry_id?: string | null
+          lots?: number | null
+          metadata?: Json
+          notes?: string | null
+          rule_id?: string | null
+          schedule_id?: string | null
+          source_id?: string | null
+          source_type?: string | null
+          status?: Database["public"]["Enums"]["fee_charge_status"]
+          trading_account_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+          wallet_id?: string | null
+          wallet_tx_id?: string | null
+        }
+        Update: {
+          base_amount?: number
+          calc_method?: Database["public"]["Enums"]["fee_calc_method"] | null
+          computed_amount?: number
+          created_at?: string
+          created_by?: string | null
+          currency?: Database["public"]["Enums"]["wallet_currency"]
+          fee_type?: Database["public"]["Enums"]["fee_type"]
+          id?: string
+          idempotency_key?: string
+          journal_entry_id?: string | null
+          lots?: number | null
+          metadata?: Json
+          notes?: string | null
+          rule_id?: string | null
+          schedule_id?: string | null
+          source_id?: string | null
+          source_type?: string | null
+          status?: Database["public"]["Enums"]["fee_charge_status"]
+          trading_account_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+          wallet_id?: string | null
+          wallet_tx_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fee_charges_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_charges_journal_entry_id_fkey"
+            columns: ["journal_entry_id"]
+            isOneToOne: false
+            referencedRelation: "journal_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_charges_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "fee_rules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_charges_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "fee_schedules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_charges_trading_account_id_fkey"
+            columns: ["trading_account_id"]
+            isOneToOne: false
+            referencedRelation: "trading_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_charges_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_charges_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_charges_wallet_tx_id_fkey"
+            columns: ["wallet_tx_id"]
+            isOneToOne: false
+            referencedRelation: "wallet_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fee_rules: {
+        Row: {
+          active: boolean
+          calc_method: Database["public"]["Enums"]["fee_calc_method"]
+          created_at: string
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          fee_type: Database["public"]["Enums"]["fee_type"]
+          id: string
+          is_rebate: boolean
+          max_amount: number | null
+          metadata: Json
+          min_amount: number | null
+          priority: number
+          rate: number
+          schedule_id: string
+          tiers: Json
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          calc_method: Database["public"]["Enums"]["fee_calc_method"]
+          created_at?: string
+          currency?: Database["public"]["Enums"]["wallet_currency"]
+          fee_type: Database["public"]["Enums"]["fee_type"]
+          id?: string
+          is_rebate?: boolean
+          max_amount?: number | null
+          metadata?: Json
+          min_amount?: number | null
+          priority?: number
+          rate?: number
+          schedule_id: string
+          tiers?: Json
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          calc_method?: Database["public"]["Enums"]["fee_calc_method"]
+          created_at?: string
+          currency?: Database["public"]["Enums"]["wallet_currency"]
+          fee_type?: Database["public"]["Enums"]["fee_type"]
+          id?: string
+          is_rebate?: boolean
+          max_amount?: number | null
+          metadata?: Json
+          min_amount?: number | null
+          priority?: number
+          rate?: number
+          schedule_id?: string
+          tiers?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fee_rules_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "fee_schedules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fee_schedules: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          created_by: string | null
+          description: string
+          effective_from: string
+          effective_to: string | null
+          id: string
+          name: string
+          precedence: number
+          scope: Json
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          name: string
+          precedence?: number
+          scope?: Json
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          name?: string
+          precedence?: number
+          scope?: Json
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fee_schedules_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ib_relationships: {
         Row: {
           child_id: string
@@ -839,6 +1095,121 @@ export type Database = {
             columns: ["parent_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      journal_entries: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string
+          id: string
+          idempotency_key: string
+          metadata: Json
+          posted_at: string
+          reference: string | null
+          reverses_id: string | null
+          source_id: string | null
+          source_type: string
+          status: Database["public"]["Enums"]["journal_status"]
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          idempotency_key: string
+          metadata?: Json
+          posted_at?: string
+          reference?: string | null
+          reverses_id?: string | null
+          source_id?: string | null
+          source_type?: string
+          status?: Database["public"]["Enums"]["journal_status"]
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          idempotency_key?: string
+          metadata?: Json
+          posted_at?: string
+          reference?: string | null
+          reverses_id?: string | null
+          source_id?: string | null
+          source_type?: string
+          status?: Database["public"]["Enums"]["journal_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journal_entries_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journal_entries_reverses_id_fkey"
+            columns: ["reverses_id"]
+            isOneToOne: false
+            referencedRelation: "journal_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      journal_lines: {
+        Row: {
+          account_id: string
+          amount: number
+          created_at: string
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          direction: string
+          entry_id: string
+          id: string
+          memo: string | null
+        }
+        Insert: {
+          account_id: string
+          amount: number
+          created_at?: string
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          direction: string
+          entry_id: string
+          id?: string
+          memo?: string | null
+        }
+        Update: {
+          account_id?: string
+          amount?: number
+          created_at?: string
+          currency?: Database["public"]["Enums"]["wallet_currency"]
+          direction?: string
+          entry_id?: string
+          id?: string
+          memo?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journal_lines_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "ledger_account_balances"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journal_lines_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "ledger_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journal_lines_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "journal_entries"
             referencedColumns: ["id"]
           },
         ]
@@ -900,6 +1271,56 @@ export type Database = {
           {
             foreignKeyName: "kyc_documents_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ledger_accounts: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          id: string
+          is_system: boolean
+          metadata: Json
+          name: string
+          owner_id: string | null
+          type: Database["public"]["Enums"]["ledger_account_type"]
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          currency?: Database["public"]["Enums"]["wallet_currency"]
+          id?: string
+          is_system?: boolean
+          metadata?: Json
+          name: string
+          owner_id?: string | null
+          type: Database["public"]["Enums"]["ledger_account_type"]
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          currency?: Database["public"]["Enums"]["wallet_currency"]
+          id?: string
+          is_system?: boolean
+          metadata?: Json
+          name?: string
+          owner_id?: string | null
+          type?: Database["public"]["Enums"]["ledger_account_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ledger_accounts_owner_id_fkey"
+            columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -1383,9 +1804,79 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      ledger_account_balances: {
+        Row: {
+          balance: number | null
+          code: string | null
+          currency: Database["public"]["Enums"]["wallet_currency"] | null
+          id: string | null
+          name: string | null
+          owner_id: string | null
+          total_credit: number | null
+          total_debit: number | null
+          type: Database["public"]["Enums"]["ledger_account_type"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ledger_accounts_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      charge_fee: {
+        Args: {
+          p_base_amount?: number
+          p_created_by?: string
+          p_fee_type: Database["public"]["Enums"]["fee_type"]
+          p_idempotency_key: string
+          p_lots?: number
+          p_move_wallet?: boolean
+          p_notes?: string
+          p_override_amount?: number
+          p_scope?: Json
+          p_source_id?: string
+          p_source_type?: string
+          p_trading_account_id?: string
+          p_user_id?: string
+          p_wallet_id?: string
+        }
+        Returns: {
+          base_amount: number
+          calc_method: Database["public"]["Enums"]["fee_calc_method"] | null
+          computed_amount: number
+          created_at: string
+          created_by: string | null
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          fee_type: Database["public"]["Enums"]["fee_type"]
+          id: string
+          idempotency_key: string
+          journal_entry_id: string | null
+          lots: number | null
+          metadata: Json
+          notes: string | null
+          rule_id: string | null
+          schedule_id: string | null
+          source_id: string | null
+          source_type: string | null
+          status: Database["public"]["Enums"]["fee_charge_status"]
+          trading_account_id: string | null
+          updated_at: string
+          user_id: string | null
+          wallet_id: string | null
+          wallet_tx_id: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "fee_charges"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       check_login_lockout: {
         Args: {
           p_email: string
@@ -1394,9 +1885,42 @@ export type Database = {
         }
         Returns: boolean
       }
+      compute_fee: {
+        Args: {
+          p_at?: string
+          p_base_amount?: number
+          p_fee_type: Database["public"]["Enums"]["fee_type"]
+          p_lots?: number
+          p_scope?: Json
+        }
+        Returns: Json
+      }
+      distribute_rebate: {
+        Args: {
+          p_created_by?: string
+          p_idempotency_prefix: string
+          p_lots: number
+          p_source_user_id: string
+          p_trading_account_id: string
+        }
+        Returns: number
+      }
       generate_referral_code: { Args: { p_user_id: string }; Returns: string }
       is_admin: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
+      post_journal_entry: {
+        Args: {
+          p_created_by?: string
+          p_description?: string
+          p_idempotency_key: string
+          p_lines: Json
+          p_metadata?: Json
+          p_reference?: string
+          p_source_id?: string
+          p_source_type?: string
+        }
+        Returns: string
+      }
       process_wallet_transaction: {
         Args: {
           p_amount: number
@@ -1424,6 +1948,71 @@ export type Database = {
         }
         Returns: undefined
       }
+      staff_charge_fee: {
+        Args: {
+          p_base_amount?: number
+          p_fee_type: Database["public"]["Enums"]["fee_type"]
+          p_idempotency_key: string
+          p_lots?: number
+          p_move_wallet?: boolean
+          p_notes?: string
+          p_override_amount?: number
+          p_scope?: Json
+          p_trading_account_id?: string
+          p_user_id?: string
+          p_wallet_id?: string
+        }
+        Returns: {
+          base_amount: number
+          calc_method: Database["public"]["Enums"]["fee_calc_method"] | null
+          computed_amount: number
+          created_at: string
+          created_by: string | null
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          fee_type: Database["public"]["Enums"]["fee_type"]
+          id: string
+          idempotency_key: string
+          journal_entry_id: string | null
+          lots: number | null
+          metadata: Json
+          notes: string | null
+          rule_id: string | null
+          schedule_id: string | null
+          source_id: string | null
+          source_type: string | null
+          status: Database["public"]["Enums"]["fee_charge_status"]
+          trading_account_id: string | null
+          updated_at: string
+          user_id: string | null
+          wallet_id: string | null
+          wallet_tx_id: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "fee_charges"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      staff_distribute_rebate: {
+        Args: {
+          p_idempotency_prefix: string
+          p_lots: number
+          p_source_user_id: string
+          p_trading_account_id: string
+        }
+        Returns: number
+      }
+      staff_post_journal_entry: {
+        Args: {
+          p_description?: string
+          p_idempotency_key: string
+          p_lines: Json
+          p_metadata?: Json
+          p_reference?: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       account_kind: "demo" | "live" | "copy" | "prop" | "managed"
@@ -1449,6 +2038,28 @@ export type Database = {
         | "lost"
       crm_lead_status: "open" | "converted" | "lost"
       crm_task_status: "open" | "done" | "cancelled"
+      fee_calc_method:
+        | "flat"
+        | "percentage"
+        | "per_lot"
+        | "spread_markup"
+        | "tiered"
+      fee_charge_status: "pending" | "applied" | "waived" | "reversed"
+      fee_type:
+        | "deposit"
+        | "withdrawal"
+        | "inactivity"
+        | "conversion"
+        | "swap"
+        | "spread"
+        | "commission_per_lot"
+        | "management"
+        | "performance"
+        | "subscription"
+        | "rebate"
+        | "adjustment"
+        | "custom"
+      journal_status: "posted" | "void"
       kyc_doc_status: "pending" | "in_review" | "approved" | "rejected"
       kyc_doc_type:
         | "passport"
@@ -1464,6 +2075,12 @@ export type Database = {
         | "in_review"
         | "approved"
         | "rejected"
+      ledger_account_type:
+        | "asset"
+        | "liability"
+        | "equity"
+        | "revenue"
+        | "expense"
       notification_kind:
         | "account"
         | "kyc"
@@ -1672,6 +2289,30 @@ export const Constants = {
       ],
       crm_lead_status: ["open", "converted", "lost"],
       crm_task_status: ["open", "done", "cancelled"],
+      fee_calc_method: [
+        "flat",
+        "percentage",
+        "per_lot",
+        "spread_markup",
+        "tiered",
+      ],
+      fee_charge_status: ["pending", "applied", "waived", "reversed"],
+      fee_type: [
+        "deposit",
+        "withdrawal",
+        "inactivity",
+        "conversion",
+        "swap",
+        "spread",
+        "commission_per_lot",
+        "management",
+        "performance",
+        "subscription",
+        "rebate",
+        "adjustment",
+        "custom",
+      ],
+      journal_status: ["posted", "void"],
       kyc_doc_status: ["pending", "in_review", "approved", "rejected"],
       kyc_doc_type: [
         "passport",
@@ -1688,6 +2329,13 @@ export const Constants = {
         "in_review",
         "approved",
         "rejected",
+      ],
+      ledger_account_type: [
+        "asset",
+        "liability",
+        "equity",
+        "revenue",
+        "expense",
       ],
       notification_kind: [
         "account",
