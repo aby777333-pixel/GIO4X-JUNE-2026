@@ -320,6 +320,143 @@ export type Database = {
         }
         Relationships: []
       }
+      copy_subscriptions: {
+        Row: {
+          allocation: number
+          copy_ratio: number
+          created_at: string
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          fees_paid: number
+          follower_id: string
+          high_water_mark: number
+          id: string
+          paused_at: string | null
+          provider_id: string
+          realized_pnl: number
+          started_at: string
+          status: Database["public"]["Enums"]["copy_subscription_status"]
+          stopped_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          allocation?: number
+          copy_ratio?: number
+          created_at?: string
+          currency?: Database["public"]["Enums"]["wallet_currency"]
+          fees_paid?: number
+          follower_id: string
+          high_water_mark?: number
+          id?: string
+          paused_at?: string | null
+          provider_id: string
+          realized_pnl?: number
+          started_at?: string
+          status?: Database["public"]["Enums"]["copy_subscription_status"]
+          stopped_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          allocation?: number
+          copy_ratio?: number
+          created_at?: string
+          currency?: Database["public"]["Enums"]["wallet_currency"]
+          fees_paid?: number
+          follower_id?: string
+          high_water_mark?: number
+          id?: string
+          paused_at?: string | null
+          provider_id?: string
+          realized_pnl?: number
+          started_at?: string
+          status?: Database["public"]["Enums"]["copy_subscription_status"]
+          stopped_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "copy_subscriptions_follower_id_fkey"
+            columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "copy_subscriptions_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "signal_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      copy_trades: {
+        Row: {
+          created_at: string
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          follower_id: string
+          id: string
+          lots: number
+          pnl: number
+          provider_id: string
+          provider_trade_id: string
+          subscription_id: string
+          symbol: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: Database["public"]["Enums"]["wallet_currency"]
+          follower_id: string
+          id?: string
+          lots?: number
+          pnl?: number
+          provider_id: string
+          provider_trade_id: string
+          subscription_id: string
+          symbol?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: Database["public"]["Enums"]["wallet_currency"]
+          follower_id?: string
+          id?: string
+          lots?: number
+          pnl?: number
+          provider_id?: string
+          provider_trade_id?: string
+          subscription_id?: string
+          symbol?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "copy_trades_follower_id_fkey"
+            columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "copy_trades_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "signal_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "copy_trades_provider_trade_id_fkey"
+            columns: ["provider_trade_id"]
+            isOneToOne: false
+            referencedRelation: "trades"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "copy_trades_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "copy_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_lead_activities: {
         Row: {
           actor_id: string | null
@@ -1523,6 +1660,69 @@ export type Database = {
           },
         ]
       }
+      signal_providers: {
+        Row: {
+          created_at: string
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          display_name: string
+          headline: string | null
+          id: string
+          min_allocation: number
+          performance_fee_bps: number
+          provider_share_bps: number
+          risk: Database["public"]["Enums"]["copy_risk"]
+          status: Database["public"]["Enums"]["copy_provider_status"]
+          trading_account_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: Database["public"]["Enums"]["wallet_currency"]
+          display_name: string
+          headline?: string | null
+          id?: string
+          min_allocation?: number
+          performance_fee_bps?: number
+          provider_share_bps?: number
+          risk?: Database["public"]["Enums"]["copy_risk"]
+          status?: Database["public"]["Enums"]["copy_provider_status"]
+          trading_account_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          currency?: Database["public"]["Enums"]["wallet_currency"]
+          display_name?: string
+          headline?: string | null
+          id?: string
+          min_allocation?: number
+          performance_fee_bps?: number
+          provider_share_bps?: number
+          risk?: Database["public"]["Enums"]["copy_risk"]
+          status?: Database["public"]["Enums"]["copy_provider_status"]
+          trading_account_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signal_providers_trading_account_id_fkey"
+            columns: ["trading_account_id"]
+            isOneToOne: false
+            referencedRelation: "trading_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "signal_providers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       support_tickets: {
         Row: {
           assigned_staff: string | null
@@ -1911,6 +2111,37 @@ export type Database = {
       }
     }
     Functions: {
+      become_signal_provider: {
+        Args: {
+          p_display_name: string
+          p_headline?: string
+          p_min_allocation?: number
+          p_performance_fee_bps?: number
+          p_risk?: Database["public"]["Enums"]["copy_risk"]
+          p_trading_account_id?: string
+        }
+        Returns: {
+          created_at: string
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          display_name: string
+          headline: string | null
+          id: string
+          min_allocation: number
+          performance_fee_bps: number
+          provider_share_bps: number
+          risk: Database["public"]["Enums"]["copy_risk"]
+          status: Database["public"]["Enums"]["copy_provider_status"]
+          trading_account_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "signal_providers"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       charge_fee: {
         Args: {
           p_base_amount?: number
@@ -1977,6 +2208,98 @@ export type Database = {
           p_scope?: Json
         }
         Returns: Json
+      }
+      copy_list_providers: {
+        Args: never
+        Returns: {
+          aum: number
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          display_name: string
+          followers: number
+          headline: string
+          min_allocation: number
+          performance_fee_bps: number
+          provider_id: string
+          risk: Database["public"]["Enums"]["copy_risk"]
+          total_pnl: number
+          trades_count: number
+          user_id: string
+          win_rate: number
+        }[]
+      }
+      copy_my_subscriptions: {
+        Args: never
+        Returns: {
+          allocation: number
+          copy_ratio: number
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          fees_paid: number
+          provider_id: string
+          provider_name: string
+          realized_pnl: number
+          started_at: string
+          status: Database["public"]["Enums"]["copy_subscription_status"]
+          subscription_id: string
+        }[]
+      }
+      copy_set_subscription_status: {
+        Args: {
+          p_status: Database["public"]["Enums"]["copy_subscription_status"]
+          p_subscription_id: string
+        }
+        Returns: {
+          allocation: number
+          copy_ratio: number
+          created_at: string
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          fees_paid: number
+          follower_id: string
+          high_water_mark: number
+          id: string
+          paused_at: string | null
+          provider_id: string
+          realized_pnl: number
+          started_at: string
+          status: Database["public"]["Enums"]["copy_subscription_status"]
+          stopped_at: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "copy_subscriptions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      copy_subscribe: {
+        Args: {
+          p_allocation: number
+          p_copy_ratio?: number
+          p_provider_id: string
+        }
+        Returns: {
+          allocation: number
+          copy_ratio: number
+          created_at: string
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          fees_paid: number
+          follower_id: string
+          high_water_mark: number
+          id: string
+          paused_at: string | null
+          provider_id: string
+          realized_pnl: number
+          started_at: string
+          status: Database["public"]["Enums"]["copy_subscription_status"]
+          stopped_at: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "copy_subscriptions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       dispatch_outbox_events: { Args: { p_limit?: number }; Returns: number }
       distribute_rebate: {
@@ -2181,6 +2504,33 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      staff_set_provider_status: {
+        Args: {
+          p_provider_id: string
+          p_status: Database["public"]["Enums"]["copy_provider_status"]
+        }
+        Returns: {
+          created_at: string
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          display_name: string
+          headline: string | null
+          id: string
+          min_allocation: number
+          performance_fee_bps: number
+          provider_share_bps: number
+          risk: Database["public"]["Enums"]["copy_risk"]
+          status: Database["public"]["Enums"]["copy_provider_status"]
+          trading_account_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "signal_providers"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       staff_settle_wallet_transaction: {
         Args: { p_action?: string; p_gateway_ref?: string; p_tx_id: string }
         Returns: {
@@ -2213,6 +2563,9 @@ export type Database = {
       account_status: "active" | "archived" | "suspended"
       audit_action: "INSERT" | "UPDATE" | "DELETE"
       chat_status: "open" | "active" | "closed"
+      copy_provider_status: "pending" | "active" | "paused" | "closed"
+      copy_risk: "low" | "medium" | "high"
+      copy_subscription_status: "active" | "paused" | "stopped"
       crm_activity_kind:
         | "note"
         | "call"
@@ -2464,6 +2817,9 @@ export const Constants = {
       account_status: ["active", "archived", "suspended"],
       audit_action: ["INSERT", "UPDATE", "DELETE"],
       chat_status: ["open", "active", "closed"],
+      copy_provider_status: ["pending", "active", "paused", "closed"],
+      copy_risk: ["low", "medium", "high"],
+      copy_subscription_status: ["active", "paused", "stopped"],
       crm_activity_kind: [
         "note",
         "call",

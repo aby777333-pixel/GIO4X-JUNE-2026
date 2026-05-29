@@ -13,6 +13,7 @@ import {
   BookOpen,
   Banknote,
   Network,
+  Copy,
   Radio,
   ArrowLeft,
   LogOut,
@@ -32,6 +33,7 @@ const nav: Item[] = [
   { label: "Funds & Settlement", href: "/staff/funds", icon: Banknote },
   { label: "Fee Engine", href: "/staff/fees", icon: Receipt },
   { label: "IB Network", href: "/staff/ib", icon: Network },
+  { label: "Copy Trading", href: "/staff/copy", icon: Copy },
   { label: "General Ledger", href: "/staff/ledger", icon: BookOpen },
   { label: "Event Bus", href: "/staff/events", icon: Radio },
 ];

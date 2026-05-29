@@ -2,63 +2,33 @@ import Link from "next/link";
 import { Shell } from "@/components/Shell";
 import { PageHeader } from "@/components/PageHeader";
 import { MetricGrid } from "@/components/MetricGrid";
-import { DataTable, type Column } from "@/components/DataTable";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Card, CardBody, CardHeader, CardTitle } from "@gio4x/ui";
-import { Users, TrendingUp, Wallet, Pause, Play } from "lucide-react";
+import { Users, TrendingUp, Wallet, Receipt } from "lucide-react";
+import { getCurrentUser } from "@/lib/session";
+import { loadMySubscriptions } from "@/lib/copy-actions";
+import { SubscriptionActions } from "../copy-tools";
 
-type Following = {
-  id: number;
-  provider: string;
-  allocation: number;
-  pnl: number;
-  status: "active" | "paused";
-  since: string;
-};
+export const dynamic = "force-dynamic";
 
-const following: Following[] = [
-  { id: 1, provider: "Gold Sniper", allocation: 500, pnl: 38.2, status: "active", since: "2026-04-12" },
-  { id: 2, provider: "Carry Trade Quant", allocation: 300, pnl: 12.4, status: "active", since: "2026-04-28" },
-  { id: 3, provider: "Index Swing Trader", allocation: 200, pnl: -8.6, status: "paused", since: "2026-03-02" },
-];
+function tone(status: string) {
+  return status === "active" ? "success" : status === "paused" ? "warning" : "neutral";
+}
 
-const cols: Column<Following>[] = [
-  { key: "provider", header: "Provider", render: (r) => <span className="font-medium text-navy">{r.provider}</span> },
-  { key: "allocation", header: "Allocation", align: "right", render: (r) => <span className="text-navy">${r.allocation.toFixed(2)}</span> },
-  {
-    key: "pnl",
-    header: "P&L",
-    align: "right",
-    render: (r) => (
-      <span className={r.pnl >= 0 ? "text-success font-medium" : "text-danger font-medium"}>
-        {r.pnl >= 0 ? "+" : ""}${r.pnl.toFixed(2)}
-      </span>
-    ),
-  },
-  { key: "since", header: "Since", render: (r) => <span className="text-steel">{r.since}</span> },
-  { key: "status", header: "Status", render: (r) => <StatusBadge tone={r.status === "active" ? "success" : "neutral"}>{r.status}</StatusBadge> },
-  {
-    key: "actions",
-    header: "",
-    align: "right",
-    render: (r) => (
-      <button className="rounded-lg border border-slate-200 px-2 py-1 text-[11px] text-steel hover:border-sky/40 hover:text-navy">
-        {r.status === "active" ? <Pause size={11} className="inline mr-1" /> : <Play size={11} className="inline mr-1" />}
-        {r.status === "active" ? "Pause" : "Resume"}
-      </button>
-    ),
-  },
-];
+export default async function CopierPage() {
+  const user = await getCurrentUser();
+  const subs = user ? await loadMySubscriptions() : [];
 
-export default function CopierPage() {
-  const totalAllocated = following.reduce((s, f) => s + f.allocation, 0);
-  const totalPnl = following.reduce((s, f) => s + f.pnl, 0);
+  const totalAllocated = subs.reduce((s, f) => s + f.allocation, 0);
+  const totalPnl = subs.reduce((s, f) => s + f.realized_pnl, 0);
+  const totalFees = subs.reduce((s, f) => s + f.fees_paid, 0);
+  const activeCount = subs.filter((f) => f.status === "active").length;
 
   return (
     <Shell title="GIO4X Copy · Copier">
       <PageHeader
         title="My Copy Trading"
-        subtitle="Manage providers you follow and their allocation."
+        subtitle="Manage the providers you follow, their allocation and copy ratio."
         actions={
           <Link
             href="/copy/discover"
@@ -69,22 +39,90 @@ export default function CopierPage() {
         }
       />
 
+      {!user ? (
+        <div className="mb-4 rounded-lg border border-dashed border-slate-200 px-4 py-3 text-xs text-steel">
+          <Link href="/auth/login?redirect=/copy/copier" className="font-medium text-sky hover:underline">
+            Sign in
+          </Link>{" "}
+          to manage the strategies you copy.
+        </div>
+      ) : null}
+
       <MetricGrid
         columns={4}
         metrics={[
-          { label: "Providers followed", value: String(following.length), icon: <Users size={14} /> },
+          { label: "Active follows", value: String(activeCount), icon: <Users size={14} /> },
           { label: "Total allocated", value: `$${totalAllocated.toFixed(2)}`, icon: <Wallet size={14} /> },
-          { label: "Open P&L", value: `${totalPnl >= 0 ? "+" : ""}$${totalPnl.toFixed(2)}`, icon: <TrendingUp size={14} />, deltaDirection: totalPnl >= 0 ? "up" : "down", delta: `${((totalPnl / totalAllocated) * 100).toFixed(1)}%` },
-          { label: "Avg follow time", value: "47 days" },
+          {
+            label: "Realised P&L",
+            value: `${totalPnl >= 0 ? "+" : ""}$${totalPnl.toFixed(2)}`,
+            icon: <TrendingUp size={14} />,
+            deltaDirection: totalPnl >= 0 ? "up" : "down",
+          },
+          { label: "Performance fees paid", value: `$${totalFees.toFixed(2)}`, icon: <Receipt size={14} /> },
         ]}
       />
 
       <Card className="mt-6">
         <CardHeader>
-          <CardTitle>Providers I follow</CardTitle>
+          <CardTitle>Strategies I copy</CardTitle>
         </CardHeader>
-        <CardBody className="px-0 pt-2">
-          <DataTable columns={cols} rows={following} />
+        <CardBody className="px-0">
+          {subs.length === 0 ? (
+            <div className="px-5 py-8 text-center text-sm text-steel">
+              You&apos;re not copying any strategies yet.{" "}
+              <Link href="/copy/discover" className="font-medium text-sky hover:underline">
+                Discover providers
+              </Link>{" "}
+              to get started.
+            </div>
+          ) : (
+            <table className="w-full text-sm">
+              <thead className="text-left text-xs uppercase tracking-wider text-steel-light">
+                <tr>
+                  <th className="py-3 pl-5 pr-4 font-medium">Provider</th>
+                  <th className="px-4 py-3 text-right font-medium">Allocation</th>
+                  <th className="px-4 py-3 text-right font-medium">Ratio</th>
+                  <th className="px-4 py-3 text-right font-medium">Realised P&L</th>
+                  <th className="px-4 py-3 text-right font-medium">Fees</th>
+                  <th className="px-4 py-3 text-center font-medium">Status</th>
+                  <th className="px-4 py-3 text-right font-medium" />
+                </tr>
+              </thead>
+              <tbody>
+                {subs.map((s) => (
+                  <tr key={s.subscription_id} className="border-t border-slate-50">
+                    <td className="py-3 pl-5 pr-4">
+                      <div className="font-medium text-navy">{s.provider_name}</div>
+                      <div className="text-[10px] text-steel">
+                        since {new Date(s.started_at).toLocaleDateString()}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-right text-navy">
+                      ${s.allocation.toFixed(2)} {s.currency}
+                    </td>
+                    <td className="px-4 py-3 text-right text-navy">{s.copy_ratio.toFixed(2)}×</td>
+                    <td
+                      className={
+                        s.realized_pnl >= 0
+                          ? "px-4 py-3 text-right font-medium text-success"
+                          : "px-4 py-3 text-right font-medium text-danger"
+                      }
+                    >
+                      {s.realized_pnl >= 0 ? "+" : ""}${s.realized_pnl.toFixed(2)}
+                    </td>
+                    <td className="px-4 py-3 text-right text-steel">${s.fees_paid.toFixed(2)}</td>
+                    <td className="px-4 py-3 text-center">
+                      <StatusBadge tone={tone(s.status)}>{s.status}</StatusBadge>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <SubscriptionActions sub={s} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </CardBody>
       </Card>
     </Shell>
