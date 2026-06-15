@@ -91,9 +91,13 @@ export default function Gio4xTradingPage() {
                 </div>
               </dl>
               <div className="mt-4 flex gap-2">
-                <Button variant="primary">Subscribe</Button>
+                <Link href="/pamm">
+                  <Button variant="primary">Subscribe</Button>
+                </Link>
                 <Link
                   href={LINKS.raptor.terminal}
+                  target="_blank"
+                  rel="noreferrer"
                   className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-navy hover:border-sky/40"
                 >
                   View in Raptor

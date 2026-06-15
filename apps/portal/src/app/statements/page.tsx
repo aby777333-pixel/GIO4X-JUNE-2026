@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Shell } from "@/components/Shell";
 import { PageHeader } from "@/components/PageHeader";
 import { DataTable, type Column } from "@/components/DataTable";
@@ -48,9 +49,9 @@ const cols: Column<Statement>[] = [
     align: "right",
     render: (r) =>
       r.status === "ready" ? (
-        <button className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-2 py-1 text-[11px] text-navy hover:border-sky/40">
-          <Download size={11} /> PDF
-        </button>
+        <Link href="/funds/history" className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-2 py-1 text-[11px] text-navy hover:border-sky/40">
+          <Download size={11} /> Open
+        </Link>
       ) : (
         <span className="text-[11px] text-steel">~5 min</span>
       ),
@@ -64,9 +65,9 @@ export default function StatementsPage() {
         title="Account Statements"
         subtitle="Monthly, quarterly, and annual reports for accounting and tax."
         actions={
-          <button className="inline-flex items-center gap-1.5 rounded-lg bg-sky px-4 py-2 text-xs font-semibold text-white hover:bg-sky-light">
-            <FileText size={14} /> Generate custom range
-          </button>
+          <Link href="/funds/history" className="inline-flex items-center gap-1.5 rounded-lg bg-sky px-4 py-2 text-xs font-semibold text-white hover:bg-sky-light">
+            <FileText size={14} /> Full transaction history
+          </Link>
         }
       />
 

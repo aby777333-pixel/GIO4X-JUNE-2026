@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Shell } from "@/components/Shell";
 import { PageHeader } from "@/components/PageHeader";
 import { DataTable, type Column } from "@/components/DataTable";
@@ -32,9 +33,11 @@ export default function CampaignsPage() {
         title="Campaign Links"
         subtitle="UTM-tagged campaign URLs for each promo channel."
         actions={
-          <Button variant="primary">
-            <Plus size={14} className="mr-1" /> New campaign
-          </Button>
+          <Link href="/ib/referrals">
+            <Button variant="primary">
+              <Plus size={14} className="mr-1" /> New campaign
+            </Button>
+          </Link>
         }
       />
 

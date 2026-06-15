@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Shell } from "@/components/Shell";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardBody, CardHeader, CardTitle, Button } from "@gio4x/ui";
@@ -61,7 +62,9 @@ export default function IbProfilePage() {
                   </div>
                 </div>
                 {a.status === "needs signature" ? (
-                  <Button variant="primary" className="!text-xs"><Award size={12} className="mr-1" /> Sign now</Button>
+                  <Link href={`/support?topic=${encodeURIComponent(`Sign IB agreement: ${a.name}`)}`}>
+                    <Button variant="primary" className="!text-xs"><Award size={12} className="mr-1" /> Sign now</Button>
+                  </Link>
                 ) : (
                   <StatusBadge tone="success">Active</StatusBadge>
                 )}

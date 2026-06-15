@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Shell } from "@/components/Shell";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardBody, CardHeader, CardTitle } from "@gio4x/ui";
@@ -68,9 +69,9 @@ export default function MaterialsPage() {
                         <div className="text-sm font-medium text-navy">{it.name}</div>
                         <div className="text-[11px] text-steel">{it.type} · {it.size}</div>
                       </div>
-                      <button className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-3 py-1.5 text-xs font-medium text-navy hover:border-sky/40">
+                      <Link href="/ib/referrals" className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-3 py-1.5 text-xs font-medium text-navy hover:border-sky/40">
                         <Download size={12} /> Get
-                      </button>
+                      </Link>
                     </li>
                   ))}
                 </ul>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Shell } from "@/components/Shell";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -13,6 +14,7 @@ const offers = [
     ends: "Ongoing",
     icon: Gift,
     cta: "Claim",
+    href: "/deposits",
     eligible: true,
   },
   {
@@ -23,6 +25,7 @@ const offers = [
     ends: "2026-05-31",
     icon: Trophy,
     cta: "View leaderboard",
+    href: "/copy/discover",
     eligible: true,
   },
   {
@@ -33,6 +36,7 @@ const offers = [
     ends: "Ongoing",
     icon: Zap,
     cta: "Open ECN account",
+    href: "/accounts",
     eligible: false,
   },
   {
@@ -43,6 +47,7 @@ const offers = [
     ends: "Ongoing",
     icon: Sparkles,
     cta: "Get referral link",
+    href: "/ib/referrals",
     eligible: true,
   },
 ];
@@ -73,9 +78,15 @@ export default function PromotionsPage() {
                     <p className="mt-1 text-sm text-steel">{o.blurb}</p>
                     <div className="mt-3 flex items-center justify-between">
                       <span className="text-[11px] text-steel-light">Ends: {o.ends}</span>
-                      <Button variant={o.eligible ? "primary" : "ghost"} className={!o.eligible ? "border border-slate-200" : ""}>
-                        {o.eligible ? o.cta : "Not eligible"}
-                      </Button>
+                      {o.eligible ? (
+                        <Link href={o.href}>
+                          <Button variant="primary">{o.cta}</Button>
+                        </Link>
+                      ) : (
+                        <Link href={o.href}>
+                          <Button variant="ghost" className="border border-slate-200">{o.cta}</Button>
+                        </Link>
+                      )}
                     </div>
                   </div>
                 </div>

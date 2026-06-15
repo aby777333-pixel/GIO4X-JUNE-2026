@@ -1,8 +1,13 @@
+import Link from "next/link";
 import { Shell } from "@/components/Shell";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardBody, CardHeader, CardTitle, Button } from "@gio4x/ui";
 import { StatusBadge } from "@/components/StatusBadge";
-import { Coins, Gift, Sparkles, Trophy } from "lucide-react";
+import { getCurrentUser } from "@/lib/session";
+import { getSupabaseServer } from "@/lib/supabase-server";
+import { Coins, Sparkles, Trophy } from "lucide-react";
+
+export const dynamic = "force-dynamic";
 
 const rewards = [
   { id: 1, name: "Trading credit — $25", cost: 2500, category: "Cash" },
@@ -15,12 +20,36 @@ const rewards = [
   { id: 8, name: "MacBook Air M4", cost: 145000, category: "Gear" },
 ];
 
-const points = 12480;
+// 100 points per traded lot, earned on every closed trade.
+const POINTS_PER_LOT = 100;
+const TIERS = [
+  { name: "Platinum", min: 50000 },
+  { name: "Gold", min: 20000 },
+  { name: "Silver", min: 5000 },
+  { name: "Bronze", min: 0 },
+];
 
-export default function PointsMallPage() {
+export default async function PointsMallPage() {
+  const user = await getCurrentUser();
+  let points = 0;
+
+  if (user) {
+    const supabase = getSupabaseServer();
+    const { data } = await supabase
+      .from("trades")
+      .select("lots")
+      .eq("status", "closed")
+      .limit(1000);
+    const lots = (data ?? []).reduce((s, t) => s + Number(t.lots), 0);
+    points = Math.floor(lots * POINTS_PER_LOT);
+  }
+
+  const tier = TIERS.find((t) => points >= t.min) ?? TIERS[TIERS.length - 1];
+  const nextTier = [...TIERS].reverse().find((t) => t.min > points);
+
   return (
     <Shell title="POINTS MALL">
-      <PageHeader title="POINTS MALL" subtitle="Earn 1 point per traded lot. Redeem for credit, gear, and trading perks." />
+      <PageHeader title="POINTS MALL" subtitle="Earn 100 points per traded lot. Redeem for credit, gear, and trading perks." />
 
       <Card className="mb-6 overflow-hidden">
         <div className="relative bg-gradient-to-r from-white via-sky/5 to-sky/15 px-8 py-7">
@@ -32,19 +61,25 @@ export default function PointsMallPage() {
                 <span className="text-5xl font-bold text-navy">{points.toLocaleString()}</span>
                 <span className="pb-2 text-sm text-steel">pts</span>
               </div>
-              <div className="mt-1 text-xs text-steel-light">Lifetime earned: 24,820 · Redeemed: 12,340</div>
+              <div className="mt-1 text-xs text-steel-light">
+                {user ? "Earned from your closed trades." : "Sign in to see your points."}
+              </div>
             </div>
             <div className="flex items-center gap-4">
               <div className="rounded-xl border border-slate-200 bg-white/80 px-4 py-3 backdrop-blur">
                 <div className="text-[10px] uppercase text-steel">Tier</div>
                 <div className="mt-1 flex items-center gap-1 text-sm font-bold text-navy">
-                  <Trophy size={14} className="text-amber-500" /> Gold
+                  <Trophy size={14} className="text-amber-500" /> {tier.name}
                 </div>
               </div>
-              <div className="rounded-xl border border-slate-200 bg-white/80 px-4 py-3 backdrop-blur">
-                <div className="text-[10px] uppercase text-steel">Next tier</div>
-                <div className="mt-1 text-sm font-bold text-navy">7,520 pts → Platinum</div>
-              </div>
+              {nextTier ? (
+                <div className="rounded-xl border border-slate-200 bg-white/80 px-4 py-3 backdrop-blur">
+                  <div className="text-[10px] uppercase text-steel">Next tier</div>
+                  <div className="mt-1 text-sm font-bold text-navy">
+                    {(nextTier.min - points).toLocaleString()} pts → {nextTier.name}
+                  </div>
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
@@ -59,10 +94,7 @@ export default function PointsMallPage() {
             {rewards.map((r) => {
               const affordable = points >= r.cost;
               return (
-                <div
-                  key={r.id}
-                  className="flex flex-col rounded-xl border border-slate-100 p-4 transition hover:border-sky/30"
-                >
+                <div key={r.id} className="flex flex-col rounded-xl border border-slate-100 p-4 transition hover:border-sky/30">
                   <div className="flex h-20 items-center justify-center rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 text-3xl">
                     {r.category === "Cash" ? "💵" : r.category === "Gear" ? "🎧" : r.category === "Swag" ? "👕" : r.category === "Service" ? "🎧" : "⚡"}
                   </div>
@@ -73,7 +105,9 @@ export default function PointsMallPage() {
                       <Coins size={12} className="text-sky" /> {r.cost.toLocaleString()}
                     </span>
                     {affordable ? (
-                      <Button variant="primary" className="!py-1.5 !text-xs">Redeem</Button>
+                      <Link href={`/support?topic=${encodeURIComponent(`Redeem reward: ${r.name}`)}`}>
+                        <Button variant="primary" className="!py-1.5 !text-xs">Redeem</Button>
+                      </Link>
                     ) : (
                       <StatusBadge tone="neutral">{(r.cost - points).toLocaleString()} more</StatusBadge>
                     )}
@@ -89,15 +123,8 @@ export default function PointsMallPage() {
         <CardBody className="flex items-center gap-3">
           <Sparkles className="text-sky" />
           <div className="text-xs text-navy">
-            Earn faster: <strong>2x points on Gold trades</strong> until 31 May,
-            and <strong>3x points on first-trade-of-the-day</strong> all month long.
+            Points accrue automatically as you trade. Redemptions are processed by our team — pick a reward to raise a request.
           </div>
-        </CardBody>
-      </Card>
-
-      <Card className="mt-6 hidden">
-        <CardBody>
-          <Gift size={14} />
         </CardBody>
       </Card>
     </Shell>

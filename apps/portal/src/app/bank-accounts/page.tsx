@@ -1,8 +1,9 @@
+import Link from "next/link";
 import { Shell } from "@/components/Shell";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
-import { Card, CardBody, CardHeader, CardTitle, Button } from "@gio4x/ui";
-import { Banknote, Bitcoin, CreditCard, Plus, ShieldCheck, Trash2 } from "lucide-react";
+import { Card, CardBody, Button } from "@gio4x/ui";
+import { Banknote, Bitcoin, CreditCard, Plus, ShieldCheck } from "lucide-react";
 
 type Method = { id: number; type: "card" | "bank" | "crypto"; label: string; detail: string; primary: boolean; verified: boolean };
 
@@ -22,9 +23,11 @@ export default function BankAccountsPage() {
         title="Payment Methods"
         subtitle="Cards, bank accounts, and crypto wallets you can use to deposit and withdraw."
         actions={
-          <Button variant="primary">
-            <Plus size={14} className="mr-1" /> Add new method
-          </Button>
+          <Link href="/deposits">
+            <Button variant="primary">
+              <Plus size={14} className="mr-1" /> Add new method
+            </Button>
+          </Link>
         }
       />
 
@@ -51,15 +54,11 @@ export default function BankAccountsPage() {
                     </StatusBadge>
                   </div>
                 </div>
-                <div className="mt-4 flex justify-end gap-2 border-t border-slate-100 pt-3">
-                  {!m.primary ? (
-                    <button className="rounded-md border border-slate-200 px-2 py-1 text-[11px] text-steel hover:border-sky/40 hover:text-navy">
-                      Set primary
-                    </button>
-                  ) : null}
-                  <button className="inline-flex items-center gap-1 rounded-md border border-rose-200 px-2 py-1 text-[11px] text-rose-600 hover:bg-rose-50">
-                    <Trash2 size={11} /> Remove
-                  </button>
+                <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-[11px] text-steel">
+                  <span>{m.primary ? "Primary payout method" : "Verified destination"}</span>
+                  <Link href="/withdrawals" className="font-medium text-sky hover:underline">
+                    Use for withdrawal →
+                  </Link>
                 </div>
               </CardBody>
             </Card>
