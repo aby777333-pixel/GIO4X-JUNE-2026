@@ -1,8 +1,11 @@
+import Link from "next/link";
 import { Shell } from "@/components/Shell";
 import { PerformanceChart } from "@/components/PerformanceChart";
 import { InstrumentDonut } from "@/components/InstrumentDonut";
 import { IbGrowthPanel } from "@/components/IbGrowthPanel";
 import { Card, CardBody, CardHeader, CardTitle, StatTile, Button } from "@gio4x/ui";
+import { getCurrentUser } from "@/lib/session";
+import { loadMyRebateSummary } from "@/lib/rebate-actions";
 import {
   Coins,
   TrendingUp,
@@ -12,6 +15,8 @@ import {
   Users,
   Briefcase,
 } from "lucide-react";
+
+export const dynamic = "force-dynamic";
 
 const topAccounts = [
   { account: "7457705", name: "SIVANESAN P", volume: "238.25 Micro", rebate: "4.76" },
@@ -27,40 +32,48 @@ const recentAccounts = [
   { account: "24813368", name: "Arul B", balance: "31,741.35" },
 ];
 
-export default function IbDashboardPage() {
+export default async function IbDashboardPage() {
+  const user = await getCurrentUser();
+  const rebate = await loadMyRebateSummary("USD");
+  const totalCommission = rebate.lifetime;
+
   return (
     <Shell title="IB Dashboard">
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
             <div>
-              <CardTitle>Rebate Account · 34496</CardTitle>
+              <CardTitle>Rebate Account</CardTitle>
               <div className="mt-1 text-[11px] uppercase tracking-wider text-steel">
                 Total Commission
               </div>
             </div>
-            <button className="text-xs font-medium text-sky hover:underline">
+            <Link href="/ib/funds" className="text-xs font-medium text-sky hover:underline">
               Transaction History →
-            </button>
+            </Link>
           </CardHeader>
           <CardBody>
             <div className="flex items-end gap-2">
-              <span className="text-3xl font-bold text-navy">10.08</span>
+              <span className="text-3xl font-bold text-navy">{totalCommission.toFixed(2)}</span>
               <span className="pb-1 text-sm text-steel">USD</span>
-              <button className="ml-auto text-xs font-medium text-sky hover:underline">
-                ↳ Apply For Rebate
-              </button>
+              <Link href="/ib/funds" className="ml-auto text-xs font-medium text-sky hover:underline">
+                ↳ Claim Rebate
+              </Link>
             </div>
             <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
               <div>
                 <div className="text-xs text-steel">Available Balance</div>
-                <div className="text-sm font-semibold text-navy">0.00 USD</div>
+                <div className="text-sm font-semibold text-navy">{rebate.rebateBalance.toFixed(2)} USD</div>
               </div>
               <div className="flex gap-2">
-                <Button variant="primary">Withdraw Rebate</Button>
-                <Button variant="ghost" className="border border-slate-200">
-                  Transfer Rebate
-                </Button>
+                <Link href="/ib/funds">
+                  <Button variant="primary">Withdraw Rebate</Button>
+                </Link>
+                <Link href="/ib/funds">
+                  <Button variant="ghost" className="border border-slate-200">
+                    Transfer Rebate
+                  </Button>
+                </Link>
               </div>
             </div>
           </CardBody>
@@ -69,7 +82,7 @@ export default function IbDashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>Link</CardTitle>
-            <button className="text-xs font-medium text-sky hover:underline">More →</button>
+            <Link href="/ib/referrals" className="text-xs font-medium text-sky hover:underline">More →</Link>
           </CardHeader>
           <CardBody>
             <div className="text-xs text-steel">IB Plan</div>
@@ -104,9 +117,11 @@ export default function IbDashboardPage() {
               defaultValue="2026-05-28"
               className="rounded-lg border border-slate-200 px-2 py-1"
             />
-            <Button variant="primary" className="px-3 py-1">
-              Update
-            </Button>
+            <Link href="/ib/report">
+              <Button variant="primary" className="px-3 py-1">
+                Full report
+              </Button>
+            </Link>
           </div>
         </CardHeader>
         <CardBody>

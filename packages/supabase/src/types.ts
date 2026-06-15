@@ -2951,6 +2951,12 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      claim_my_ib_commission: {
+        Args: {
+          p_currency?: Database["public"]["Enums"]["wallet_currency"]
+        }
+        Returns: number
+      }
       staff_set_fund_status: {
         Args: {
           p_fund_id: string
