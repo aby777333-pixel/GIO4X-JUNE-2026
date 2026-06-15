@@ -2819,6 +2819,108 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      open_trade: {
+        Args: {
+          p_lots: number
+          p_open_price?: number
+          p_side: Database["public"]["Enums"]["trade_side"]
+          p_source?: string
+          p_symbol: string
+          p_ticket?: number
+          p_trading_account_id: string
+        }
+        Returns: {
+          close_price: number | null
+          closed_at: string | null
+          commission: number
+          created_at: string
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          id: string
+          lots: number
+          metadata: Json
+          open_price: number | null
+          opened_at: string
+          pnl: number
+          side: Database["public"]["Enums"]["trade_side"]
+          source: string
+          status: Database["public"]["Enums"]["trade_status"]
+          swap: number
+          symbol: string
+          ticket: number | null
+          trading_account_id: string
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "trades"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      close_trade: {
+        Args: {
+          p_close_price?: number
+          p_pnl?: number
+          p_swap?: number
+          p_trade_id: string
+        }
+        Returns: {
+          close_price: number | null
+          closed_at: string | null
+          commission: number
+          created_at: string
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          id: string
+          lots: number
+          metadata: Json
+          open_price: number | null
+          opened_at: string
+          pnl: number
+          side: Database["public"]["Enums"]["trade_side"]
+          source: string
+          status: Database["public"]["Enums"]["trade_status"]
+          swap: number
+          symbol: string
+          ticket: number | null
+          trading_account_id: string
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "trades"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      transfer_funds: {
+        Args: {
+          p_amount: number
+          p_from_id: string
+          p_from_kind: string
+          p_idempotency_key: string
+          p_to_id: string
+          p_to_kind: string
+        }
+        Returns: {
+          created_at: string
+          from_amount: number
+          from_currency: Database["public"]["Enums"]["wallet_currency"]
+          from_id: string
+          from_kind: string
+          id: string
+          idempotency_key: string
+          metadata: Json
+          status: string
+          to_amount: number
+          to_currency: Database["public"]["Enums"]["wallet_currency"]
+          to_id: string
+          to_kind: string
+          updated_at: string
+          user_id: string
+        }
+      }
       staff_set_fund_status: {
         Args: {
           p_fund_id: string
