@@ -8,6 +8,7 @@ import { Card, CardBody } from "@gio4x/ui";
 import { LINKS } from "@/lib/constants";
 import { getCurrentUser } from "@/lib/session";
 import { getSupabaseServer } from "@/lib/supabase-server";
+import { OpenLiveAccountButton } from "./open-account";
 import {
   ArrowDownToLine,
   ArrowLeftRight,
@@ -84,13 +85,7 @@ export default async function AccountsPage() {
         subtitle="All your trading accounts in one place. Open new ones, fund them, switch between live and demo."
         actions={
           <>
-            <Link
-              href={LINKS.raptor.register}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-sky px-4 py-2 text-xs font-semibold text-white transition hover:bg-sky-light"
-            >
-              <Plus size={14} />
-              Open Live Account
-            </Link>
+            <OpenLiveAccountButton />
             <Link
               href="/accounts/demo"
               className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-navy hover:border-sky/40"
@@ -150,12 +145,7 @@ export default async function AccountsPage() {
               >
                 <Plus size={14} /> Create Demo
               </Link>
-              <Link
-                href={LINKS.raptor.register}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-4 py-2 text-xs font-medium text-navy"
-              >
-                Open Live
-              </Link>
+              <OpenLiveAccountButton variant="ghost" label="Open Live" />
             </div>
           </CardBody>
         </Card>
@@ -240,18 +230,18 @@ export default async function AccountsPage() {
                   >
                     <ChartLine size={12} /> Open in Raptor
                   </Link>
-                  <button
-                    type="button"
+                  <Link
+                    href="/security"
                     className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-navy hover:border-sky/40"
                   >
                     <KeyRound size={12} /> Change Password
-                  </button>
-                  <button
-                    type="button"
+                  </Link>
+                  <Link
+                    href="/settings"
                     className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-navy hover:border-sky/40"
                   >
                     <Settings2 size={12} /> Settings
-                  </button>
+                  </Link>
                 </div>
               </CardBody>
             </Card>

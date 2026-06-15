@@ -2921,6 +2921,36 @@ export type Database = {
           user_id: string
         }
       }
+      open_trading_account: {
+        Args: {
+          p_currency?: Database["public"]["Enums"]["wallet_currency"]
+          p_kind?: Database["public"]["Enums"]["account_kind"]
+          p_leverage?: number
+          p_plan?: string
+        }
+        Returns: {
+          account_kind: Database["public"]["Enums"]["account_kind"]
+          account_number: string
+          balance: number
+          base_currency: Database["public"]["Enums"]["wallet_currency"]
+          created_at: string
+          equity: number
+          id: string
+          leverage: number
+          margin_free: number
+          plan_name: string
+          server: string
+          status: Database["public"]["Enums"]["account_status"]
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "trading_accounts"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       staff_set_fund_status: {
         Args: {
           p_fund_id: string

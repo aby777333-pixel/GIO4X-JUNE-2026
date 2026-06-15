@@ -71,3 +71,43 @@ export async function createDemoAccount(input: {
     accountNumber: data.account_number,
   };
 }
+
+// Open a demo OR live trading account via the SECURITY DEFINER RPC, which mints
+// a real sequential account number. Live accounts start at 0 (fund via deposit
+// or transfer); demo accounts are credited with play funds.
+export async function openTradingAccount(input: {
+  accountKind: "demo" | "live";
+  baseCurrency: Enums<"wallet_currency">;
+  leverage: number;
+  planName?: string;
+}): Promise<ActionResult> {
+  const user = await requireUser().catch(() => null);
+  if (!user) return { ok: false, error: "Not signed in." };
+  if (input.accountKind !== "demo" && input.accountKind !== "live") {
+    return { ok: false, error: "Choose a demo or live account." };
+  }
+
+  const supabase = getSupabaseServer();
+  const { data, error } = await supabase.rpc("open_trading_account", {
+    p_kind: input.accountKind,
+    p_currency: input.baseCurrency,
+    p_leverage: input.leverage,
+    p_plan: input.planName ?? undefined,
+  });
+
+  if (error) {
+    const msg = error.message.replace(/^.*open_trading_account:\s*/i, "");
+    return { ok: false, error: msg || "Could not open the account." };
+  }
+
+  const acct = data as { id: string; account_number: string } | null;
+  revalidatePath("/accounts");
+  revalidatePath("/transfers");
+  revalidatePath("/");
+  return {
+    ok: true,
+    message: `${input.accountKind === "live" ? "Live" : "Demo"} account ${acct?.account_number ?? ""} opened.`,
+    id: acct?.id,
+    accountNumber: acct?.account_number,
+  };
+}
