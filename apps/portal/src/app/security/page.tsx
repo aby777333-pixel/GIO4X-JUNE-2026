@@ -65,7 +65,7 @@ export default async function SecurityPage() {
                 </div>
               </div>
               <Link
-                href="/auth/forgot"
+                href="/auth/forgot-password"
                 className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-navy"
               >
                 Reset

@@ -151,7 +151,9 @@ export default async function SupportPage() {
             ].map((q) => (
               <Link
                 key={q}
-                href="#"
+                href={`${LINKS.website.faq}?q=${encodeURIComponent(q)}`}
+                target="_blank"
+                rel="noreferrer"
                 className="flex items-start gap-2 rounded-lg border border-slate-100 p-3 text-sm text-navy transition hover:border-sky/30 hover:bg-sky/5"
               >
                 <HelpCircle size={14} className="mt-0.5 text-sky" /> {q}

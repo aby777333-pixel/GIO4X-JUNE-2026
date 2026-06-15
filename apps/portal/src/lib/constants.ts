@@ -32,8 +32,14 @@ export const LINKS = {
     faq: `${WEBSITE_BASE}/faq`,
   },
   raptor: {
-    home: "/",
-    terminal: "/",
+    // The GIORAPTOR trading terminal lives on its own deploy until the
+    // in-monorepo apps/raptor stack convergence lands (Phase D). Point every
+    // "open the terminal" CTA at TERMINAL_URL so they actually reach it
+    // instead of reloading the portal home.
+    home: TERMINAL_URL,
+    terminal: TERMINAL_URL,
+    // login / register stay on the portal's own auth routes — users complete
+    // their formalities here before entering the terminal.
     login: "/auth/login",
     register: "/auth/signup",
   },

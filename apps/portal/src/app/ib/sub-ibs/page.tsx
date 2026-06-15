@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Shell } from "@/components/Shell";
 import { PageHeader } from "@/components/PageHeader";
 import { DataTable, type Column } from "@/components/DataTable";
@@ -44,9 +45,11 @@ export default function SubIbPage() {
         title="Sub-IB Management"
         subtitle="Your direct sub-IBs (L1). Configure revenue share and monitor performance."
         actions={
-          <Button variant="primary">
-            <Plus size={14} className="mr-1" /> Invite a Sub-IB
-          </Button>
+          <Link href="/ib/referrals">
+            <Button variant="primary">
+              <Plus size={14} className="mr-1" /> Invite a Sub-IB
+            </Button>
+          </Link>
         }
       />
 

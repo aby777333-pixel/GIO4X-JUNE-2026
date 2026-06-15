@@ -22,7 +22,9 @@ export default function CopyTradePage() {
               <li className="flex gap-3"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sky/10 text-xs font-bold text-sky">3</span> Trades replicate in &lt;50 ms over our colocated relay.</li>
             </ol>
             <div className="mt-5 flex gap-2">
-              <Button variant="primary">Set up CopyTrade</Button>
+              <Link href="/copy/copier">
+                <Button variant="primary">Set up CopyTrade</Button>
+              </Link>
               <Link href="/copy/discover" className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-navy hover:border-sky/40">
                 Browse strategies instead
               </Link>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Shell } from "@/components/Shell";
 import { PageHeader } from "@/components/PageHeader";
 import { DataTable, type Column } from "@/components/DataTable";
@@ -57,9 +58,11 @@ export default function IbClientsPage() {
         title="Client Report"
         subtitle="All clients under your IB code."
         actions={
-          <Button variant="primary">
-            Invite new client
-          </Button>
+          <Link href="/ib/referrals">
+            <Button variant="primary">
+              Invite new client
+            </Button>
+          </Link>
         }
       />
 
