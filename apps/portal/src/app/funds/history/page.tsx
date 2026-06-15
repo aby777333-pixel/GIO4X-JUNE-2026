@@ -3,9 +3,9 @@ import { PageHeader } from "@/components/PageHeader";
 import { DataTable, type Column } from "@/components/DataTable";
 import { StatusBadge, type StatusTone } from "@/components/StatusBadge";
 import { Card, CardBody } from "@gio4x/ui";
-import { Download } from "lucide-react";
 import { getCurrentUser } from "@/lib/session";
 import { getSupabaseServer } from "@/lib/supabase-server";
+import { ExportCsvButton } from "@/components/ExportCsvButton";
 
 type Row = {
   id: string;
@@ -71,9 +71,11 @@ export default async function HistoryPage() {
         title="Fund History"
         subtitle={user ? "Every money-movement event on your wallets." : "Sign in to view your real history."}
         actions={
-          <button className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-navy hover:border-sky/40">
-            <Download size={14} /> Export CSV
-          </button>
+          <ExportCsvButton
+            filename={`gio4x-fund-history-${new Date().toISOString().slice(0, 10)}.csv`}
+            headers={["Date", "Type", "Method", "Reference", "Amount", "Currency", "Status"]}
+            rows={rows.map((r) => [r.date, r.type, r.method, r.reference, r.amount, r.currency, r.status])}
+          />
         }
       />
 
