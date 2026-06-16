@@ -157,7 +157,7 @@ export function HeroShowcase() {
   const slide = SLIDES[pos % SLIDES.length];
 
   return (
-    <section className="relative mb-6 min-h-[420px] overflow-hidden rounded-glass border border-slate-200 bg-navy-dark sm:min-h-[460px]">
+    <section className="relative mb-6 min-h-[300px] overflow-hidden rounded-glass border border-slate-200 bg-navy-dark sm:min-h-[340px]">
       {/* ─── Rotating photography (crossfade) ─── */}
       {order.map((imgIdx, i) =>
         mounted.has(i) ? (
@@ -190,7 +190,7 @@ export function HeroShowcase() {
       <div className="absolute left-12 top-6 bottom-6 hidden w-px bg-gradient-to-b from-transparent via-[#E2BE5A]/50 to-transparent sm:block" />
 
       {/* ─── Content ─── */}
-      <div className="relative z-10 flex h-full min-h-[420px] flex-col justify-center px-6 py-10 sm:min-h-[460px] sm:pl-20 sm:pr-10">
+      <div className="relative z-10 flex h-full min-h-[300px] flex-col justify-center px-6 py-8 sm:min-h-[340px] sm:pl-20 sm:pr-10">
         <div className="max-w-2xl">
           <Image
             src="/logo.png"
