@@ -37,11 +37,6 @@ import {
   Calendar,
   Settings,
   Image as ImageIcon,
-  Headset,
-  Contact,
-  KanbanSquare,
-  Receipt,
-  BookOpen,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@gio4x/ui";
@@ -250,7 +245,6 @@ export function Sidebar() {
   }, [isIbRoute]);
 
   const homeHref = mode === "ib" ? "/ib" : "/";
-  const isStaff = profile?.role === "staff" || profile?.role === "admin";
   const displayName = profile?.full_name?.trim() || email?.split("@")[0] || "Guest";
   const uidShort = userId ? userId.slice(0, 8) : "—";
   const roleLabel = profile?.role ? profile.role.toUpperCase() : "VISITOR";
@@ -332,49 +326,6 @@ export function Sidebar() {
             <Section title="Account" items={ibNavAccount} pathname={pathname} />
           </>
         )}
-
-        {isStaff ? (
-          <div className="mt-3 space-y-0.5 border-t border-slate-100 pt-3">
-            <div className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-steel-light">
-              Staff
-            </div>
-            <Link
-              href="/staff"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-steel transition hover:bg-slate-50 hover:text-navy"
-            >
-              <Headset size={16} />
-              <span className="flex-1">Service Console</span>
-            </Link>
-            <Link
-              href="/staff/crm"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-steel transition hover:bg-slate-50 hover:text-navy"
-            >
-              <Contact size={16} />
-              <span className="flex-1">Leads &amp; CRM</span>
-            </Link>
-            <Link
-              href="/staff/crm/pipeline"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-steel transition hover:bg-slate-50 hover:text-navy"
-            >
-              <KanbanSquare size={16} />
-              <span className="flex-1">Sales Pipeline</span>
-            </Link>
-            <Link
-              href="/staff/fees"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-steel transition hover:bg-slate-50 hover:text-navy"
-            >
-              <Receipt size={16} />
-              <span className="flex-1">Fee Engine</span>
-            </Link>
-            <Link
-              href="/staff/ledger"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-steel transition hover:bg-slate-50 hover:text-navy"
-            >
-              <BookOpen size={16} />
-              <span className="flex-1">General Ledger</span>
-            </Link>
-          </div>
-        ) : null}
 
         {userId ? (
           <form action={signOut} className="mt-4">

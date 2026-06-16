@@ -12,6 +12,7 @@ const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
 // Routes that never require auth.
 const PUBLIC_PREFIXES = [
   "/auth/",
+  "/staff/login", // staff portal has its own shared-credential login
   "/api/",
   "/_next/",
   "/favicon.ico",
@@ -71,8 +72,15 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
 
   if (enforce && !user && !isPublic(pathname)) {
     const url = request.nextUrl.clone();
-    url.pathname = "/auth/login";
-    url.search = `?redirect=${encodeURIComponent(pathname + search)}`;
+    // Staff console routes have their own login; never bounce them to the
+    // client /auth/login.
+    if (pathname.startsWith("/staff")) {
+      url.pathname = "/staff/login";
+      url.search = "";
+    } else {
+      url.pathname = "/auth/login";
+      url.search = `?redirect=${encodeURIComponent(pathname + search)}`;
+    }
     return NextResponse.redirect(url);
   }
 

@@ -16,12 +16,11 @@ import {
   Copy,
   PieChart,
   Radio,
-  ArrowLeft,
   LogOut,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@gio4x/ui";
-import { signOut } from "@/lib/auth-actions";
+import { staffSignOut } from "@/lib/staff-auth-actions";
 
 type Item = { label: string; href: string; icon: LucideIcon };
 
@@ -98,14 +97,7 @@ export function StaffSidebar({
       </nav>
 
       <div className="space-y-1 border-t border-white/10 px-3 py-3">
-        <Link
-          href="/"
-          className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-white/75 transition hover:bg-white/10 hover:text-white"
-        >
-          <ArrowLeft size={16} />
-          <span>Back to portal</span>
-        </Link>
-        <form action={signOut}>
+        <form action={staffSignOut}>
           <button
             type="submit"
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-white/75 transition hover:bg-white/10 hover:text-rose-300"
