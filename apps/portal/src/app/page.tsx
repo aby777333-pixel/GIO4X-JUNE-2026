@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Shell } from "@/components/Shell";
-import { PromoBanner } from "@/components/PromoBanner";
+import { HeroShowcase } from "@/components/HeroShowcase";
 import { MarketsTable } from "@/components/MarketsTable";
 import { CurrencyCorrelation } from "@/components/CurrencyCorrelation";
 import { Card, CardBody, CardHeader, CardTitle } from "@gio4x/ui";
@@ -65,7 +65,7 @@ export default async function ClientHomePage() {
 
   return (
     <Shell title="Home">
-      <PromoBanner />
+      <HeroShowcase />
 
       <Link
         href={TERMINAL_URL}
