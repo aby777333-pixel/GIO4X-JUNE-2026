@@ -14,8 +14,81 @@ type ChatMsg = {
   created_at: string;
 };
 
-// Floating customer live-chat launcher. Mounted globally; renders nothing for
-// signed-out users, staff (they use /staff/chats), and on auth/staff routes.
+// ---------------------------------------------------------------------------
+// Guest (anonymous) helpers — logged-out website visitors chat via a
+// localStorage token + SECURITY DEFINER RPCs (migration 20260616000001).
+// These RPCs aren't in the generated Database types, so the rpc calls are
+// loosely typed here on purpose.
+// ---------------------------------------------------------------------------
+
+const GUEST_TOKEN_KEY = "gio4x_guest_chat_token";
+
+function uuidv4(): string {
+  try {
+    if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
+  } catch {
+    /* fall through */
+  }
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
+function readGuestToken(): string {
+  try {
+    let t = localStorage.getItem(GUEST_TOKEN_KEY);
+    if (!t) {
+      t = uuidv4();
+      localStorage.setItem(GUEST_TOKEN_KEY, t);
+    }
+    return t;
+  } catch {
+    // Storage blocked → ephemeral token for this session only.
+    return uuidv4();
+  }
+}
+
+type SupabaseLike = ReturnType<typeof createBrowserSupabaseClient>;
+type Rpc = (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>;
+
+async function guestStart(sb: SupabaseLike, token: string): Promise<string | null> {
+  const { data, error } = await (sb.rpc as unknown as Rpc)("guest_start_conversation", {
+    p_token: token,
+    p_source: "web",
+  });
+  if (error) throw new Error(error.message);
+  return (data as string) ?? null;
+}
+
+async function guestSend(sb: SupabaseLike, token: string, body: string): Promise<void> {
+  const { error } = await (sb.rpc as unknown as Rpc)("guest_send_message", {
+    p_token: token,
+    p_body: body,
+  });
+  if (error) throw new Error(error.message);
+}
+
+async function guestFetch(sb: SupabaseLike, token: string): Promise<ChatMsg[]> {
+  const { data, error } = await (sb.rpc as unknown as Rpc)("guest_fetch_messages", { p_token: token });
+  if (error) throw new Error(error.message);
+  return (data as ChatMsg[]) ?? [];
+}
+
+// Keep any not-yet-persisted optimistic messages until the server list catches up.
+function mergeKeepOptimistic(prev: ChatMsg[], server: ChatMsg[]): ChatMsg[] {
+  const temps = prev.filter((m) => m.id.startsWith("tmp-"));
+  const seen = new Set(server.map((m) => `${m.is_staff_reply}|${m.body}`));
+  const keep = temps.filter((t) => !seen.has(`${t.is_staff_reply}|${t.body}`));
+  return [...server, ...keep];
+}
+
+const POLL_MS = 3000;
+
+// Floating live-chat launcher. Mounted globally. Renders for signed-in
+// customers (realtime) AND anonymous website visitors (guest RPCs + polling).
+// Hidden for staff (they use /staff/chats) and on /auth + /staff routes.
 export function LiveChatWidget() {
   const pathname = usePathname();
   const { userId, profile } = useSession();
@@ -28,10 +101,12 @@ export function LiveChatWidget() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const tokenRef = useRef<string>("");
 
   const isStaff = profile?.role === "staff" || profile?.role === "admin";
   const hiddenRoute = pathname.startsWith("/auth") || pathname.startsWith("/staff");
-  const enabled = !!userId && !isStaff && !hiddenRoute;
+  const mode: "user" | "guest" | null = hiddenRoute || isStaff ? null : userId ? "user" : "guest";
+  const enabled = mode !== null;
 
   // Allow other UI (e.g. the Support page card) to open the widget.
   useEffect(() => {
@@ -41,14 +116,39 @@ export function LiveChatWidget() {
   }, []);
 
   const bootstrap = useCallback(async () => {
+    const supabase = createBrowserSupabaseClient();
+
+    if (mode === "guest") {
+      const token = readGuestToken();
+      tokenRef.current = token;
+      let convId: string | null = null;
+      try {
+        convId = await guestStart(supabase, token);
+      } catch {
+        setError("Could not start chat. Please try again.");
+        return;
+      }
+      if (!convId) {
+        setError("Could not start chat.");
+        return;
+      }
+      setConversationId(convId);
+      try {
+        setMessages(await guestFetch(supabase, token));
+      } catch {
+        /* first paint can proceed with no history */
+      }
+      setReady(true);
+      return;
+    }
+
+    // Signed-in customer (unchanged path).
     const res = await getOrCreateMyConversation();
     if (!res.ok || !res.conversationId) {
       setError(res.ok ? "Could not start chat." : res.error);
       return;
     }
     setConversationId(res.conversationId);
-
-    const supabase = createBrowserSupabaseClient();
     const { data } = await supabase
       .from("chat_messages")
       .select("id, body, is_staff_reply, created_at")
@@ -56,17 +156,34 @@ export function LiveChatWidget() {
       .order("created_at", { ascending: true });
     setMessages((data as ChatMsg[]) ?? []);
     setReady(true);
-  }, []);
+  }, [mode]);
 
   // Bootstrap conversation + initial messages the first time the panel opens.
   useEffect(() => {
     if (open && enabled && !conversationId) void bootstrap();
   }, [open, enabled, conversationId, bootstrap]);
 
-  // Realtime: append new messages for this conversation.
+  // Live updates: realtime for signed-in users, polling for guests (anon can't
+  // subscribe to chat_messages under RLS).
   useEffect(() => {
     if (!conversationId) return;
     const supabase = createBrowserSupabaseClient();
+
+    if (mode === "guest") {
+      const token = tokenRef.current;
+      if (!token) return;
+      const tick = async () => {
+        try {
+          const server = await guestFetch(supabase, token);
+          setMessages((prev) => mergeKeepOptimistic(prev, server));
+        } catch {
+          /* transient — next tick retries */
+        }
+      };
+      const interval = setInterval(tick, POLL_MS);
+      return () => clearInterval(interval);
+    }
+
     const channel = supabase
       .channel(`chat:${conversationId}`)
       .on(
@@ -86,7 +203,7 @@ export function LiveChatWidget() {
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [conversationId]);
+  }, [conversationId, mode]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -109,12 +226,23 @@ export function LiveChatWidget() {
     };
     setMessages((prev) => [...prev, optimistic]);
     setDraft("");
-    const res = await sendChatMessage(conversationId, text);
-    if (!res.ok) {
-      setError(res.error);
+
+    try {
+      if (mode === "guest") {
+        const supabase = createBrowserSupabaseClient();
+        await guestSend(supabase, tokenRef.current, text);
+        const server = await guestFetch(supabase, tokenRef.current);
+        setMessages((prev) => mergeKeepOptimistic(prev, server));
+      } else {
+        const res = await sendChatMessage(conversationId, text);
+        if (!res.ok) throw new Error(res.error);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not send message.");
       setMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
+    } finally {
+      setSending(false);
     }
-    setSending(false);
   }
 
   return (
