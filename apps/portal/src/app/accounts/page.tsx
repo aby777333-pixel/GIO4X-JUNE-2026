@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Shell } from "@/components/Shell";
-import { PageHeader } from "@/components/PageHeader";
+import { PageHero } from "@/components/PageHero";
 import { MetricGrid } from "@/components/MetricGrid";
 import { AccountChip } from "@/components/AccountChip";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -80,7 +80,9 @@ export default async function AccountsPage() {
 
   return (
     <Shell title="Accounts">
-      <PageHeader
+      <PageHero
+        eyebrow="Your Accounts"
+        image="/hero/hero-accounts.jpg"
         title="Accounts"
         subtitle="All your trading accounts in one place. Open new ones, fund them, switch between live and demo."
         actions={

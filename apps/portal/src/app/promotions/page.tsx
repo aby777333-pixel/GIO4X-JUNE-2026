@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Shell } from "@/components/Shell";
-import { PageHeader } from "@/components/PageHeader";
+import { PageHero } from "@/components/PageHero";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Card, CardBody, Button } from "@gio4x/ui";
 import { Gift, Sparkles, Trophy, Zap } from "lucide-react";
@@ -55,7 +55,9 @@ const offers = [
 export default function PromotionsPage() {
   return (
     <Shell title="Promotions">
-      <PageHeader
+      <PageHero
+        eyebrow="Offers & Bonuses"
+        image="/hero/hero-promotions.jpg"
         title="Promotions & Bonuses"
         subtitle="Active offers from GIO4X. Some are one-time, some are stackable."
       />

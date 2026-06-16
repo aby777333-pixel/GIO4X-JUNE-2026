@@ -1,5 +1,5 @@
 import { Shell } from "@/components/Shell";
-import { PageHeader } from "@/components/PageHeader";
+import { PageHero } from "@/components/PageHero";
 import { Card, CardBody, CardHeader, CardTitle } from "@gio4x/ui";
 import { LINKS } from "@/lib/constants";
 import { Apple, Globe, Monitor, Smartphone } from "lucide-react";
@@ -29,7 +29,9 @@ const assets = [
 export default function DownloadsPage() {
   return (
     <Shell title="Downloads">
-      <PageHeader
+      <PageHero
+        eyebrow="Platforms"
+        image="/hero/hero-downloads.jpg"
         title="Downloads"
         subtitle="Get the trading platforms and brand assets."
       />

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Shell } from "@/components/Shell";
-import { PageHeader } from "@/components/PageHeader";
+import { PageHero } from "@/components/PageHero";
 import { Card, CardBody, CardHeader, CardTitle, Button } from "@gio4x/ui";
 import { StatusBadge } from "@/components/StatusBadge";
 import { getCurrentUser } from "@/lib/session";
@@ -49,7 +49,12 @@ export default async function PointsMallPage() {
 
   return (
     <Shell title="POINTS MALL">
-      <PageHeader title="POINTS MALL" subtitle="Earn 100 points per traded lot. Redeem for credit, gear, and trading perks." />
+      <PageHero
+        eyebrow="Rewards"
+        image="/hero/gio4x7.png"
+        title="POINTS MALL"
+        subtitle="Earn 100 points per traded lot. Redeem for credit, gear, and trading perks."
+      />
 
       <Card className="mb-6 overflow-hidden">
         <div className="relative bg-gradient-to-r from-white via-sky/5 to-sky/15 px-8 py-7">

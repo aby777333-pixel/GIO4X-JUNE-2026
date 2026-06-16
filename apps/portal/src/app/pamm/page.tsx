@@ -1,5 +1,5 @@
 import { Shell } from "@/components/Shell";
-import { PageHeader } from "@/components/PageHeader";
+import { PageHero } from "@/components/PageHero";
 import { MetricGrid } from "@/components/MetricGrid";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Card, CardBody, CardHeader, CardTitle } from "@gio4x/ui";
@@ -46,7 +46,9 @@ export default async function PammPage() {
 
   return (
     <Shell title="PAMM">
-      <PageHeader
+      <PageHero
+        eyebrow="Managed Pools"
+        image="/hero/hero-pamm.jpg"
         title="PAMM Pools"
         subtitle="Invest in professionally-managed pools. You buy NAV units; your stake scales proportionally with the pool's performance. Fees are charged only on redemption."
       />

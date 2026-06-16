@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Shell } from "@/components/Shell";
+import { PageHero } from "@/components/PageHero";
 import { PerformanceChart } from "@/components/PerformanceChart";
 import { InstrumentDonut } from "@/components/InstrumentDonut";
 import { IbGrowthPanel } from "@/components/IbGrowthPanel";
@@ -39,6 +40,12 @@ export default async function IbDashboardPage() {
 
   return (
     <Shell title="IB Dashboard">
+      <PageHero
+        eyebrow="Partners"
+        image="/hero/hero-ib.jpg"
+        title="IB Dashboard"
+        subtitle="Grow your network, track rebates, and manage your sub-IBs and clients — all in one place."
+      />
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>

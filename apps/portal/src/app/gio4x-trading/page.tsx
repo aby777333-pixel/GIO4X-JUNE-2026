@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Shell } from "@/components/Shell";
-import { PageHeader } from "@/components/PageHeader";
+import { PageHero } from "@/components/PageHero";
 import { MetricGrid } from "@/components/MetricGrid";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Card, CardBody, CardHeader, CardTitle, Button } from "@gio4x/ui";
@@ -47,7 +47,9 @@ const products = [
 export default function Gio4xTradingPage() {
   return (
     <Shell title="GIO4X Trading">
-      <PageHeader
+      <PageHero
+        eyebrow="GIO4X Strategies"
+        image="/hero/hero-trading.jpg"
         title="GIO4X Trading"
         subtitle="GIO4X-curated structured strategies. One-click subscribe — we handle execution."
       />
