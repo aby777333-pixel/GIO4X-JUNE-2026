@@ -16,6 +16,7 @@ import {
   Copy,
   PieChart,
   Radio,
+  CandlestickChart,
   LogOut,
   type LucideIcon,
 } from "lucide-react";
@@ -35,6 +36,7 @@ const nav: Item[] = [
   { label: "IB Network", href: "/staff/ib", icon: Network },
   { label: "Copy Trading", href: "/staff/copy", icon: Copy },
   { label: "PAMM / MAM", href: "/staff/pamm", icon: PieChart },
+  { label: "Trade Log", href: "/staff/trades", icon: CandlestickChart },
   { label: "General Ledger", href: "/staff/ledger", icon: BookOpen },
   { label: "Event Bus", href: "/staff/events", icon: Radio },
 ];
