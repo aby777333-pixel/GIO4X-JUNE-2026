@@ -13,14 +13,14 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           priority
           sizes="100vw"
           className="object-cover"
-          style={{ opacity: 0.55 }}
         />
-        {/* Soft light wash over the photo so the sign-in card stays crisp. */}
+        {/* Light wash, stronger at the edges, so the photo reads clearly while
+            the header/footer text and sign-in card stay legible. */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(180deg, rgba(255,255,255,0.85) 0%, rgba(244,247,251,0.78) 45%, rgba(233,241,250,0.72) 75%, rgba(244,245,247,0.85) 100%)",
+              "linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(244,247,251,0.28) 38%, rgba(233,241,250,0.28) 66%, rgba(244,245,247,0.58) 100%)",
           }}
         />
         <div
