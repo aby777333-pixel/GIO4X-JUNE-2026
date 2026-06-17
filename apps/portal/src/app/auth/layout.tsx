@@ -4,8 +4,8 @@ import type { ReactNode } from "react";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-[var(--color-bg)]">
-      <div className="absolute inset-0 -z-10">
+    <div className="relative min-h-screen overflow-hidden bg-[var(--color-bg)]">
+      <div className="absolute inset-0">
         <Image
           src="/auth-bg.jpg"
           alt=""
@@ -41,7 +41,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         />
       </div>
 
-      <header className="flex items-center justify-between px-6 py-5">
+      <header className="relative z-10 flex items-center justify-between px-6 py-5">
         <Link href="/" aria-label="GIO4X home">
           <Image
             src="/logo.png"
@@ -62,7 +62,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         </Link>
       </header>
 
-      <main className="flex min-h-[calc(100vh-100px)] items-center justify-center px-4 pb-12">
+      <main className="relative z-10 flex min-h-[calc(100vh-100px)] items-center justify-center px-4 pb-12">
         {children}
       </main>
     </div>
