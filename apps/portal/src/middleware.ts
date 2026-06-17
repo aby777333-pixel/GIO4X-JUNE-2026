@@ -4,7 +4,9 @@ import { updateSession } from "@/lib/middleware-auth";
 // Branded module subdomains → the module's home route. One portal app serves
 // all of them; this only maps each subdomain's bare root ("/") to the right
 // module. Every other host (zippy-piroshki.netlify.app, localhost, previews)
-// and every deeper path falls through to the normal auth middleware unchanged.
+// and every deeper path falls through to the normal session middleware
+// unchanged. Auth enforcement is governed by AUTH_ENFORCE (currently "false",
+// so updateSession only refreshes the session cookie here).
 const SUBDOMAIN_HOME: Record<string, string> = {
   "copy.gio4x.com": "/copy/discover",
   "pamm.gio4x.com": "/pamm",
