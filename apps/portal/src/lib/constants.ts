@@ -54,7 +54,7 @@ export const LINKS = {
     linkedin: "https://linkedin.com/company/gio4x",
   },
   legal: {
-    license: "Reg. No. 15807, Hamchako, Mutsamudu, Autonomous Island of Anjouan, Union of Comoros",
+    license: "GIO4X is a subsidiary of 777 Capital Markets Limited (UK), Company No. 17049134. Registered office: 2nd Floor College House, 17 King Edwards Road, Ruislip, London, HA4 7AE, United Kingdom",
   },
 } as const;
 

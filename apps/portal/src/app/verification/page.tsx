@@ -187,7 +187,8 @@ export default async function VerificationPage() {
               Your documents are encrypted in transit and at rest.
             </div>
             <div className="mt-0.5 text-xs text-steel">
-              GIO4X is regulated under the Financial Services Authority of Anjouan (License 15807). We share
+              GIO4X is a subsidiary of 777 Capital Markets Limited (United Kingdom), company number 17049134, with its
+              registered office at 2nd Floor College House, 17 King Edwards Road, Ruislip, London, HA4 7AE, United Kingdom. We share
               documents only with regulators when legally required.
             </div>
           </div>
