@@ -6,11 +6,21 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-[var(--color-bg)]">
       <div className="absolute inset-0 -z-10">
+        <Image
+          src="/auth-bg.jpg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+          style={{ opacity: 0.55 }}
+        />
+        {/* Soft light wash over the photo so the sign-in card stays crisp. */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(180deg, #FFFFFF 0%, #F4F7FB 45%, #E9F1FA 75%, #F4F5F7 100%)",
+              "linear-gradient(180deg, rgba(255,255,255,0.85) 0%, rgba(244,247,251,0.78) 45%, rgba(233,241,250,0.72) 75%, rgba(244,245,247,0.85) 100%)",
           }}
         />
         <div
