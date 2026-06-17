@@ -2,14 +2,13 @@
 // terminal project and mirrors them into this portal's public.trades via the
 // idempotent bridge_ingest_position() RPC. Runs on a 1-minute pg_cron schedule.
 //
-// Env (Supabase function secrets):
-//   SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY  — injected (this portal project)
-//   RAPTOR_URL                                — terminal project URL
-//   RAPTOR_SERVICE_KEY                        — terminal project service-role key
-//   BRIDGE_SECRET                             — shared secret the cron caller must send
+// Config lives in the portal's private public.bridge_secrets table (RLS-locked):
+//   raptor_url, raptor_service_key  — terminal project URL + service-role key
+//   bridge_secret                   — shared secret the cron caller must send
+// The function reads it with the auto-injected SUPABASE_SERVICE_ROLE_KEY, so no
+// custom function secrets need to be provisioned.
 //
-// Auth: verify_jwt is disabled; the function self-guards with BRIDGE_SECRET so
-// only the scheduled caller (which holds the secret) can invoke it.
+// Auth: verify_jwt is disabled; the function self-guards with bridge_secret.
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
@@ -21,19 +20,27 @@ function json(body: unknown, status = 200): Response {
 }
 
 Deno.serve(async (req) => {
-  const secret = Deno.env.get("BRIDGE_SECRET");
-  if (secret && req.headers.get("x-bridge-secret") !== secret) {
-    return json({ ok: false, error: "forbidden" }, 403);
-  }
-
   const portal = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
-  const raptor = createClient(
-    Deno.env.get("RAPTOR_URL")!,
-    Deno.env.get("RAPTOR_SERVICE_KEY")!,
-  );
+
+  // Load config from the private table.
+  const { data: cfgRows, error: cfgErr } = await portal
+    .from("bridge_secrets")
+    .select("key,value");
+  if (cfgErr) return json({ ok: false, error: "config read failed: " + cfgErr.message }, 500);
+  const cfg = Object.fromEntries((cfgRows ?? []).map((r) => [r.key, r.value]));
+
+  // Shared-secret gate — only the scheduled caller can run the sync.
+  if (!cfg.bridge_secret || req.headers.get("x-bridge-secret") !== cfg.bridge_secret) {
+    return json({ ok: false, error: "forbidden" }, 403);
+  }
+  if (!cfg.raptor_url || !cfg.raptor_service_key) {
+    return json({ ok: false, error: "raptor config missing" }, 500);
+  }
+
+  const raptor = createClient(cfg.raptor_url, cfg.raptor_service_key);
 
   // Only mirror accounts that have an explicit mapping.
   const { data: maps, error: mapErr } = await portal
