@@ -25,8 +25,11 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Skip Next internals + static assets.
+  // Skip Next internals + static assets. The trailing extension group keeps
+  // any image/static file in /public (e.g. /auth-bg.jpg, /logo.png, /hero/*)
+  // from being auth-gated — otherwise the session check 307s the asset to
+  // /auth/login and it never loads.
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|logo.png|robots.txt|sitemap.xml).*)",
+    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:jpg|jpeg|png|gif|svg|webp|avif|ico)$).*)",
   ],
 };

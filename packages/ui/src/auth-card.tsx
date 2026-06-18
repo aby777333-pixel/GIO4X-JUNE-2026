@@ -13,7 +13,7 @@ export function AuthCard({ title, subtitle, children, footer, className }: AuthC
   return (
     <div
       className={cn(
-        "w-full max-w-md rounded-2xl border border-slate-200 bg-white p-7 shadow-sm",
+        "w-full max-w-md rounded-2xl border border-white/60 bg-white/95 p-7 shadow-xl shadow-slate-900/10 ring-1 ring-slate-900/5 backdrop-blur-sm",
         className,
       )}
     >
