@@ -16,12 +16,20 @@ export default function LoginPage() {
     setError(null);
     const fd = new FormData(e.currentTarget);
     startTransition(async () => {
-      const res = await signIn(fd);
-      if (res.ok) {
-        router.push(res.redirectTo ?? "/");
-        router.refresh();
-      } else {
-        setError(res.error);
+      try {
+        const res = await signIn(fd);
+        if (!res) {
+          setError("Something went wrong. Please try again.");
+          return;
+        }
+        if (res.ok) {
+          router.push(res.redirectTo ?? "/");
+          router.refresh();
+        } else {
+          setError(res.error);
+        }
+      } catch {
+        setError("Login failed. Please try again.");
       }
     });
   }
