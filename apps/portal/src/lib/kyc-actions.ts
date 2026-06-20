@@ -62,13 +62,17 @@ export async function reviewKycUser(userId: string, approve: boolean, reason?: s
   if (!user) return { ok: false, error: "Not signed in." };
 
   const supabase = getSupabaseServer();
-  // review_kyc_user isn't in the generated Database types yet; call it through
-  // a narrowly-typed cast rather than regenerating the whole types file.
-  const callRpc = supabase.rpc as unknown as (
-    fn: string,
-    args: Record<string, unknown>,
-  ) => Promise<{ data: unknown; error: { message: string } | null }>;
-  const { data, error } = await callRpc("review_kyc_user", {
+  // review_kyc_user isn't in the generated Database types yet. Cast the CLIENT
+  // (not the extracted .rpc method — extracting it loses the `this` binding the
+  // supabase-js SDK relies on, which throws "Cannot read properties of
+  // undefined (reading 'rest')").
+  const sb = supabase as unknown as {
+    rpc: (
+      fn: string,
+      args: Record<string, unknown>,
+    ) => Promise<{ data: unknown; error: { message: string } | null }>;
+  };
+  const { data, error } = await sb.rpc("review_kyc_user", {
     p_user_id: userId,
     p_approve: approve,
     p_reason: reason ?? null,
