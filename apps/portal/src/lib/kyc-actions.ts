@@ -55,6 +55,31 @@ export async function recordKycDocument(input: {
   return { ok: true, message: "Document submitted for review.", id: data.id };
 }
 
+// Staff-only: approve or reject all of a user's open KYC documents. The DB
+// RPC enforces is_staff() and recomputes the user's kyc_status via trigger.
+export async function reviewKycUser(userId: string, approve: boolean, reason?: string): Promise<ActionResult> {
+  const user = await requireUser().catch(() => null);
+  if (!user) return { ok: false, error: "Not signed in." };
+
+  const supabase = getSupabaseServer();
+  // review_kyc_user isn't in the generated Database types yet; call it through
+  // a narrowly-typed cast rather than regenerating the whole types file.
+  const callRpc = supabase.rpc as unknown as (
+    fn: string,
+    args: Record<string, unknown>,
+  ) => Promise<{ data: unknown; error: { message: string } | null }>;
+  const { data, error } = await callRpc("review_kyc_user", {
+    p_user_id: userId,
+    p_approve: approve,
+    p_reason: reason ?? null,
+  });
+  if (error) return { ok: false, error: error.message };
+  if (data === "forbidden") return { ok: false, error: "Staff access required." };
+
+  revalidatePath("/staff/customers");
+  return { ok: true, message: approve ? "KYC approved." : "KYC rejected." };
+}
+
 export async function deleteKycDocument(docId: string): Promise<ActionResult> {
   const user = await requireUser().catch(() => null);
   if (!user) return { ok: false, error: "Not signed in." };

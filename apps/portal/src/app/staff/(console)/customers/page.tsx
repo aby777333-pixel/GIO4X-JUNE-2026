@@ -3,6 +3,9 @@ import { Card, CardBody } from "@gio4x/ui";
 import { StatusBadge, type StatusTone } from "@/components/StatusBadge";
 import { UserCircle2 } from "lucide-react";
 import { getSupabaseServer } from "@/lib/supabase-server";
+import { KycReviewButtons } from "./KycReviewButtons";
+
+const REVIEWABLE = new Set(["in_review", "in_progress", "pending"]);
 
 export const dynamic = "force-dynamic";
 
@@ -64,6 +67,9 @@ export default async function StaffCustomersPage() {
                   <StatusBadge tone={kycTone(c.kyc_status as string)}>
                     {(c.kyc_status as string).replace("_", " ")}
                   </StatusBadge>
+                  {REVIEWABLE.has(c.kyc_status as string) ? (
+                    <KycReviewButtons userId={c.id as string} />
+                  ) : null}
                 </div>
               </div>
             ))
