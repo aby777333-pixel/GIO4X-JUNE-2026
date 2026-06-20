@@ -33,7 +33,11 @@ function isAnonymousOnly(pathname: string): boolean {
 }
 
 export async function updateSession(request: NextRequest): Promise<NextResponse> {
-  const response = NextResponse.next({ request });
+  // Expose the pathname to server components (the /staff console layout reads
+  // it to enforce per-section access). Header-only; no auth-logic change.
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-pathname", request.nextUrl.pathname);
+  const response = NextResponse.next({ request: { headers: requestHeaders } });
 
   const supabase = createServerClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookies: {

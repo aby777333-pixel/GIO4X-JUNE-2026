@@ -18,39 +18,45 @@ import {
   PieChart,
   Radio,
   CandlestickChart,
+  UserCog,
   LogOut,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@gio4x/ui";
 import { staffSignOut } from "@/lib/staff-auth-actions";
+import { canAccessSection } from "@/lib/staff-sections";
 
-type Item = { label: string; href: string; icon: LucideIcon };
+type Item = { key: string; label: string; href: string; icon: LucideIcon };
 
 const nav: Item[] = [
-  { label: "Dashboard", href: "/staff", icon: LayoutDashboard },
-  { label: "Live Chats", href: "/staff/chats", icon: MessagesSquare },
-  { label: "Tickets", href: "/staff/tickets", icon: Ticket },
-  { label: "Leads & CRM", href: "/staff/crm", icon: Contact },
-  { label: "Customers", href: "/staff/customers", icon: Users },
-  { label: "KYC", href: "/staff/kyc", icon: ShieldCheck },
-  { label: "Funds & Settlement", href: "/staff/funds", icon: Banknote },
-  { label: "Fee Engine", href: "/staff/fees", icon: Receipt },
-  { label: "IB Network", href: "/staff/ib", icon: Network },
-  { label: "Copy Trading", href: "/staff/copy", icon: Copy },
-  { label: "PAMM / MAM", href: "/staff/pamm", icon: PieChart },
-  { label: "Trade Log", href: "/staff/trades", icon: CandlestickChart },
-  { label: "General Ledger", href: "/staff/ledger", icon: BookOpen },
-  { label: "Event Bus", href: "/staff/events", icon: Radio },
+  { key: "dashboard", label: "Dashboard", href: "/staff", icon: LayoutDashboard },
+  { key: "chats", label: "Live Chats", href: "/staff/chats", icon: MessagesSquare },
+  { key: "tickets", label: "Tickets", href: "/staff/tickets", icon: Ticket },
+  { key: "crm", label: "Leads & CRM", href: "/staff/crm", icon: Contact },
+  { key: "customers", label: "Customers", href: "/staff/customers", icon: Users },
+  { key: "kyc", label: "KYC", href: "/staff/kyc", icon: ShieldCheck },
+  { key: "funds", label: "Funds & Settlement", href: "/staff/funds", icon: Banknote },
+  { key: "fees", label: "Fee Engine", href: "/staff/fees", icon: Receipt },
+  { key: "ib", label: "IB Network", href: "/staff/ib", icon: Network },
+  { key: "copy", label: "Copy Trading", href: "/staff/copy", icon: Copy },
+  { key: "pamm", label: "PAMM / MAM", href: "/staff/pamm", icon: PieChart },
+  { key: "trades", label: "Trade Log", href: "/staff/trades", icon: CandlestickChart },
+  { key: "ledger", label: "General Ledger", href: "/staff/ledger", icon: BookOpen },
+  { key: "events", label: "Event Bus", href: "/staff/events", icon: Radio },
+  { key: "team", label: "Team & Access", href: "/staff/team", icon: UserCog },
 ];
 
 export function StaffSidebar({
   name,
   role,
+  sections,
 }: {
   name: string;
   role: string;
+  sections: string[] | null;
 }) {
   const pathname = usePathname();
+  const visibleNav = nav.filter((item) => canAccessSection(item.key, role, sections));
   const initials =
     name
       .split(/\s+/)
@@ -82,7 +88,7 @@ export function StaffSidebar({
       </div>
 
       <nav className="mt-4 flex-1 space-y-1 px-3">
-        {nav.map(({ label, href, icon: Icon }) => {
+        {visibleNav.map(({ label, href, icon: Icon }) => {
           const active = href === "/staff" ? pathname === "/staff" : pathname.startsWith(href);
           return (
             <Link
