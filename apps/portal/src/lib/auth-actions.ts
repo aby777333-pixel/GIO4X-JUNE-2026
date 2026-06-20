@@ -201,8 +201,12 @@ export async function requestPasswordReset(formData: FormData): Promise<AuthActi
   if (!email) return { ok: false, error: "Email is required." };
 
   const supabase = createServerSupabaseClient(cookies());
+  // Route the PKCE recovery link through /auth/callback so the `code` is
+  // exchanged for a session cookie BEFORE landing on the reset form. Without
+  // this the reset page had no session and updateUser() failed with
+  // "Auth session missing". The callback then forwards to /auth/reset-password.
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${siteUrl()}/auth/reset-password`,
+    redirectTo: `${siteUrl()}/auth/callback?next=/auth/reset-password`,
   });
 
   // Don't leak whether the email exists — always say the same thing.
