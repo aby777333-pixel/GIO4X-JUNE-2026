@@ -167,3 +167,70 @@ export async function searchProfiles(query: string): Promise<ProfileOption[]> {
     label: `${p.full_name ?? "—"} · ${p.email ?? p.referral_code ?? p.id.slice(0, 8)}`,
   }));
 }
+
+// ---------------------------------------------------------------------------
+// IB tree management: promote/demote IB role, re-parent, detach, and fetch the
+// whole network. These RPCs aren't in the generated Database types yet, so we
+// call them through a client cast — keeping it a METHOD call so the SDK's
+// `this` binding survives (extracting .rpc into a var throws "reading 'rest'").
+// ---------------------------------------------------------------------------
+
+type RpcResult = { data: unknown; error: { message: string } | null };
+
+async function callRpc(fn: string, args: Record<string, unknown>): Promise<RpcResult> {
+  const supabase = getSupabaseServer();
+  const sb = supabase as unknown as {
+    rpc: (fn: string, args: Record<string, unknown>) => Promise<RpcResult>;
+  };
+  return sb.rpc(fn, args);
+}
+
+export type IbNode = {
+  id: string;
+  parent_id: string | null;
+  full_name: string | null;
+  email: string | null;
+  role: string;
+  referral_code: string | null;
+  accrued: number;
+};
+
+// Whole IB network (flat); the UI nests it by parent_id. Staff-only.
+export async function loadIbTree(): Promise<IbNode[]> {
+  const { user } = await requireStaff();
+  if (!user) return [];
+  const { data, error } = await callRpc("ib_network_nodes", {});
+  if (error) return [];
+  return ((data ?? []) as IbNode[]).map((n) => ({ ...n, accrued: Number(n.accrued ?? 0) }));
+}
+
+export async function setIbRole(userId: string, isIb: boolean): Promise<IbActionResult> {
+  const { user, error } = await requireStaff();
+  if (!user) return { ok: false, error };
+  if (!userId) return { ok: false, error: "User is required." };
+  const { error: e } = await callRpc("staff_set_ib_role", { p_user_id: userId, p_is_ib: isIb });
+  if (e) return { ok: false, error: e.message };
+  revalidatePath("/staff/ib");
+  return { ok: true, message: isIb ? "Promoted to IB." : "Demoted to client." };
+}
+
+export async function unlinkIb(childId: string): Promise<IbActionResult> {
+  const { user, error } = await requireStaff();
+  if (!user) return { ok: false, error };
+  if (!childId) return { ok: false, error: "Node is required." };
+  const { error: e } = await callRpc("staff_unlink_ib", { p_child_id: childId });
+  if (e) return { ok: false, error: e.message };
+  revalidatePath("/staff/ib");
+  return { ok: true, message: "Detached from parent." };
+}
+
+export async function reparentIb(childId: string, newParentId: string): Promise<IbActionResult> {
+  const { user, error } = await requireStaff();
+  if (!user) return { ok: false, error };
+  if (!childId || !newParentId) return { ok: false, error: "Pick a node and a new parent." };
+  if (childId === newParentId) return { ok: false, error: "A node cannot be its own parent." };
+  const { error: e } = await callRpc("staff_reparent_ib", { p_child_id: childId, p_new_parent_id: newParentId });
+  if (e) return { ok: false, error: e.message };
+  revalidatePath("/staff/ib");
+  return { ok: true, message: "Moved under the new parent." };
+}

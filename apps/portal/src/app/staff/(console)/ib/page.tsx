@@ -1,14 +1,15 @@
 import { Card, CardBody, CardHeader, CardTitle, StatTile } from "@gio4x/ui";
 import { PageHeader } from "@/components/PageHeader";
-import { loadUnsettledIbs } from "@/lib/ib-actions";
+import { loadUnsettledIbs, loadIbTree } from "@/lib/ib-actions";
 import { formatMoney } from "@/lib/fee-constants";
-import { SettleButton, LinkIbTool } from "./ib-tools";
+import { SettleButton, LinkIbTool, PromoteIbTool } from "./ib-tools";
+import { IbTree } from "./ib-tree";
 import { Network, Coins, Users, Wallet } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export default async function StaffIbPage() {
-  const unsettled = await loadUnsettledIbs();
+  const [unsettled, ibNodes] = await Promise.all([loadUnsettledIbs(), loadIbTree()]);
   const totalPending = unsettled.reduce((s, x) => s + x.pending, 0);
   const ibCount = new Set(unsettled.map((x) => x.ib_user_id)).size;
 
@@ -35,6 +36,31 @@ export default async function StaffIbPage() {
           <StatTile key={t.label} icon={t.icon} label={t.label} value={t.value} unit={t.unit} />
         ))}
       </div>
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>IB tree</CardTitle>
+        </CardHeader>
+        <CardBody>
+          <p className="mb-3 text-xs text-steel">
+            The full multi-tier hierarchy — Master IB → Sub-IB → Sub-sub IB → clients. Promote or demote,
+            move a node under a different parent, or detach it. The tree is live and fully editable.
+          </p>
+          <IbTree nodes={ibNodes} />
+        </CardBody>
+      </Card>
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Register / promote an IB</CardTitle>
+        </CardHeader>
+        <CardBody>
+          <p className="mb-3 text-xs text-steel">
+            Turn any client into an Introducing Broker and (optionally) place them under a master/parent IB.
+          </p>
+          <PromoteIbTool />
+        </CardBody>
+      </Card>
 
       <Card className="mb-6">
         <CardHeader>

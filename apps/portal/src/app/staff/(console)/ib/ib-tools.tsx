@@ -3,10 +3,11 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@gio4x/ui";
-import { Coins, LinkIcon, Search, X } from "lucide-react";
+import { Coins, LinkIcon, Search, UserPlus, X } from "lucide-react";
 import {
   settleCommissions,
   linkIb,
+  setIbRole,
   searchProfiles,
   type ProfileOption,
   type UnsettledIb,
@@ -52,7 +53,7 @@ export function SettleButton({ ib }: { ib: UnsettledIb }) {
 }
 
 // A debounced profile picker for the manual-link tool.
-function ProfilePicker({
+export function ProfilePicker({
   label,
   value,
   onPick,
@@ -169,6 +170,58 @@ export function LinkIbTool() {
       {err ? <p className="text-xs font-medium text-rose-600">{err}</p> : null}
       <Button variant="primary" onClick={submit} disabled={pending || !parent || !child}>
         <LinkIcon size={15} className="mr-1.5" /> {pending ? "Linking…" : "Link relationship"}
+      </Button>
+    </div>
+  );
+}
+
+// Register/promote a person to IB, optionally placing them under a master/parent.
+export function PromoteIbTool() {
+  const router = useRouter();
+  const [person, setPerson] = useState<ProfileOption | null>(null);
+  const [parent, setParent] = useState<ProfileOption | null>(null);
+  const [pending, startTransition] = useTransition();
+  const [msg, setMsg] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  function submit() {
+    setMsg(null);
+    setErr(null);
+    if (!person) {
+      setErr("Pick a person to promote to IB.");
+      return;
+    }
+    startTransition(async () => {
+      const res = await setIbRole(person.id, true);
+      if (!res.ok) {
+        setErr(res.error);
+        return;
+      }
+      if (parent) {
+        const lr = await linkIb(parent.id, person.id);
+        if (!lr.ok) {
+          setErr(`Promoted, but linking failed: ${lr.error}`);
+          router.refresh();
+          return;
+        }
+      }
+      setMsg(parent ? "Registered as IB and placed under the parent." : "Registered as IB.");
+      setPerson(null);
+      setParent(null);
+      router.refresh();
+    });
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="grid gap-3 sm:grid-cols-2">
+        <ProfilePicker label="Person to make an IB" value={person} onPick={setPerson} />
+        <ProfilePicker label="Place under (optional master / parent IB)" value={parent} onPick={setParent} />
+      </div>
+      {msg ? <p className="text-xs font-medium text-emerald-600">{msg}</p> : null}
+      {err ? <p className="text-xs font-medium text-rose-600">{err}</p> : null}
+      <Button variant="primary" onClick={submit} disabled={pending || !person}>
+        <UserPlus size={15} className="mr-1.5" /> {pending ? "Registering…" : "Register / promote IB"}
       </Button>
     </div>
   );
