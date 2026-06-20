@@ -227,7 +227,9 @@ export default async function AccountsPage() {
                     </>
                   ) : null}
                   <Link
-                    href={LINKS.raptor.terminal}
+                    href={`${LINKS.raptor.terminal}?account=${encodeURIComponent(acc.account_number)}&server=${encodeURIComponent(acc.server)}&demo=${acc.account_kind === "demo" ? 1 : 0}`}
+                    target="_blank"
+                    rel="noreferrer"
                     className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-navy hover:border-sky/40"
                   >
                     <ChartLine size={12} /> Open in Raptor
