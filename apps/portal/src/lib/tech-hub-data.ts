@@ -20,6 +20,22 @@ export type TechHub = {
 };
 export type TechHubResult = { ok: true; data: TechHub } | { ok: false; error: string };
 
+export type ExecSymbol = { symbol: string; positions: number; volume: number; commission: number };
+export type ExecDashboard = {
+  open_positions: number; open_volume: number; floating_pnl: number; active_traders: number;
+  accounts_live: number; accounts_demo: number; equity_total: number; trades_today: number;
+  volume_today: number; rev_commission_today: number; rev_swap_today: number; rev_spread_today: number;
+  realized_pnl_today: number; volume_7d: number; rev_commission_7d: number; by_symbol: ExecSymbol[];
+};
+
+// Executive dashboard metrics from the live trading core (terminal).
+export async function loadExecDashboard(): Promise<ExecDashboard | null> {
+  const user = await getCurrentUser();
+  const isSuper = Boolean((user?.profile as { is_super_admin?: boolean } | null)?.is_super_admin);
+  if (user?.profile?.role !== "admin" && !isSuper) return null;
+  return await terminalRpc<ExecDashboard>("fn_tech_exec");
+}
+
 export async function loadTechHub(): Promise<TechHubResult> {
   const user = await getCurrentUser();
   const isSuper = Boolean((user?.profile as { is_super_admin?: boolean } | null)?.is_super_admin);
