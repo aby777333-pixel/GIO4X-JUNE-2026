@@ -1,11 +1,13 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { ConfigCache, resolveConfig, routeOrder } from "@gio4x/dealer-core";
 import type { BookConfigRow, OrderContext, ClientRiskScore, EffectiveConfig, RoutingDecision } from "@gio4x/dealer-core";
 import { getSupabaseServer } from "./supabase-server";
 import type { BookConfigRowDb } from "./dealer-cockpit";
+import { buildDealerSyncPayload } from "./raptor-bridge";
 
-type Rpc = { rpc: (fn: string, args?: Record<string, unknown>) => Promise<{ data: unknown }> };
+type Rpc = { rpc: (fn: string, args?: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }> };
 
 function mapRow(r: BookConfigRowDb): BookConfigRow {
   return {
@@ -48,4 +50,18 @@ export async function previewRouting(input: PreviewInput): Promise<PreviewResult
       : null;
   const decision = routeOrder(ctx, config, risk, []);
   return { ok: true, config, decision };
+}
+
+export type SyncResult = { ok: true; positions: number; exposure: number } | { ok: false; error: string };
+
+// Read live GIO Raptor positions → engine aggregateExposure → write dealer schema.
+export async function runDealerSync(): Promise<SyncResult> {
+  const payload = await buildDealerSyncPayload();
+  if (!payload) return { ok: false, error: "Could not read GIO Raptor positions (check the bridge/terminal connection)." };
+  const sb = getSupabaseServer() as unknown as Rpc;
+  const { data, error } = await sb.rpc("dealer_ingest_state", { p_positions: payload.positions, p_exposure: payload.exposure });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/staff/dealer");
+  const d = data as { positions: number; exposure: number };
+  return { ok: true, positions: d.positions, exposure: d.exposure };
 }

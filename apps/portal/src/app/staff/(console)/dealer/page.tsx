@@ -2,6 +2,7 @@ import { Card, CardBody, CardHeader, CardTitle } from "@gio4x/ui";
 import { Activity, Cable, ShieldAlert, Layers, Wallet, ArrowLeftRight } from "lucide-react";
 import { loadDealerOverview, loadBookConfigs } from "@/lib/dealer-cockpit";
 import { RoutingPreview } from "@/components/dealer/RoutingPreview";
+import { DealerSyncButton } from "@/components/dealer/DealerSyncButton";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Dealer Desk · GIO4X" };
@@ -28,9 +29,12 @@ export default async function DealerCockpitPage() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-xl font-bold text-navy">Dealer Desk</h1>
-        <p className="text-sm text-steel">A/B-book routing, exposure, risk and liquidity — the trading control center. Engine: <code>@gio4x/dealer-core</code> · trade server: GIO Raptor.</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-bold text-navy">Dealer Desk</h1>
+          <p className="text-sm text-steel">A/B-book routing, exposure, risk and liquidity — the trading control center. Engine: <code>@gio4x/dealer-core</code> · trade server: GIO Raptor.</p>
+        </div>
+        <DealerSyncButton />
       </div>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
