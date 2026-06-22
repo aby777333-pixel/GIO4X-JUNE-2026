@@ -22,6 +22,7 @@ import {
   FileText,
   Mail,
   Cpu,
+  Scale,
   LogOut,
   type LucideIcon,
 } from "lucide-react";
@@ -44,6 +45,7 @@ const nav: Item[] = [
   { key: "copy", label: "Copy Trading", href: "/staff/copy", icon: Copy },
   { key: "pamm", label: "PAMM / MAM", href: "/staff/pamm", icon: PieChart },
   { key: "trades", label: "Trade Log", href: "/staff/trades", icon: CandlestickChart },
+  { key: "dealer", label: "Dealer Desk", href: "/staff/dealer", icon: Scale },
   { key: "ledger", label: "General Ledger", href: "/staff/ledger", icon: BookOpen },
   { key: "events", label: "Event Bus", href: "/staff/events", icon: Radio },
   { key: "documents", label: "Document Builder", href: "/staff/documents", icon: FileText },
