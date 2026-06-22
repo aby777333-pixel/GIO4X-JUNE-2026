@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { loadTechModule, loadTechConsole, getSuperAdmin, loadBridges, loadApiKeys, loadSecurityRules, loadFlags, loadRegistry, loadSignals, loadJobs, loadAuditRows, loadCapabilities, loadApiUsage } from "@/lib/tech-hub-console";
+import { loadTechModule, loadTechConsole, getSuperAdmin, loadBridges, loadApiKeys, loadSecurityRules, loadFlags, loadRegistry, loadSignals, loadJobs, loadAuditRows, loadCapabilities, loadApiUsage, loadSurveillance } from "@/lib/tech-hub-console";
 import { CapabilityManager } from "@/components/tech/CapabilityManager";
 import { ApiUsagePanel } from "@/components/tech/ApiUsagePanel";
+import { SurveillancePanel } from "@/components/tech/SurveillancePanel";
 import { AuditConsole } from "@/components/tech/AuditConsole";
 import { loadTechHub, loadExecDashboard, loadRisk } from "@/lib/tech-hub-data";
 import { AnalyticsPanel } from "@/components/tech/AnalyticsPanel";
@@ -65,6 +66,7 @@ export default async function ModulePage({ params }: { params: { module: string 
   const spreadProfiles = m.key === "spreads" ? await loadRegistry("spread_profile") : null;
   const signals = m.key === "signals" ? await loadSignals() : null;
   const jobs = m.key === "automation" ? await loadJobs() : null;
+  const surveillance = m.key === "automation" ? await loadSurveillance() : null;
   const consoleData = ["monitoring", "database", "access", "security"].includes(m.key) ? await loadTechConsole() : null;
   const capabilities = await loadCapabilities(m.key);
   const auditRows = m.key === "security" ? await loadAuditRows() : null;
@@ -119,8 +121,9 @@ export default async function ModulePage({ params }: { params: { module: string 
       {/* Signals & strategy (live copy/PAMM state) */}
       {signals && <SignalsPanel signals={signals} />}
 
-      {/* Automation & AI (scheduled jobs + outbox) */}
+      {/* Automation & AI (scheduled jobs + outbox + live trade surveillance) */}
       {jobs && <AutomationPanel jobs={jobs} />}
+      {surveillance && <SurveillancePanel data={surveillance} />}
 
       {/* Liquidity live panel */}
       {liquidity && liquidity.ok && (

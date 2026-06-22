@@ -145,6 +145,16 @@ export async function loadCapabilities(moduleKey: string): Promise<Capability[]>
   return (data as Capability[]) ?? [];
 }
 
+export type SurveillanceAlert = { id: string; kind: string; severity: string; subject: string | null; detail: string | null; created_at: string };
+export type Surveillance = { open: SurveillanceAlert[]; counts: { open: number; high: number; resolved_24h: number } };
+export async function loadSurveillance(): Promise<Surveillance | null> {
+  const { user, isSuper } = await getSuperAdmin();
+  if (!user || !isSuper) return null;
+  const sb = getSupabaseServer() as unknown as LooseClient;
+  const { data } = await sb.rpc("tech_surveillance_list");
+  return (data as Surveillance) ?? null;
+}
+
 export async function loadAuditRows(): Promise<AuditRow[]> {
   const { user, isSuper } = await getSuperAdmin();
   if (!user || !isSuper) return [];

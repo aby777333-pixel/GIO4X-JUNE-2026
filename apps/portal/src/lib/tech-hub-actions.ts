@@ -6,6 +6,7 @@ import { getSupabaseServer } from "./supabase-server";
 import { getCurrentUser } from "./session";
 import type { AuditRow } from "./tech-hub-console";
 import { loadExecDashboard, loadTechHub, loadRisk } from "./tech-hub-data";
+import { terminalRpc } from "./tech-terminal";
 
 export async function techSignOut(): Promise<void> {
   const sb = getSupabaseServer();
@@ -250,4 +251,22 @@ export async function processOutbox(): Promise<TechResult> {
   const { error } = await sb.rpc("tech_outbox_process");
   if (error) return { ok: false, error: error.message };
   revalidatePath("/tech/automation"); return { ok: true, message: "Outbox processed." };
+}
+
+// ── Trade surveillance (live anomaly detection over the trading core) ───────
+export async function runSurveillance(): Promise<TechResult> {
+  const g = await requireSuper(); if (!g.ok) return g;
+  const findings = await terminalRpc<unknown[]>("fn_tech_surveillance");
+  const sb = getSupabaseServer() as unknown as Rpc;
+  const { data, error } = await sb.rpc("tech_surveillance_ingest", { p_findings: findings ?? [] });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/tech/automation");
+  return { ok: true, message: `Scan complete — ${(data as number) ?? 0} new alert(s).` };
+}
+export async function resolveAlert(id: string): Promise<TechResult> {
+  const g = await requireSuper(); if (!g.ok) return g;
+  const sb = getSupabaseServer() as unknown as Rpc;
+  const { error } = await sb.rpc("tech_surveillance_resolve", { p_id: id });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/tech/automation"); return { ok: true, message: "Alert resolved." };
 }

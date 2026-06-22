@@ -4,7 +4,7 @@
 // sync with the panels rendered in app/tech/[module]/page.tsx.
 export const CAPABILITY_LIVE: Record<string, string[]> = {
   platform: ["Feature create/edit/enable/disable/delete", "Feature toggles & deployment"],
-  api: ["API key create/regenerate/suspend/revoke", "REST API", "Rate limiting & throttling", "Usage analytics", "API documentation", "Third-party developer access"],
+  api: ["API key create/regenerate/suspend/revoke", "REST API", "WebSocket API", "Rate limiting & throttling", "Usage analytics", "API documentation", "Third-party developer access"],
   marketplace: ["Install extensions", "Custom plugins", "Per-broker enable/disable"],
   devtools: ["Environment variables"],
   bridges: [
@@ -26,7 +26,7 @@ export const CAPABILITY_LIVE: Record<string, string[]> = {
   infra: ["Servers & cloud"],
   monitoring: ["System health", "API performance", "Database monitoring", "Latency", "Audit logs", "Performance analytics"],
   database: ["Health monitoring"],
-  automation: ["Scheduled jobs", "Workflow automation"],
+  automation: ["AI anomaly detection", "AI risk monitoring", "AI diagnostics", "Workflow automation", "Scheduled jobs"],
   security: ["MFA controls", "IP whitelisting", "Geo restrictions", "Security event monitoring"],
 };
 
