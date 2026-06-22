@@ -2,7 +2,9 @@ import Link from "next/link";
 import { CheckCircle2, Circle, ArrowLeft } from "lucide-react";
 import { loadTechModule, loadTechConsole, getSuperAdmin, loadBridges, loadApiKeys, loadSecurityRules, loadFlags, loadRegistry, loadSignals, loadJobs, loadAuditRows } from "@/lib/tech-hub-console";
 import { AuditConsole } from "@/components/tech/AuditConsole";
-import { loadTechHub } from "@/lib/tech-hub-data";
+import { loadTechHub, loadExecDashboard, loadRisk } from "@/lib/tech-hub-data";
+import { AnalyticsPanel } from "@/components/tech/AnalyticsPanel";
+import { RiskPanel } from "@/components/tech/RiskPanel";
 import { ModuleToggle } from "@/components/tech/ModuleToggle";
 import { SuperAdminToggle } from "@/components/tech/SuperAdminToggle";
 import { BridgeManager } from "@/components/tech/BridgeManager";
@@ -62,6 +64,8 @@ export default async function ModulePage({ params }: { params: { module: string 
   const jobs = m.key === "automation" ? await loadJobs() : null;
   const consoleData = ["monitoring", "database", "access", "security"].includes(m.key) ? await loadTechConsole() : null;
   const auditRows = m.key === "security" ? await loadAuditRows() : null;
+  const reportExec = m.key === "reporting" ? await loadExecDashboard() : null;
+  const risk = m.key === "monitoring" ? await loadRisk() : null;
   const { user } = await getSuperAdmin();
 
   return (
@@ -119,6 +123,7 @@ export default async function ModulePage({ params }: { params: { module: string 
       {apiKeys && <ApiKeyManager keys={apiKeys} />}
       {flags && <FlagManager flags={flags} />}
       {secRules && <SecurityManager rules={secRules} />}
+      {reportExec && <AnalyticsPanel exec={reportExec} />}
       {m.key === "reporting" && <ReportingPanel />}
 
       {/* Registry-backed modules: infrastructure / brokers / env / extensions */}
@@ -188,6 +193,9 @@ export default async function ModulePage({ params }: { params: { module: string 
           </div>
         </div>
       )}
+
+      {/* Monitoring — live risk & exposure */}
+      {risk && <RiskPanel risk={risk} />}
 
       {/* Access — super admins */}
       {consoleData && consoleData.ok && m.key === "access" && (

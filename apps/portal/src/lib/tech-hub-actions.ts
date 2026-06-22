@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { getSupabaseServer } from "./supabase-server";
 import { getCurrentUser } from "./session";
 import type { AuditRow } from "./tech-hub-console";
+import { loadExecDashboard, loadTechHub, loadRisk } from "./tech-hub-data";
 
 export async function techSignOut(): Promise<void> {
   const sb = getSupabaseServer();
@@ -146,6 +147,17 @@ function toCsv(rows: Record<string, unknown>[]): string {
 export async function exportReport(kind: string, format: "csv" | "json"): Promise<{ ok: true; filename: string; mime: string; content: string } | { ok: false; error: string }> {
   const g = await requireSuper();
   if (!g.ok) return g;
+
+  // Terminal-sourced business reports (live trading core).
+  if (kind === "revenue" || kind === "lp_performance" || kind === "exposure") {
+    let rows: Record<string, unknown>[] = [];
+    if (kind === "revenue") { const e = await loadExecDashboard(); rows = (e?.by_symbol as unknown as Record<string, unknown>[]) ?? []; }
+    else if (kind === "lp_performance") { const h = await loadTechHub(); rows = h.ok ? (h.data.lps as unknown as Record<string, unknown>[]) : []; }
+    else { const r = await loadRisk(); rows = (r?.by_symbol as unknown as Record<string, unknown>[]) ?? []; }
+    if (format === "json") return { ok: true, filename: `gio4x-${kind}.json`, mime: "application/json", content: JSON.stringify(rows, null, 2) };
+    return { ok: true, filename: `gio4x-${kind}.csv`, mime: "text/csv", content: toCsv(rows) };
+  }
+
   const sb = getSupabaseServer() as unknown as Rpc;
   const map: Record<string, string> = { audit: "tech_audit_recent", apikeys: "tech_api_keys_list", bridges: "tech_bridges_list", security: "tech_security_list", overview: "tech_overview" };
   const fn = map[kind];

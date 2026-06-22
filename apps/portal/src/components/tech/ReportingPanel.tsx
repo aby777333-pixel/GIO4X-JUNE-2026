@@ -5,6 +5,9 @@ import { Download, FileBarChart, Loader2 } from "lucide-react";
 import { exportReport } from "@/lib/tech-hub-actions";
 
 const REPORTS = [
+  { kind: "revenue", label: "Revenue by Symbol" },
+  { kind: "exposure", label: "Exposure by Symbol" },
+  { kind: "lp_performance", label: "LP Performance" },
   { kind: "overview", label: "System Overview" },
   { kind: "audit", label: "Audit Log" },
   { kind: "apikeys", label: "API Keys" },

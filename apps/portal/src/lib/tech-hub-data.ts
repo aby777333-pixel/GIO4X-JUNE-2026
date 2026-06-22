@@ -36,6 +36,19 @@ export async function loadExecDashboard(): Promise<ExecDashboard | null> {
   return await terminalRpc<ExecDashboard>("fn_tech_exec");
 }
 
+export type RiskSymbol = { symbol: string; net: number; exposure: number; positions: number; pnl: number };
+export type RiskAccount = { account_number: string; equity: number; margin: number; free_margin: number; margin_level_bps: number | null };
+export type RiskData = {
+  total_exposure_lots: number; net_long_lots: number; net_short_lots: number; floating_pnl: number;
+  open_positions: number; accounts_negative_margin: number; by_symbol: RiskSymbol[]; top_accounts: RiskAccount[];
+};
+export async function loadRisk(): Promise<RiskData | null> {
+  const user = await getCurrentUser();
+  const isSuper = Boolean((user?.profile as { is_super_admin?: boolean } | null)?.is_super_admin);
+  if (user?.profile?.role !== "admin" && !isSuper) return null;
+  return await terminalRpc<RiskData>("fn_tech_risk");
+}
+
 export async function loadTechHub(): Promise<TechHubResult> {
   const user = await getCurrentUser();
   const isSuper = Boolean((user?.profile as { is_super_admin?: boolean } | null)?.is_super_admin);
