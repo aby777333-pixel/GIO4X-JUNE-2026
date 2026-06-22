@@ -52,8 +52,8 @@ export function TechShell({
         {/* Sidebar */}
         <aside className="tech-panel2 flex w-64 shrink-0 flex-col border-r">
           <div className="px-4 py-4">
-            <div className="rounded-lg bg-white/95 px-3 py-2">
-              <Image src="/logo.png" alt="GIO4X" width={2924} height={976} priority className="h-7 w-auto" />
+            <div className="py-1">
+              <Image src="/logo.png" alt="GIO4X" width={2924} height={976} priority className="h-12 w-auto" />
             </div>
             <div className="mt-2 flex items-center gap-1.5">
               <Cpu size={13} className="tech-accent" />
