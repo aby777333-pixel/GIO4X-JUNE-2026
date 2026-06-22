@@ -137,7 +137,7 @@ const ibNavSecondary: NavItem[] = [
 const ibNavAccount: NavItem[] = [
   { label: "IB Profile", href: "/ib/profile", icon: UserCircle2 },
   { label: "Notifications", href: "/notifications", icon: Bell },
-  { label: "Support", href: "/support", icon: HelpCircle },
+  { label: "Support", href: "/ib/support", icon: HelpCircle },
 ];
 
 function NavBranchItem({ branch, pathname }: { branch: NavBranch; pathname: string }) {

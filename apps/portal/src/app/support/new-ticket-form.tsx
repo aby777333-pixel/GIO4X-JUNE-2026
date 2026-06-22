@@ -12,12 +12,12 @@ type Priority = "low" | "normal" | "high" | "urgent";
 const CATEGORIES: Category[] = ["account", "kyc", "deposit", "withdraw", "trading", "ib", "technical", "other"];
 const PRIORITIES: Priority[] = ["low", "normal", "high", "urgent"];
 
-export function NewTicketForm({ signedIn }: { signedIn: boolean }) {
+export function NewTicketForm({ signedIn, defaultCategory = "account" }: { signedIn: boolean; defaultCategory?: Category }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
-  const [category, setCategory] = useState<Category>("account");
+  const [category, setCategory] = useState<Category>(defaultCategory);
   const [priority, setPriority] = useState<Priority>("normal");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
