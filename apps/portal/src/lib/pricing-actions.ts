@@ -54,3 +54,10 @@ export const deleteSmart = (id: string) => rpc("pricing_smart_delete", { p_id: i
 export const upsertDynamic = (p: Record<string, unknown>) => rpc("pricing_dynamic_upsert", { p });
 export const toggleDynamic = (id: string, enabled: boolean) => rpc("pricing_dynamic_toggle", { p_id: id, p_enabled: enabled });
 export const deleteDynamic = (id: string) => rpc("pricing_dynamic_delete", { p_id: id });
+
+export const upsertCommission = (p: Record<string, unknown>) => rpc("pricing_commission_upsert", { p });
+export const toggleCommission = (id: string, enabled: boolean) => rpc("pricing_commission_toggle", { p_id: id, p_enabled: enabled });
+export const deleteCommission = (id: string) => rpc("pricing_commission_delete", { p_id: id });
+export const upsertSwap = (p: Record<string, unknown>) => rpc("pricing_swap_upsert", { p });
+export const toggleSwap = (id: string, enabled: boolean) => rpc("pricing_swap_toggle", { p_id: id, p_enabled: enabled });
+export const deleteSwap = (id: string) => rpc("pricing_swap_delete", { p_id: id });

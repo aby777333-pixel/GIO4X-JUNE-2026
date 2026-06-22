@@ -2,6 +2,7 @@ import { getSupabaseServer } from "./supabase-server";
 import type {
   PricingConfig, SpreadConfigRow, DynamicSpreadRuleRow, WideningRuleRow,
   CompressionRuleRow, MarkupLayerRow, LpMarkupRow, SegmentPricingRow, EngineSettings,
+  CommissionConfigRow, SwapConfigRow,
 } from "@gio4x/pricing-core";
 
 // Thin read layer for the Pricing Terminal. The pricing schema isn't API-exposed,
@@ -87,6 +88,23 @@ export async function loadPricingRules(): Promise<{ smart: SmartRuleUi[]; dynami
     smart: (d.smart ?? []).map((r) => ({ id: String(r.id), name: String(r.name), priority: n(r.priority), condition: r.condition, action: (r.action as Record<string, unknown>) ?? {}, scope_type: String(r.scope_type), scope_ref: (r.scope_ref as string) ?? null, enabled: r.enabled !== false })),
     dynamic: (d.dynamic ?? []).map((r) => ({ id: String(r.id), name: String(r.name), priority: n(r.priority), condition: r.condition, delta_value: n(r.delta_value), unit: String(r.unit), scope_type: String(r.scope_type), scope_ref: (r.scope_ref as string) ?? null, enabled: r.enabled !== false })),
   };
+}
+
+const mapCommission = (r: Row): CommissionConfigRow => ({
+  id: String(r.id), scopeType: r.scope_type as CommissionConfigRow["scopeType"], scopeRef: (r.scope_ref as string) ?? null,
+  model: r.model as CommissionConfigRow["model"], value: n(r.value), perSide: r.per_side !== false, currency: String(r.currency ?? "USD"),
+  enabled: r.enabled !== false, priority: n(r.priority),
+});
+const mapSwap = (r: Row): SwapConfigRow => ({
+  id: String(r.id), scopeType: r.scope_type as SwapConfigRow["scopeType"], scopeRef: (r.scope_ref as string) ?? null,
+  longRate: n(r.long_rate), shortRate: n(r.short_rate), tripleDay: n(r.triple_day), dynamic: r.dynamic === true,
+  unit: r.unit as SwapConfigRow["unit"], enabled: r.enabled !== false,
+});
+export async function loadCommissionSwap(): Promise<{ commission: CommissionConfigRow[]; swap: SwapConfigRow[] }> {
+  const sb = getSupabaseServer() as unknown as Rpc;
+  const { data } = await sb.rpc("pricing_commission_swap");
+  const d = (data ?? {}) as { commission?: Row[]; swap?: Row[] };
+  return { commission: (d.commission ?? []).map(mapCommission), swap: (d.swap ?? []).map(mapSwap) };
 }
 
 export type PricingAuditRow = { table: string; action: string; previous: unknown; new: unknown; ip: string | null; at: string };
