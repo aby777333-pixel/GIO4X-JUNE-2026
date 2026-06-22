@@ -5,7 +5,7 @@ import { Card, CardBody, CardHeader, CardTitle } from "@gio4x/ui";
 import { DataTable, type Column } from "@/components/DataTable";
 import { StatusBadge } from "@/components/StatusBadge";
 import { LINKS } from "@/lib/constants";
-import { BookOpen, HelpCircle, Mail, MessageCircle, Phone } from "lucide-react";
+import { BookOpen, HelpCircle, Mail, MessageCircle, Phone, type LucideIcon } from "lucide-react";
 import { getCurrentUser } from "@/lib/session";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { NewTicketForm } from "./new-ticket-form";
@@ -87,12 +87,12 @@ export default async function SupportPage() {
       />
 
       <div className="mb-6 grid gap-4 md:grid-cols-4">
-        {[
+        {([
           { icon: MessageCircle, label: "Live chat", detail: "24/7 · avg response < 90s", action: "Start chat", live: true },
-          { icon: Mail, label: "Email", detail: LINKS.support.email, action: "Send" },
-          { icon: Phone, label: "Phone", detail: LINKS.support.phone, action: "Call" },
-          { icon: BookOpen, label: "Help centre", detail: "260+ articles", action: "Browse" },
-        ].map((c) => {
+          { icon: Mail, label: "Email", detail: LINKS.support.email, action: "Send", href: `mailto:${LINKS.support.email}` },
+          { icon: Phone, label: "Phone", detail: LINKS.support.phone, action: "Call", href: `tel:${LINKS.support.phone.replace(/[^\d+]/g, "")}` },
+          { icon: BookOpen, label: "Help centre", detail: "260+ articles", action: "Browse", href: LINKS.website.faq, external: true },
+        ] as { icon: LucideIcon; label: string; detail: string; action: string; live?: boolean; href?: string; external?: boolean }[]).map((c) => {
           const Icon = c.icon;
           return (
             <Card key={c.label}>
@@ -105,7 +105,13 @@ export default async function SupportPage() {
                 {c.live ? (
                   <LiveChatButton label={c.action} />
                 ) : (
-                  <button className="mt-3 text-xs font-medium text-sky hover:underline">{c.action} →</button>
+                  <a
+                    href={c.href}
+                    {...(c.external ? { target: "_blank", rel: "noreferrer" } : {})}
+                    className="mt-3 inline-block text-xs font-medium text-sky hover:underline"
+                  >
+                    {c.action} →
+                  </a>
                 )}
               </CardBody>
             </Card>
