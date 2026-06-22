@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { CheckCircle2, Circle, ArrowLeft } from "lucide-react";
-import { loadTechModule, loadTechConsole, getSuperAdmin } from "@/lib/tech-hub-console";
+import { loadTechModule, loadTechConsole, getSuperAdmin, loadBridges } from "@/lib/tech-hub-console";
 import { loadTechHub } from "@/lib/tech-hub-data";
 import { ModuleToggle } from "@/components/tech/ModuleToggle";
 import { SuperAdminToggle } from "@/components/tech/SuperAdminToggle";
+import { BridgeManager } from "@/components/tech/BridgeManager";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +25,8 @@ export default async function ModulePage({ params }: { params: { module: string 
   }
 
   // Module-specific live data.
-  const liquidity = m.key === "liquidity" || m.key === "bridges" ? await loadTechHub() : null;
+  const liquidity = m.key === "liquidity" ? await loadTechHub() : null;
+  const bridges = m.key === "bridges" ? await loadBridges() : null;
   const consoleData = ["monitoring", "database", "access", "security"].includes(m.key) ? await loadTechConsole() : null;
   const { user } = await getSuperAdmin();
 
@@ -70,7 +72,10 @@ export default async function ModulePage({ params }: { params: { module: string 
         )}
       </div>
 
-      {/* Liquidity / Bridges live panel */}
+      {/* Bridge registry — build/manage any bridge */}
+      {bridges && <BridgeManager bridges={bridges} />}
+
+      {/* Liquidity live panel */}
       {liquidity && liquidity.ok && (
         <>
           <div className="tech-panel rounded-xl p-5">

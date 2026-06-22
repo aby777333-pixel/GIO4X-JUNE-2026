@@ -63,3 +63,17 @@ export async function loadTechModule(key: string): Promise<TechModule | null> {
   const mods = await loadTechModules();
   return mods.find((m) => m.key === key) ?? null;
 }
+
+export type Bridge = {
+  id: string; name: string; kind: string; category: string; direction: string;
+  endpoint: string | null; status: string; config: Record<string, unknown>;
+  is_system: boolean; last_sync: string | null; created_at: string;
+};
+
+export async function loadBridges(): Promise<Bridge[]> {
+  const { user, isSuper } = await getSuperAdmin();
+  if (!user || !isSuper) return [];
+  const sb = getSupabaseServer() as unknown as LooseClient;
+  const { data } = await sb.rpc("tech_bridges_list");
+  return (data as Bridge[]) ?? [];
+}
