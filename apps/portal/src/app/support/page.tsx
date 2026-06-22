@@ -4,13 +4,11 @@ import { PageHeader } from "@/components/PageHeader";
 import { Card, CardBody, CardHeader, CardTitle } from "@gio4x/ui";
 import { DataTable, type Column } from "@/components/DataTable";
 import { StatusBadge } from "@/components/StatusBadge";
-import { LINKS } from "@/lib/constants";
-import { BookOpen, Mail, MessageCircle, Phone, type LucideIcon } from "lucide-react";
 import { getCurrentUser } from "@/lib/session";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { NewTicketForm } from "./new-ticket-form";
-import { LiveChatButton } from "./live-chat-button";
 import { HelpTopics } from "./help-topics";
+import { SupportContactCards } from "./support-contact-cards";
 
 type TicketRow = {
   id: string;
@@ -87,38 +85,7 @@ export default async function SupportPage() {
         actions={<NewTicketForm signedIn={signedIn} />}
       />
 
-      <div className="mb-6 grid gap-4 md:grid-cols-4">
-        {([
-          { icon: MessageCircle, label: "Live chat", detail: "24/7 · avg response < 90s", action: "Start chat", live: true },
-          { icon: Mail, label: "Email", detail: LINKS.support.email, action: "Send", href: `mailto:${LINKS.support.email}` },
-          { icon: Phone, label: "Phone", detail: LINKS.support.phone, action: "Call", href: `tel:${LINKS.support.phone.replace(/[^\d+]/g, "")}` },
-          { icon: BookOpen, label: "Help centre", detail: "260+ articles", action: "Browse", href: LINKS.website.faq, external: true },
-        ] as { icon: LucideIcon; label: string; detail: string; action: string; live?: boolean; href?: string; external?: boolean }[]).map((c) => {
-          const Icon = c.icon;
-          return (
-            <Card key={c.label}>
-              <CardBody>
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky/10 text-sky">
-                  <Icon size={18} />
-                </div>
-                <div className="mt-3 text-sm font-semibold text-navy">{c.label}</div>
-                <div className="mt-0.5 text-[11px] text-steel">{c.detail}</div>
-                {c.live ? (
-                  <LiveChatButton label={c.action} />
-                ) : (
-                  <a
-                    href={c.href}
-                    {...(c.external ? { target: "_blank", rel: "noreferrer" } : {})}
-                    className="mt-3 inline-block text-xs font-medium text-sky hover:underline"
-                  >
-                    {c.action} →
-                  </a>
-                )}
-              </CardBody>
-            </Card>
-          );
-        })}
-      </div>
+      <SupportContactCards />
 
       <Card>
         <CardHeader>
@@ -142,14 +109,16 @@ export default async function SupportPage() {
         </CardBody>
       </Card>
 
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle>Top help topics</CardTitle>
-        </CardHeader>
-        <CardBody>
-          <HelpTopics />
-        </CardBody>
-      </Card>
+      <div id="help-topics" className="mt-6 scroll-mt-24">
+        <Card>
+          <CardHeader>
+            <CardTitle>Top help topics</CardTitle>
+          </CardHeader>
+          <CardBody>
+            <HelpTopics />
+          </CardBody>
+        </Card>
+      </div>
     </Shell>
   );
 }
