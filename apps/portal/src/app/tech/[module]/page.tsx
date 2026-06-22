@@ -13,10 +13,11 @@ import { SuperAdminToggle } from "@/components/tech/SuperAdminToggle";
 import { BridgeManager } from "@/components/tech/BridgeManager";
 import { loadSymbols } from "@/lib/tech-symbols";
 import { SymbolManager } from "@/components/tech/SymbolManager";
-import { loadPricingOverview, loadPricingConfig } from "@/lib/pricing-terminal";
+import { loadPricingOverview, loadPricingConfig, loadPricingRules } from "@/lib/pricing-terminal";
 import { PricingPreview } from "@/components/tech/PricingPreview";
 import { SpreadManager } from "@/components/tech/SpreadManager";
 import { MarkupManager } from "@/components/tech/MarkupManager";
+import { SmartRulesManager } from "@/components/tech/SmartRulesManager";
 import { ApiKeyManager } from "@/components/tech/ApiKeyManager";
 import { SecurityManager } from "@/components/tech/SecurityManager";
 import { FlagManager } from "@/components/tech/FlagManager";
@@ -72,6 +73,7 @@ export default async function ModulePage({ params }: { params: { module: string 
   const spreadProfiles = m.key === "spreads" ? await loadRegistry("spread_profile") : null;
   const pricingOv = m.key === "spreads" ? await loadPricingOverview() : null;
   const pricingCfg = m.key === "spreads" ? await loadPricingConfig() : null;
+  const pricingRules = m.key === "spreads" ? await loadPricingRules() : null;
   const signals = m.key === "signals" ? await loadSignals() : null;
   const jobs = m.key === "automation" ? await loadJobs() : null;
   const surveillance = m.key === "automation" ? await loadSurveillance() : null;
@@ -123,6 +125,7 @@ export default async function ModulePage({ params }: { params: { module: string 
           <PricingPreview />
           <SpreadManager configs={pricingCfg?.spreadConfig ?? []} />
           <MarkupManager layers={pricingCfg?.markupLayers ?? []} engine={pricingCfg?.engine} />
+          <SmartRulesManager smart={pricingRules?.smart ?? []} dynamic={pricingRules?.dynamic ?? []} />
         </>
       )}
 

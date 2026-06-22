@@ -76,6 +76,19 @@ export async function loadPricingConfig(): Promise<PricingConfig> {
   };
 }
 
+export type SmartRuleUi = { id: string; name: string; priority: number; condition: unknown; action: Record<string, unknown>; scope_type: string; scope_ref: string | null; enabled: boolean };
+export type DynamicRuleUi = { id: string; name: string; priority: number; condition: unknown; delta_value: number; unit: string; scope_type: string; scope_ref: string | null; enabled: boolean };
+
+export async function loadPricingRules(): Promise<{ smart: SmartRuleUi[]; dynamic: DynamicRuleUi[] }> {
+  const sb = getSupabaseServer() as unknown as Rpc;
+  const { data } = await sb.rpc("pricing_rules");
+  const d = (data ?? {}) as { smart?: Row[]; dynamic?: Row[] };
+  return {
+    smart: (d.smart ?? []).map((r) => ({ id: String(r.id), name: String(r.name), priority: n(r.priority), condition: r.condition, action: (r.action as Record<string, unknown>) ?? {}, scope_type: String(r.scope_type), scope_ref: (r.scope_ref as string) ?? null, enabled: r.enabled !== false })),
+    dynamic: (d.dynamic ?? []).map((r) => ({ id: String(r.id), name: String(r.name), priority: n(r.priority), condition: r.condition, delta_value: n(r.delta_value), unit: String(r.unit), scope_type: String(r.scope_type), scope_ref: (r.scope_ref as string) ?? null, enabled: r.enabled !== false })),
+  };
+}
+
 export type PricingAuditRow = { table: string; action: string; previous: unknown; new: unknown; ip: string | null; at: string };
 export async function loadPricingAudit(): Promise<PricingAuditRow[]> {
   const sb = getSupabaseServer() as unknown as Rpc;

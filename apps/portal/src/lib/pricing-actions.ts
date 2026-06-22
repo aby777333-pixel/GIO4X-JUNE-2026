@@ -47,3 +47,10 @@ export const toggleSpread = (id: string, enabled: boolean) => rpc("pricing_sprea
 export const upsertMarkup = (p: Record<string, unknown>) => rpc("pricing_markup_upsert", { p });
 export const toggleMarkup = (id: string, enabled: boolean) => rpc("pricing_markup_toggle", { p_id: id, p_enabled: enabled });
 export const deleteMarkup = (id: string) => rpc("pricing_markup_delete", { p_id: id });
+
+export const upsertSmart = (p: Record<string, unknown>) => rpc("pricing_smart_upsert", { p });
+export const toggleSmart = (id: string, enabled: boolean) => rpc("pricing_smart_toggle", { p_id: id, p_enabled: enabled });
+export const deleteSmart = (id: string) => rpc("pricing_smart_delete", { p_id: id });
+export const upsertDynamic = (p: Record<string, unknown>) => rpc("pricing_dynamic_upsert", { p });
+export const toggleDynamic = (id: string, enabled: boolean) => rpc("pricing_dynamic_toggle", { p_id: id, p_enabled: enabled });
+export const deleteDynamic = (id: string) => rpc("pricing_dynamic_delete", { p_id: id });
