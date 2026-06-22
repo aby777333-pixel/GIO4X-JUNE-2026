@@ -44,28 +44,27 @@ Deno.serve(async (req) => {
 
   const raptor = createClient(cfg.raptor_url, cfg.raptor_service_key);
 
-  const { data: maps, error: mapErr } = await portal
-    .from("bridge_account_map")
-    .select("raptor_account_id");
-  if (mapErr) return json({ ok: false, error: mapErr.message }, 500);
-  const acctIds = (maps ?? []).map((m) => m.raptor_account_id);
-  if (acctIds.length === 0) return json({ ok: true, ingested: 0, note: "no mapped accounts" });
+  // Friendly account numbers so auto-provisioned mirror accounts are recognisable
+  // in the Trade Log (the ingest RPC names a new mirror after account_number).
+  const { data: accts } = await raptor.from("trading_accounts").select("id,account_number");
+  const numById = Object.fromEntries((accts ?? []).map((a) => [a.id, a.account_number]));
 
-  // Every position for the mapped account(s). The RPC is an idempotent upsert,
-  // so re-scanning the same rows each minute is safe and cheap.
+  // Scan EVERY terminal position — the ingest RPC auto-provisions a portal mirror
+  // account + map row for any unmapped Raptor account, so the Trade Log reflects
+  // the whole platform. The RPC is an idempotent upsert, so re-scanning is cheap.
   const { data: positions, error: posErr } = await raptor
     .from("positions")
     .select(
       "id,account_id,symbol,direction,size,open_price,close_price,realized_pnl,commission,swap_accrued,status,opened_at,closed_at",
     )
-    .in("account_id", acctIds)
     .order("opened_at", { ascending: false })
-    .limit(500);
+    .limit(5000);
   if (posErr) return json({ ok: false, error: posErr.message }, 500);
 
   let ingested = 0;
   for (const p of positions ?? []) {
-    const { data: tid, error } = await portal.rpc("bridge_ingest_position", { p });
+    const payload = { ...p, account_number: numById[p.account_id] ?? null };
+    const { data: tid, error } = await portal.rpc("bridge_ingest_position", { p: payload });
     if (error) return json({ ok: false, error: error.message, ingested }, 500);
     if (tid) ingested++;
   }
