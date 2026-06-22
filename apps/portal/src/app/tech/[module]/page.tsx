@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CheckCircle2, Circle, ArrowLeft } from "lucide-react";
-import { loadTechModule, loadTechConsole, getSuperAdmin, loadBridges, loadApiKeys, loadSecurityRules, loadFlags } from "@/lib/tech-hub-console";
+import { loadTechModule, loadTechConsole, getSuperAdmin, loadBridges, loadApiKeys, loadSecurityRules, loadFlags, loadRegistry, loadSignals, loadJobs } from "@/lib/tech-hub-console";
 import { loadTechHub } from "@/lib/tech-hub-data";
 import { ModuleToggle } from "@/components/tech/ModuleToggle";
 import { SuperAdminToggle } from "@/components/tech/SuperAdminToggle";
@@ -12,6 +12,22 @@ import { SecurityManager } from "@/components/tech/SecurityManager";
 import { FlagManager } from "@/components/tech/FlagManager";
 import { LiquidityManager } from "@/components/tech/LiquidityManager";
 import { ReportingPanel } from "@/components/tech/ReportingPanel";
+import { RegistryManager, type ConfigField } from "@/components/tech/RegistryManager";
+import { SignalsPanel } from "@/components/tech/SignalsPanel";
+import { AutomationPanel } from "@/components/tech/AutomationPanel";
+
+// Registry-backed modules: which kind + how to present it.
+const REGISTRY_MODULES: Record<string, { kind: string; title: string; addLabel: string; fields: ConfigField[] }> = {
+  infra: { kind: "infra", title: "Infrastructure Inventory", addLabel: "Add node", fields: [{ key: "type", label: "Type" }, { key: "host", label: "Host" }, { key: "provider", label: "Provider" }] },
+  broker_ops: { kind: "broker", title: "Brokers / White-Label Brands", addLabel: "Add broker", fields: [{ key: "brand", label: "Brand" }, { key: "domain", label: "Domain" }] },
+  devtools: { kind: "env", title: "Environment Variables & Build Config", addLabel: "Add variable", fields: [{ key: "value", label: "Value" }, { key: "scope", label: "Scope" }] },
+  marketplace: { kind: "extension", title: "Extensions & Plugins", addLabel: "Add extension", fields: [{ key: "version", label: "Version" }] },
+};
+const SPREAD_PROFILE_FIELDS: ConfigField[] = [
+  { key: "markup_bps", label: "Markup (bps)", type: "number" },
+  { key: "commission_per_lot", label: "Commission/lot", type: "number" },
+  { key: "segment", label: "Segment" },
+];
 
 export const dynamic = "force-dynamic";
 
@@ -31,13 +47,18 @@ export default async function ModulePage({ params }: { params: { module: string 
     );
   }
 
-  // Module-specific live data.
-  const liquidity = m.key === "liquidity" ? await loadTechHub() : null;
+  // Module-specific live data. Spreads reuses the trading + liquidity controls.
+  const liquidity = ["liquidity", "spreads"].includes(m.key) ? await loadTechHub() : null;
   const bridges = m.key === "bridges" ? await loadBridges() : null;
-  const symbols = m.key === "trading" ? await loadSymbols() : null;
+  const symbols = ["trading", "spreads"].includes(m.key) ? await loadSymbols() : null;
   const apiKeys = m.key === "api" ? await loadApiKeys() : null;
   const secRules = m.key === "security" ? await loadSecurityRules() : null;
   const flags = m.key === "platform" ? await loadFlags() : null;
+  const reg = REGISTRY_MODULES[m.key] ?? null;
+  const registry = reg ? await loadRegistry(reg.kind) : null;
+  const spreadProfiles = m.key === "spreads" ? await loadRegistry("spread_profile") : null;
+  const signals = m.key === "signals" ? await loadSignals() : null;
+  const jobs = m.key === "automation" ? await loadJobs() : null;
   const consoleData = ["monitoring", "database", "access", "security"].includes(m.key) ? await loadTechConsole() : null;
   const { user } = await getSuperAdmin();
 
@@ -89,11 +110,23 @@ export default async function ModulePage({ params }: { params: { module: string 
       {/* Symbol & spread management — live to the trading engine */}
       {symbols && <SymbolManager symbols={symbols} />}
 
+      {/* Spread & commission profiles (segments) — Spread & Markup module */}
+      {spreadProfiles && <RegistryManager items={spreadProfiles} kind="spread_profile" title="Spread &amp; Commission Profiles" addLabel="Add profile" fields={SPREAD_PROFILE_FIELDS} />}
+
       {/* API / Platform / Security / Reporting modules */}
       {apiKeys && <ApiKeyManager keys={apiKeys} />}
       {flags && <FlagManager flags={flags} />}
       {secRules && <SecurityManager rules={secRules} />}
       {m.key === "reporting" && <ReportingPanel />}
+
+      {/* Registry-backed modules: infrastructure / brokers / env / extensions */}
+      {registry && reg && <RegistryManager items={registry} kind={reg.kind} title={reg.title} addLabel={reg.addLabel} fields={reg.fields} />}
+
+      {/* Signals & strategy (live copy/PAMM state) */}
+      {signals && <SignalsPanel signals={signals} />}
+
+      {/* Automation & AI (scheduled jobs + outbox) */}
+      {jobs && <AutomationPanel jobs={jobs} />}
 
       {/* Liquidity live panel */}
       {liquidity && liquidity.ok && (

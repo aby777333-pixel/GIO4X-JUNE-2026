@@ -34,7 +34,7 @@ export async function toggleSymbol(symbol: string, active: boolean): Promise<Tec
 
 export async function updateSymbol(
   symbol: string,
-  fields: { spread_markup?: number; min_lot?: number; max_lot?: number; lot_step?: number; margin_rate?: number },
+  fields: { spread_markup?: number; commission_per_lot?: number; min_lot?: number; max_lot?: number; lot_step?: number; margin_rate?: number },
 ): Promise<TechResult> {
   const g = await requireSuper(); if (!g.ok) return g;
   const patch: Record<string, number> = {};

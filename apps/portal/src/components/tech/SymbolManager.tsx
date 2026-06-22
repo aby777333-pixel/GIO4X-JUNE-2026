@@ -12,9 +12,11 @@ function Row({ s }: { s: Instrument }) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [spread, setSpread] = useState(String(s.spread_markup ?? 0));
+  const [comm, setComm] = useState(String(s.commission_per_lot ?? 3.5));
   const [active, setActive] = useState(s.is_active !== false);
   const [msg, setMsg] = useState<string | null>(null);
   const dirty = spread !== String(s.spread_markup ?? 0);
+  const dirtyComm = comm !== String(s.commission_per_lot ?? 3.5);
 
   return (
     <tr className="border-b tech-border last:border-0">
@@ -44,6 +46,24 @@ function Row({ s }: { s: Instrument }) {
               type="button" disabled={pending}
               onClick={() => start(async () => { const r = await updateSymbol(s.symbol, { spread_markup: Number(spread) }); if (r.ok) router.refresh(); else setMsg(r.error); })}
               className="rounded bg-sky-600 p-1 text-white hover:bg-sky-500" title="Save spread — applies live"
+            >
+              {pending ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
+            </button>
+          )}
+        </div>
+      </td>
+      <td className="py-2 pr-3">
+        <div className="flex items-center gap-1">
+          <span className="tech-muted">$</span>
+          <input
+            value={comm} onChange={(e) => setComm(e.target.value)}
+            className="w-16 rounded border tech-border tech-panel2 px-1.5 py-1 text-xs"
+          />
+          {dirtyComm && (
+            <button
+              type="button" disabled={pending}
+              onClick={() => start(async () => { const r = await updateSymbol(s.symbol, { commission_per_lot: Number(comm) }); if (r.ok) router.refresh(); else setMsg(r.error); })}
+              className="rounded bg-sky-600 p-1 text-white hover:bg-sky-500" title="Save commission — applies live to the order engine"
             >
               {pending ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
             </button>
@@ -123,7 +143,7 @@ export function SymbolManager({ symbols }: { symbols: Instrument[] }) {
           <thead>
             <tr className="border-b tech-border text-left tech-muted">
               <th className="py-2 pr-3">Symbol</th><th className="py-2 pr-3">Type</th><th className="py-2 pr-3">Live</th>
-              <th className="py-2 pr-3">Spread markup</th><th className="py-2 pr-3 text-right">Lots</th><th className="py-2 pr-3 text-right"></th>
+              <th className="py-2 pr-3">Spread markup</th><th className="py-2 pr-3">Commission/lot</th><th className="py-2 pr-3 text-right">Lots</th><th className="py-2 pr-3 text-right"></th>
             </tr>
           </thead>
           <tbody>{symbols.map((s) => <Row key={s.symbol} s={s} />)}</tbody>

@@ -93,3 +93,32 @@ async function rpcList<T>(fn: string): Promise<T[]> {
 export const loadApiKeys = () => rpcList<ApiKey>("tech_api_keys_list");
 export const loadSecurityRules = () => rpcList<SecurityRule>("tech_security_list");
 export const loadFlags = () => rpcList<Flag>("tech_flags_list");
+
+export type RegistryItem = { id: string; kind: string; name: string; label: string | null; status: string; config: Record<string, unknown>; enabled: boolean; created_at: string };
+export type SignalProvider = { id: string; name: string; status: string; subscribers: number };
+export type PammFund = { id: string; name: string; status: string; aum: number | null; nav: number | null };
+export type Signals = { providers: SignalProvider[]; funds: PammFund[]; stats: { providers: number; funds: number; subscriptions: number } };
+export type CronJob = { jobid: number; name: string; schedule: string; active: boolean; last_run: string | null; last_status: string | null };
+export type Jobs = { jobs: CronJob[]; outbox: { pending: number; total: number } };
+
+export async function loadRegistry(kind: string): Promise<RegistryItem[]> {
+  const { user, isSuper } = await getSuperAdmin();
+  if (!user || !isSuper) return [];
+  const sb = getSupabaseServer() as unknown as LooseClient;
+  const { data } = await sb.rpc("tech_registry_list", { p_kind: kind });
+  return (data as RegistryItem[]) ?? [];
+}
+export async function loadSignals(): Promise<Signals | null> {
+  const { user, isSuper } = await getSuperAdmin();
+  if (!user || !isSuper) return null;
+  const sb = getSupabaseServer() as unknown as LooseClient;
+  const { data } = await sb.rpc("tech_signals");
+  return (data as Signals) ?? null;
+}
+export async function loadJobs(): Promise<Jobs | null> {
+  const { user, isSuper } = await getSuperAdmin();
+  if (!user || !isSuper) return null;
+  const sb = getSupabaseServer() as unknown as LooseClient;
+  const { data } = await sb.rpc("tech_jobs");
+  return (data as Jobs) ?? null;
+}

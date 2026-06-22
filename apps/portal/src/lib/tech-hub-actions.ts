@@ -166,3 +166,42 @@ export async function setFlag(key: string, enabled: boolean): Promise<TechResult
   if (error) return { ok: false, error: error.message };
   revalidatePath("/tech/platform"); return { ok: true, message: `${key} ${enabled ? "on" : "off"} — live.` };
 }
+
+// ── Generic registry (infra / brokers / env / extensions / spread profiles) ─
+export async function upsertRegistryItem(input: { id?: string; kind: string; name: string; label?: string; status?: string; config?: Record<string, unknown> }): Promise<TechResult> {
+  const g = await requireSuper(); if (!g.ok) return g;
+  const sb = getSupabaseServer() as unknown as Rpc;
+  const { error } = await sb.rpc("tech_registry_upsert", { p: { ...input, config: input.config ?? {} } });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/tech", "layout"); return { ok: true, message: input.id ? "Saved." : "Added." };
+}
+export async function toggleRegistryItem(id: string, enabled: boolean): Promise<TechResult> {
+  const g = await requireSuper(); if (!g.ok) return g;
+  const sb = getSupabaseServer() as unknown as Rpc;
+  const { error } = await sb.rpc("tech_registry_toggle", { p_id: id, p_enabled: enabled });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/tech", "layout"); return { ok: true };
+}
+export async function deleteRegistryItem(id: string): Promise<TechResult> {
+  const g = await requireSuper(); if (!g.ok) return g;
+  const sb = getSupabaseServer() as unknown as Rpc;
+  const { error } = await sb.rpc("tech_registry_delete", { p_id: id });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/tech", "layout"); return { ok: true, message: "Deleted." };
+}
+
+// ── Automation: scheduled jobs + outbox ────────────────────────────────────
+export async function toggleJob(jobid: number, active: boolean): Promise<TechResult> {
+  const g = await requireSuper(); if (!g.ok) return g;
+  const sb = getSupabaseServer() as unknown as Rpc;
+  const { error } = await sb.rpc("tech_job_toggle", { p_jobid: jobid, p_active: active });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/tech/automation"); return { ok: true, message: `Job ${active ? "resumed" : "paused"}.` };
+}
+export async function processOutbox(): Promise<TechResult> {
+  const g = await requireSuper(); if (!g.ok) return g;
+  const sb = getSupabaseServer() as unknown as Rpc;
+  const { error } = await sb.rpc("tech_outbox_process");
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/tech/automation"); return { ok: true, message: "Outbox processed." };
+}
