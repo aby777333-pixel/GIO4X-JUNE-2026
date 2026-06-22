@@ -4,12 +4,14 @@
 -- bridge. Purely additive — no existing function/trigger is changed in this migration.
 
 -- 1) Per-LP routing config (half-spread markup in bps, weight, tier). Lower markup =
---    tighter price = preferred. Currenex (degraded) carries the widest markup.
-update public.liquidity_providers set config = jsonb_build_object('markup_bps', 0.6, 'weight', 1.00, 'tier', 'tier1', 'enabled', true), last_heartbeat = now() where name = 'Citadel Securities';
-update public.liquidity_providers set config = jsonb_build_object('markup_bps', 0.5, 'weight', 1.00, 'tier', 'ecn',   'enabled', true), last_heartbeat = now() where name = 'LMAX Exchange';
-update public.liquidity_providers set config = jsonb_build_object('markup_bps', 0.9, 'weight', 0.90, 'tier', 'tier1', 'enabled', true), last_heartbeat = now() where name = 'Goldman Sachs Prime';
-update public.liquidity_providers set config = jsonb_build_object('markup_bps', 1.1, 'weight', 0.85, 'tier', 'tier1', 'enabled', true), last_heartbeat = now() where name = 'JP Morgan FX';
-update public.liquidity_providers set config = jsonb_build_object('markup_bps', 2.0, 'weight', 0.60, 'tier', 'tier2', 'enabled', true), last_heartbeat = now() where name = 'Currenex';
+--    tighter price = preferred. LP Echo (degraded) carries the widest markup.
+--    NOTE: LP names are deliberate PLACEHOLDERS (LP Alpha..Echo) — real liquidity
+--    providers will be onboarded later and these rows renamed/replaced then.
+update public.liquidity_providers set config = jsonb_build_object('markup_bps', 0.5, 'weight', 1.00, 'tier', 'ecn',   'enabled', true), last_heartbeat = now() where name = 'LP Alpha';
+update public.liquidity_providers set config = jsonb_build_object('markup_bps', 0.6, 'weight', 1.00, 'tier', 'tier1', 'enabled', true), last_heartbeat = now() where name = 'LP Bravo';
+update public.liquidity_providers set config = jsonb_build_object('markup_bps', 0.9, 'weight', 0.90, 'tier', 'tier1', 'enabled', true), last_heartbeat = now() where name = 'LP Charlie';
+update public.liquidity_providers set config = jsonb_build_object('markup_bps', 1.1, 'weight', 0.85, 'tier', 'tier1', 'enabled', true), last_heartbeat = now() where name = 'LP Delta';
+update public.liquidity_providers set config = jsonb_build_object('markup_bps', 2.0, 'weight', 0.60, 'tier', 'tier2', 'enabled', true), last_heartbeat = now() where name = 'LP Echo';
 
 -- 2) Default smart-routing rule (best price, then fill-rate/latency/slippage).
 insert into public.lp_routing_rules (name, strategy, is_active, priority, conditions, target_lps, weight_scoring, failover_lps)

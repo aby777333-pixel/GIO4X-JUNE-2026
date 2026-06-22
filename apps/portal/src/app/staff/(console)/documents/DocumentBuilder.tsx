@@ -1069,10 +1069,10 @@ export default function DocumentBuilder({ open = true, showToast: propShowToast,
   const btnBase = 'inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-colors disabled:opacity-50'
   const actionButtons = (
     <>
-      <button onClick={handlePreview} disabled={!!busy} className={`${btnBase} bg-white/[0.06] border border-white/[0.1] text-gray-200 hover:bg-white/[0.1]`}>
+      <button onClick={handlePreview} disabled={!!busy} className={`${btnBase} bg-white border border-slate-200 text-navy hover:bg-slate-100`}>
         {busy === 'preview' ? (<><Loader2 className="w-4 h-4 animate-spin" /> Rendering…</>) : (<><Eye className="w-4 h-4" /> Preview PDF</>)}
       </button>
-      <button onClick={handleExportDocx} disabled={!!busy} className={`${btnBase} bg-white/[0.06] border border-white/[0.1] text-gray-200 hover:bg-white/[0.1]`}>
+      <button onClick={handleExportDocx} disabled={!!busy} className={`${btnBase} bg-white border border-slate-200 text-navy hover:bg-slate-100`}>
         {busy === 'docx' ? (<><Loader2 className="w-4 h-4 animate-spin" /> Generating…</>) : (<><Download className="w-4 h-4" /> Export .docx</>)}
       </button>
       <button onClick={handleExportPdf} disabled={!!busy} className={`${btnBase} bg-sky-600 text-white hover:bg-sky-500`}>
@@ -1085,12 +1085,12 @@ export default function DocumentBuilder({ open = true, showToast: propShowToast,
     <div className={`grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-4${inline ? ' docbuilder-inline-grid' : ''}`}>
         {/* Block palette + Library */}
         <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
-          <div className="text-[10px] uppercase tracking-wider text-gray-500 px-1">Add Block</div>
+          <div className="text-[10px] uppercase tracking-wider text-slate-500 px-1">Add Block</div>
           {blockPalette.map(p => {
             const Icon = p.icon
             return (
               <button key={p.kind} onClick={() => addBlock(p.kind)}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.06] text-xs text-gray-300 hover:bg-white/[0.08] hover:text-white transition-colors">
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-700 hover:bg-slate-100 hover:text-navy transition-colors">
                 <Icon className="w-3.5 h-3.5" /> {p.label}
               </button>
             )
@@ -1099,14 +1099,14 @@ export default function DocumentBuilder({ open = true, showToast: propShowToast,
           {/* Document Templates — click to load a ready-made document (fields
               + body) for one of the four known kinds, incl. Allotment Letter
               and Debenture Certificate. */}
-          <div className="pt-3 border-t border-white/[0.06]">
-            <div className="text-[10px] uppercase tracking-wider text-gray-500 px-1 mb-1.5">Document Templates</div>
+          <div className="pt-3 border-t border-slate-200">
+            <div className="text-[10px] uppercase tracking-wider text-slate-500 px-1 mb-1.5">Document Templates</div>
             <div className="grid grid-cols-2 gap-1.5">
               {(Object.keys(DOCUMENT_TEMPLATES) as DocumentKind[]).map(k => (
                 <button
                   key={k}
                   onClick={() => insertFieldTemplate(k)}
-                  className="px-2 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[10px] font-medium text-amber-200 hover:bg-amber-500/20 transition-colors text-left"
+                  className="px-2 py-1.5 rounded-lg bg-amber-50 border border-amber-200 text-[10px] font-medium text-amber-700 hover:bg-amber-100 transition-colors text-left"
                   title={`Load the ${DOCUMENT_TEMPLATES[k].title} template`}
                 >
                   {DOCUMENT_TEMPLATES[k].title}
@@ -1119,27 +1119,27 @@ export default function DocumentBuilder({ open = true, showToast: propShowToast,
               2026-05-15: surfaced more prominently in inline mode so admins
               can see at a glance which uploaded images are insertable into
               the canvas. Each tile is click-to-insert OR drag-to-canvas. */}
-          <div className="pt-3 border-t border-white/[0.06]">
+          <div className="pt-3 border-t border-slate-200">
             <div className="flex items-center justify-between px-1 mb-1.5">
-              <div className="text-[10px] uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
+              <div className="text-[10px] uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
                 <Library className="w-3 h-3" /> Image Library
                 {libraryImages.length > 0 && (
-                  <span className="inline-flex items-center justify-center min-w-[16px] h-[16px] rounded-full bg-brand-red/20 text-brand-red text-[9px] font-bold px-1">{libraryImages.length}</span>
+                  <span className="inline-flex items-center justify-center min-w-[16px] h-[16px] rounded-full bg-sky-600/20 text-sky-600 text-[9px] font-bold px-1">{libraryImages.length}</span>
                 )}
               </div>
-              <label className="text-[10px] text-cyan-300 hover:text-white inline-flex items-center gap-1 cursor-pointer" title="Upload images to the library">
+              <label className="text-[10px] text-sky-600 hover:text-navy inline-flex items-center gap-1 cursor-pointer" title="Upload images to the library">
                 <Upload className="w-3 h-3" /> Upload
                 <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => { addLocalImages(e.target.files); e.target.value = '' }} />
               </label>
             </div>
             {libraryLoading && libraryImages.length === 0 ? (
-              <div className="text-[10px] text-gray-500 px-1 py-2">Loading…</div>
+              <div className="text-[10px] text-slate-500 px-1 py-2">Loading…</div>
             ) : libraryImages.length === 0 ? (
-              <div className="rounded-lg border border-dashed border-white/[0.12] bg-white/[0.02] p-3 text-center">
-                <Library className="w-5 h-5 text-gray-500 mx-auto mb-1.5" />
-                <p className="text-[11px] text-gray-300 font-medium mb-0.5">Your library is empty</p>
-                <p className="text-[10px] text-gray-500 leading-snug">
-                  Click <span className="text-cyan-300 font-medium">Upload</span> above to add PNGs / JPGs.
+              <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-3 text-center">
+                <Library className="w-5 h-5 text-slate-500 mx-auto mb-1.5" />
+                <p className="text-[11px] text-slate-700 font-medium mb-0.5">Your library is empty</p>
+                <p className="text-[10px] text-slate-500 leading-snug">
+                  Click <span className="text-sky-600 font-medium">Upload</span> above to add PNGs / JPGs.
                   Tiles appear here — click any tile to insert it into the canvas.
                 </p>
               </div>
@@ -1148,7 +1148,7 @@ export default function DocumentBuilder({ open = true, showToast: propShowToast,
                 {libraryImages.map(img => (
                   <div
                     key={img.id}
-                    className="group relative aspect-square rounded-lg overflow-hidden border border-white/[0.08] bg-white/[0.04] hover:border-brand-red/40 hover:ring-2 hover:ring-brand-red/30 transition-all"
+                    className="group relative aspect-square rounded-lg overflow-hidden border border-slate-200 bg-slate-50 hover:border-sky-600/40 hover:ring-2 hover:ring-sky-600/30 transition-all"
                   >
                     {/* Insert (click) + drag surface. The tile itself is the
                         click target; the delete button below floats above. */}
@@ -1173,7 +1173,7 @@ export default function DocumentBuilder({ open = true, showToast: propShowToast,
                       <img src={img.thumbUrl} alt={img.title} className="w-full h-full object-cover pointer-events-none" />
                       {/* Hover overlay — confirms the click action */}
                       <span className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/40 transition-colors">
-                        <span className="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 px-2 py-1 rounded-md bg-brand-red text-white text-[9px] font-semibold uppercase tracking-wider">
+                        <span className="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 px-2 py-1 rounded-md bg-sky-600 text-white text-[9px] font-semibold uppercase tracking-wider">
                           <Plus className="w-3 h-3" /> Insert
                         </span>
                       </span>
@@ -1192,7 +1192,7 @@ export default function DocumentBuilder({ open = true, showToast: propShowToast,
                     </button>
                     {insertingId === img.id && (
                       <span className="absolute inset-0 flex items-center justify-center bg-black/60 pointer-events-none">
-                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                        <Loader2 className="w-4 h-4 animate-spin text-navy" />
                       </span>
                     )}
                     <span className="absolute bottom-0 left-0 right-0 px-1.5 py-0.5 text-[9px] text-white bg-black/60 truncate pointer-events-none">{img.title}</span>
@@ -1200,21 +1200,21 @@ export default function DocumentBuilder({ open = true, showToast: propShowToast,
                 ))}
               </div>
             )}
-            <p className="text-[9px] text-gray-500 px-1 mt-1.5">
-              <span className="text-emerald-400">Click</span> a tile to insert · or <span className="text-emerald-400">drag</span> onto a specific block to drop it after that block.
+            <p className="text-[9px] text-slate-500 px-1 mt-1.5">
+              <span className="text-emerald-600">Click</span> a tile to insert · or <span className="text-emerald-600">drag</span> onto a specific block to drop it after that block.
             </p>
           </div>
 
-          <div className="pt-3 border-t border-white/[0.06]">
-            <div className="text-[10px] uppercase tracking-wider text-gray-500 px-1 mb-1.5">Title (file name)</div>
-            <input value={docTitle} onChange={e => setDocTitle(e.target.value)} className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-red/40" />
+          <div className="pt-3 border-t border-slate-200">
+            <div className="text-[10px] uppercase tracking-wider text-slate-500 px-1 mb-1.5">Title (file name)</div>
+            <input value={docTitle} onChange={e => setDocTitle(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-navy focus:outline-none focus:border-sky-600/40" />
           </div>
         </div>
 
         {/* Canvas */}
         <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
           {blocks.length === 0 && (
-            <div className="py-10 rounded-xl border-2 border-dashed border-white/[0.08] text-center text-sm text-gray-500">
+            <div className="py-10 rounded-xl border-2 border-dashed border-slate-200 text-center text-sm text-slate-500">
               No blocks yet — add one from the panel on the left.
             </div>
           )}
@@ -1223,7 +1223,7 @@ export default function DocumentBuilder({ open = true, showToast: propShowToast,
               key={b.id}
               onDragOver={onDragOver}
               onDrop={() => onDrop(b.id)}
-              className="rounded-xl bg-white/[0.04] border border-white/[0.06] p-3"
+              className="rounded-xl bg-slate-50 border border-slate-200 p-3"
             >
               <div className="flex items-start gap-2">
                 {/* Reorder controls — explicit Up/Down + drag handle.
@@ -1234,7 +1234,7 @@ export default function DocumentBuilder({ open = true, showToast: propShowToast,
                     type="button"
                     onClick={() => moveBlock(b.id, -1)}
                     disabled={idx === 0}
-                    className="p-0.5 text-gray-500 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    className="p-0.5 text-slate-500 hover:text-navy disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                     title="Move block up"
                     aria-label="Move block up"
                   >
@@ -1246,13 +1246,13 @@ export default function DocumentBuilder({ open = true, showToast: propShowToast,
                     title="Drag to reorder"
                     className="cursor-grab active:cursor-grabbing"
                   >
-                    <GripVertical className="w-4 h-4 text-gray-500" />
+                    <GripVertical className="w-4 h-4 text-slate-500" />
                   </span>
                   <button
                     type="button"
                     onClick={() => moveBlock(b.id, 1)}
                     disabled={idx === blocks.length - 1}
-                    className="p-0.5 text-gray-500 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    className="p-0.5 text-slate-500 hover:text-navy disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                     title="Move block down"
                     aria-label="Move block down"
                   >
@@ -1262,14 +1262,14 @@ export default function DocumentBuilder({ open = true, showToast: propShowToast,
                 <div className="flex-1">
                   <BlockEditor block={b} onChange={(patch) => updateBlock(b.id, patch)} />
                 </div>
-                <button onClick={() => removeBlock(b.id)} className="p-1 text-gray-500 hover:text-red-300" title="Remove block">
+                <button onClick={() => removeBlock(b.id)} className="p-1 text-slate-500 hover:text-red-300" title="Remove block">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
             </div>
           ))}
           <div className="pt-1">
-            <button onClick={() => addBlock('paragraph')} className="inline-flex items-center gap-1.5 text-[11px] text-brand-red hover:underline">
+            <button onClick={() => addBlock('paragraph')} className="inline-flex items-center gap-1.5 text-[11px] text-sky-600 hover:underline">
               <Plus className="w-3 h-3" /> Add paragraph
             </button>
           </div>
@@ -1283,8 +1283,8 @@ export default function DocumentBuilder({ open = true, showToast: propShowToast,
     <div className="space-y-4">
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
-          <h2 className="text-base font-semibold text-white">Document Builder</h2>
-          <p className="text-[11px] text-gray-400 mt-0.5 max-w-2xl">
+          <h2 className="text-base font-semibold text-navy">Document Builder</h2>
+          <p className="text-[11px] text-slate-600 mt-0.5 max-w-2xl">
             Drag blocks to reorder. Insert headings, paragraphs (justified), field lists, tables, bullet lists, images, dates, emails, phones, links, charts, dividers, page breaks, signatures, and footers. Export as PDF or Word.
           </p>
         </div>
@@ -1302,12 +1302,12 @@ export default function DocumentBuilder({ open = true, showToast: propShowToast,
 
 // ── Per-block editors ────────────────────────────────────────────
 function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Partial<Block>) => void }) {
-  const input = 'w-full bg-white/[0.03] border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-brand-red/40'
+  const input = 'w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-navy placeholder-slate-400 focus:outline-none focus:border-sky-600/40'
 
   if (block.kind === 'heading') {
     return (
       <div className="space-y-2">
-        <div className="text-[10px] uppercase tracking-wider text-gray-500">Heading</div>
+        <div className="text-[10px] uppercase tracking-wider text-slate-500">Heading</div>
         <input value={block.text} onChange={e => onChange({ text: e.target.value } as any)} className={input + ' text-sm font-semibold'} placeholder="Heading text" />
         <div className="flex gap-2 text-[11px]">
           <select value={String(block.level)} onChange={e => onChange({ level: Number(e.target.value) as 1 | 2 | 3 } as any)} className={input + ' max-w-[100px]'}>
@@ -1325,13 +1325,13 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
     return (
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <div className="text-[10px] uppercase tracking-wider text-gray-500">Paragraph</div>
-          <label className="flex items-center gap-1.5 text-[10px] text-gray-400 cursor-pointer">
+          <div className="text-[10px] uppercase tracking-wider text-slate-500">Paragraph</div>
+          <label className="flex items-center gap-1.5 text-[10px] text-slate-600 cursor-pointer">
             <input
               type="checkbox"
               checked={block.justify !== false}
               onChange={e => onChange({ justify: e.target.checked } as any)}
-              className="accent-brand-red"
+              className="accent-sky-600"
             />
             Justified
           </label>
@@ -1366,10 +1366,10 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
       onChange({ rows: block.rows.filter((_, j) => j !== i) } as any)
     return (
       <div className="space-y-2">
-        <div className="text-[10px] uppercase tracking-wider text-gray-500">Table</div>
+        <div className="text-[10px] uppercase tracking-wider text-slate-500">Table</div>
         {/* Headers */}
         <div className="space-y-1.5">
-          <div className="text-[10px] text-gray-500">Column headings & alignment</div>
+          <div className="text-[10px] text-slate-500">Column headings & alignment</div>
           {block.headers.map((h, i) => (
             <div key={i} className="flex items-center gap-1.5">
               <input value={h} onChange={e => setHeader(i, e.target.value)} placeholder={`Heading ${i + 1}`} className={input + ' flex-1'} />
@@ -1377,7 +1377,7 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
                 <option value="left">L</option><option value="center">C</option><option value="right">R</option>
               </select>
               {block.headers.length > 1 && (
-                <button onClick={() => removeColumn(i)} className="p-1 text-gray-500 hover:text-red-300" title="Remove column">
+                <button onClick={() => removeColumn(i)} className="p-1 text-slate-500 hover:text-red-300" title="Remove column">
                   <Trash2 className="w-3 h-3" />
                 </button>
               )}
@@ -1386,13 +1386,13 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
         </div>
         {/* Rows */}
         <div className="space-y-1.5 pt-1">
-          <div className="text-[10px] text-gray-500">Rows</div>
+          <div className="text-[10px] text-slate-500">Rows</div>
           {block.rows.map((row, ri) => (
-            <div key={ri} className="rounded-lg bg-white/[0.02] border border-white/[0.06] p-1.5">
+            <div key={ri} className="rounded-lg bg-slate-50 border border-slate-200 p-1.5">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[9px] text-gray-500">Row {ri + 1}</span>
+                <span className="text-[9px] text-slate-500">Row {ri + 1}</span>
                 {block.rows.length > 1 && (
-                  <button onClick={() => removeRow(ri)} className="p-0.5 text-gray-500 hover:text-red-300" title="Remove row">
+                  <button onClick={() => removeRow(ri)} className="p-0.5 text-slate-500 hover:text-red-300" title="Remove row">
                     <Trash2 className="w-3 h-3" />
                   </button>
                 )}
@@ -1412,8 +1412,8 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
           ))}
         </div>
         <div className="flex gap-2 text-[11px] pt-1">
-          <button onClick={addColumn} className="text-brand-red hover:underline">+ Column</button>
-          <button onClick={addRow} className="text-brand-red hover:underline">+ Row</button>
+          <button onClick={addColumn} className="text-sky-600 hover:underline">+ Column</button>
+          <button onClick={addRow} className="text-sky-600 hover:underline">+ Row</button>
         </div>
       </div>
     )
@@ -1424,14 +1424,14 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
       onChange({ lines: block.lines.map((l, j) => j === i ? v : l) } as any)
     return (
       <div className="space-y-2">
-        <div className="text-[10px] uppercase tracking-wider text-gray-500">Footer</div>
+        <div className="text-[10px] uppercase tracking-wider text-slate-500">Footer</div>
         <input value={block.companyName} onChange={e => onChange({ companyName: e.target.value } as any)} placeholder="Company name" className={input + ' text-sm font-semibold'} />
         <div className="space-y-1.5">
           {block.lines.map((l, i) => (
             <div key={i} className="flex items-center gap-1.5">
               <input value={l} onChange={e => setLine(i, e.target.value)} placeholder={`Footer line ${i + 1}`} className={input + ' flex-1'} />
               {block.lines.length > 1 && (
-                <button onClick={() => onChange({ lines: block.lines.filter((_, j) => j !== i) } as any)} className="p-1 text-gray-500 hover:text-red-300" title="Remove line">
+                <button onClick={() => onChange({ lines: block.lines.filter((_, j) => j !== i) } as any)} className="p-1 text-slate-500 hover:text-red-300" title="Remove line">
                   <Trash2 className="w-3 h-3" />
                 </button>
               )}
@@ -1439,10 +1439,10 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
           ))}
         </div>
         <div className="flex items-center gap-2 text-[11px]">
-          <button onClick={() => onChange({ lines: [...block.lines, ''] } as any)} className="text-brand-red hover:underline">+ Line</button>
-          <label className="flex items-center gap-1.5 text-gray-400 ml-auto">
+          <button onClick={() => onChange({ lines: [...block.lines, ''] } as any)} className="text-sky-600 hover:underline">+ Line</button>
+          <label className="flex items-center gap-1.5 text-slate-600 ml-auto">
             Strip colour
-            <input type="color" value={block.bgColor} onChange={e => onChange({ bgColor: e.target.value } as any)} className="h-6 w-9 rounded border border-white/[0.08] bg-transparent cursor-pointer" />
+            <input type="color" value={block.bgColor} onChange={e => onChange({ bgColor: e.target.value } as any)} className="h-6 w-9 rounded border border-slate-200 bg-transparent cursor-pointer" />
           </label>
         </div>
       </div>
@@ -1462,8 +1462,8 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
     return (
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <div className="text-[10px] uppercase tracking-wider text-gray-500">Spacer</div>
-          <span className="text-[10px] text-gray-500 font-mono">{block.heightMm}mm</span>
+          <div className="text-[10px] uppercase tracking-wider text-slate-500">Spacer</div>
+          <span className="text-[10px] text-slate-500 font-mono">{block.heightMm}mm</span>
         </div>
         <div className="flex flex-wrap gap-1.5">
           {presets.map(p => (
@@ -1472,8 +1472,8 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
               onClick={() => onChange({ heightMm: p.mm } as any)}
               className={`px-2.5 py-1 rounded-md text-[10px] font-medium uppercase tracking-wider transition-colors ${
                 block.heightMm === p.mm
-                  ? 'bg-brand-red/20 text-white border border-brand-red/30'
-                  : 'bg-white/[0.04] text-gray-400 border border-white/[0.08] hover:bg-white/[0.08]'
+                  ? 'bg-sky-600/20 text-navy border border-sky-600/30'
+                  : 'bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100'
               }`}
               title={`${p.mm}mm gap`}
             >
@@ -1489,7 +1489,7 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
             step={1}
             value={block.heightMm}
             onChange={e => onChange({ heightMm: Number(e.target.value) || 8 } as any)}
-            className="flex-1 accent-brand-red"
+            className="flex-1 accent-sky-600"
           />
           <input
             type="number"
@@ -1501,7 +1501,7 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
           />
         </div>
         <div
-          className="rounded bg-white/[0.04] border border-dashed border-white/[0.12]"
+          className="rounded bg-slate-50 border border-dashed border-slate-200"
           style={{ height: Math.max(4, Math.min(120, block.heightMm * 3)) + 'px' }}
           aria-hidden
         />
@@ -1512,7 +1512,7 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
   if (block.kind === 'kv-list') {
     return (
       <div className="space-y-2">
-        <div className="text-[10px] uppercase tracking-wider text-gray-500">Field List</div>
+        <div className="text-[10px] uppercase tracking-wider text-slate-500">Field List</div>
         <div className="space-y-1.5">
           {block.rows.map((row, i) => (
             <div key={i} className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -1522,8 +1522,8 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
           ))}
         </div>
         <div className="flex gap-2 text-[11px]">
-          <button onClick={() => onChange({ rows: [...block.rows, { label: '', value: '' }] } as any)} className="text-brand-red hover:underline">+ Add field</button>
-          {block.rows.length > 1 && <button onClick={() => onChange({ rows: block.rows.slice(0, -1) } as any)} className="text-gray-400 hover:text-white">Remove last</button>}
+          <button onClick={() => onChange({ rows: [...block.rows, { label: '', value: '' }] } as any)} className="text-sky-600 hover:underline">+ Add field</button>
+          {block.rows.length > 1 && <button onClick={() => onChange({ rows: block.rows.slice(0, -1) } as any)} className="text-slate-600 hover:text-navy">Remove last</button>}
         </div>
       </div>
     )
@@ -1532,15 +1532,15 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
   if (block.kind === 'bullet-list') {
     return (
       <div className="space-y-2">
-        <div className="text-[10px] uppercase tracking-wider text-gray-500">Bullet List</div>
+        <div className="text-[10px] uppercase tracking-wider text-slate-500">Bullet List</div>
         <div className="space-y-1.5">
           {block.items.map((item, i) => (
             <input key={i} value={item} onChange={e => onChange({ items: block.items.map((v, j) => j === i ? e.target.value : v) } as any)} placeholder={`Item ${i + 1}`} className={input} />
           ))}
         </div>
         <div className="flex gap-2 text-[11px]">
-          <button onClick={() => onChange({ items: [...block.items, ''] } as any)} className="text-brand-red hover:underline">+ Add item</button>
-          {block.items.length > 1 && <button onClick={() => onChange({ items: block.items.slice(0, -1) } as any)} className="text-gray-400 hover:text-white">Remove last</button>}
+          <button onClick={() => onChange({ items: [...block.items, ''] } as any)} className="text-sky-600 hover:underline">+ Add item</button>
+          {block.items.length > 1 && <button onClick={() => onChange({ items: block.items.slice(0, -1) } as any)} className="text-slate-600 hover:text-navy">Remove last</button>}
         </div>
       </div>
     )
@@ -1568,11 +1568,11 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
     }
     return (
       <div className="space-y-2">
-        <div className="text-[10px] uppercase tracking-wider text-gray-500">Image</div>
+        <div className="text-[10px] uppercase tracking-wider text-slate-500">Image</div>
         {!block.dataUrl ? (
-          <label className="flex flex-col items-center justify-center gap-1 py-6 border border-dashed border-white/[0.12] rounded-lg cursor-pointer hover:bg-white/[0.03]">
-            <ImageIcon className="w-5 h-5 text-gray-500" />
-            <div className="text-[11px] text-gray-400">Click to pick an image (PNG/JPG)</div>
+          <label className="flex flex-col items-center justify-center gap-1 py-6 border border-dashed border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50">
+            <ImageIcon className="w-5 h-5 text-slate-500" />
+            <div className="text-[11px] text-slate-600">Click to pick an image (PNG/JPG)</div>
             <input type="file" accept="image/*" className="hidden" onChange={(e) => {
               const f = e.target.files?.[0]
               if (f) loadFile(f)
@@ -1580,16 +1580,16 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
           </label>
         ) : (
           <>
-            <img src={block.dataUrl} alt="" className="max-h-40 rounded-lg border border-white/[0.08]" />
+            <img src={block.dataUrl} alt="" className="max-h-40 rounded-lg border border-slate-200" />
             <div className="flex gap-2 text-[11px]">
-              <label className="bg-white/[0.04] border border-white/[0.08] rounded-md px-2 py-1 text-gray-300 cursor-pointer hover:text-white">
+              <label className="bg-slate-50 border border-slate-200 rounded-md px-2 py-1 text-slate-700 cursor-pointer hover:text-navy">
                 Replace
                 <input type="file" accept="image/*" className="hidden" onChange={(e) => {
                   const f = e.target.files?.[0]
                   if (f) loadFile(f)
                 }} />
               </label>
-              <button onClick={() => onChange({ dataUrl: '' } as any)} className="text-gray-400 hover:text-white">Clear</button>
+              <button onClick={() => onChange({ dataUrl: '' } as any)} className="text-slate-600 hover:text-navy">Clear</button>
               <select value={block.align} onChange={e => onChange({ align: e.target.value as any } as any)} className={input + ' max-w-[120px]'}>
                 <option value="left">Left</option><option value="center">Center</option><option value="right">Right</option>
               </select>
@@ -1604,7 +1604,7 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
   if (block.kind === 'signature') {
     return (
       <div className="space-y-2">
-        <div className="text-[10px] uppercase tracking-wider text-gray-500">Signatures</div>
+        <div className="text-[10px] uppercase tracking-wider text-slate-500">Signatures</div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {block.labels.map((label, i) => (
             <input key={i} value={label} onChange={e => onChange({ labels: block.labels.map((v, j) => j === i ? e.target.value : v) } as any)} placeholder={`Signatory ${i + 1}`} className={input} />
@@ -1617,7 +1617,7 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
   if (block.kind === 'date') {
     return (
       <div className="space-y-2">
-        <div className="text-[10px] uppercase tracking-wider text-gray-500">Date</div>
+        <div className="text-[10px] uppercase tracking-wider text-slate-500">Date</div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <input
             value={block.label}
@@ -1641,7 +1641,7 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
           <select value={block.align} onChange={e => onChange({ align: e.target.value as any } as any)} className={input + ' max-w-[120px]'}>
             <option value="left">Left</option><option value="center">Center</option><option value="right">Right</option>
           </select>
-          <div className="text-[10px] text-gray-500 self-center">Preview: <span className="text-gray-300">{formatDate(block.iso, block.format) || '—'}</span></div>
+          <div className="text-[10px] text-slate-500 self-center">Preview: <span className="text-slate-700">{formatDate(block.iso, block.format) || '—'}</span></div>
         </div>
       </div>
     )
@@ -1650,7 +1650,7 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
   if (block.kind === 'email') {
     return (
       <div className="space-y-2">
-        <div className="text-[10px] uppercase tracking-wider text-gray-500">Email Address</div>
+        <div className="text-[10px] uppercase tracking-wider text-slate-500">Email Address</div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <input value={block.label} onChange={e => onChange({ label: e.target.value } as any)} placeholder="Label (optional)" className={input} />
           <input type="email" value={block.address} onChange={e => onChange({ address: e.target.value } as any)} placeholder="name@example.com" className={input} />
@@ -1665,7 +1665,7 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
   if (block.kind === 'phone') {
     return (
       <div className="space-y-2">
-        <div className="text-[10px] uppercase tracking-wider text-gray-500">Phone</div>
+        <div className="text-[10px] uppercase tracking-wider text-slate-500">Phone</div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <input value={block.label} onChange={e => onChange({ label: e.target.value } as any)} placeholder="Label (optional)" className={input} />
           <input type="tel" value={block.number} onChange={e => onChange({ number: e.target.value } as any)} placeholder="+91 7200 255 252" className={input} />
@@ -1680,7 +1680,7 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
   if (block.kind === 'link') {
     return (
       <div className="space-y-2">
-        <div className="text-[10px] uppercase tracking-wider text-gray-500">Link</div>
+        <div className="text-[10px] uppercase tracking-wider text-slate-500">Link</div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <input value={block.display} onChange={e => onChange({ display: e.target.value } as any)} placeholder="Display text" className={input} />
           <input type="url" value={block.url} onChange={e => onChange({ url: e.target.value } as any)} placeholder="https://…" className={input} />
@@ -1695,19 +1695,19 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
   if (block.kind === 'divider') {
     return (
       <div className="space-y-2">
-        <div className="text-[10px] uppercase tracking-wider text-gray-500">Divider</div>
+        <div className="text-[10px] uppercase tracking-wider text-slate-500">Divider</div>
         <div className="flex items-center gap-2 text-[11px]">
-          <label className="text-gray-500">Thickness</label>
+          <label className="text-slate-500">Thickness</label>
           <input
             type="number" min={1} max={6} value={block.thickness}
             onChange={e => onChange({ thickness: Math.max(1, Math.min(6, Number(e.target.value) || 1)) } as any)}
             className={input + ' max-w-[80px]'}
           />
-          <label className="text-gray-500 ml-2">Color</label>
+          <label className="text-slate-500 ml-2">Color</label>
           <input
             type="color" value={block.color}
             onChange={e => onChange({ color: e.target.value } as any)}
-            className="w-9 h-7 rounded cursor-pointer bg-transparent border border-white/[0.12]"
+            className="w-9 h-7 rounded cursor-pointer bg-transparent border border-slate-200"
           />
           <div className="flex-1 ml-2">
             <hr style={{ borderColor: block.color, borderTopWidth: block.thickness, opacity: 0.9 }} />
@@ -1719,7 +1719,7 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
 
   if (block.kind === 'page-break') {
     return (
-      <div className="flex items-center gap-2 text-[11px] text-gray-400">
+      <div className="flex items-center gap-2 text-[11px] text-slate-600">
         <FileX2 className="w-3.5 h-3.5" />
         Page Break — next block starts on a new PDF page.
       </div>
@@ -1733,7 +1733,7 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
     const removeRow = (i: number) => onChange({ rows: block.rows.filter((_, j) => j !== i) } as any)
     return (
       <div className="space-y-2">
-        <div className="text-[10px] uppercase tracking-wider text-gray-500">Chart</div>
+        <div className="text-[10px] uppercase tracking-wider text-slate-500">Chart</div>
         <input value={block.title} onChange={e => onChange({ title: e.target.value } as any)} placeholder="Chart title" className={input} />
         <div className="flex gap-2 text-[11px]">
           <select value={block.variant} onChange={e => onChange({ variant: e.target.value as any } as any)} className={input + ' max-w-[140px]'}>
@@ -1752,12 +1752,12 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
           <input
             type="color" value={block.color}
             onChange={e => onChange({ color: e.target.value } as any)}
-            className="w-9 h-7 rounded cursor-pointer bg-transparent border border-white/[0.12]"
+            className="w-9 h-7 rounded cursor-pointer bg-transparent border border-slate-200"
             title="Bar color"
           />
         </div>
         <div className="space-y-1.5">
-          <div className="text-[10px] text-gray-500">Data</div>
+          <div className="text-[10px] text-slate-500">Data</div>
           {block.rows.map((r, i) => (
             <div key={i} className="flex items-center gap-1.5">
               <input value={r.label} onChange={e => updateRow(i, { label: e.target.value })} placeholder="Label" className={input + ' flex-1'} />
@@ -1767,13 +1767,13 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
                 placeholder="Value" className={input + ' max-w-[100px]'}
               />
               {block.rows.length > 1 && (
-                <button onClick={() => removeRow(i)} className="p-1 text-gray-500 hover:text-red-300" title="Remove">
+                <button onClick={() => removeRow(i)} className="p-1 text-slate-500 hover:text-red-300" title="Remove">
                   <Trash2 className="w-3 h-3" />
                 </button>
               )}
             </div>
           ))}
-          <button onClick={addRow} className="inline-flex items-center gap-1.5 text-[10px] text-brand-red hover:underline">
+          <button onClick={addRow} className="inline-flex items-center gap-1.5 text-[10px] text-sky-600 hover:underline">
             <Plus className="w-3 h-3" /> Add data point
           </button>
         </div>

@@ -13,7 +13,7 @@ export default function StaffDocumentsPage() {
         <h1 className="text-xl font-bold text-navy">Assets &amp; Documents</h1>
         <p className="text-sm text-steel">Build letters, agreements and reports, then export to PDF or Word.</p>
       </div>
-      <div className="rounded-xl border border-white/10 bg-[#0b1020] p-5 text-white shadow-sm">
+      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <DocumentBuilder />
       </div>
     </div>
