@@ -5,6 +5,8 @@ import { loadTechHub } from "@/lib/tech-hub-data";
 import { ModuleToggle } from "@/components/tech/ModuleToggle";
 import { SuperAdminToggle } from "@/components/tech/SuperAdminToggle";
 import { BridgeManager } from "@/components/tech/BridgeManager";
+import { loadSymbols } from "@/lib/tech-symbols";
+import { SymbolManager } from "@/components/tech/SymbolManager";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +29,7 @@ export default async function ModulePage({ params }: { params: { module: string 
   // Module-specific live data.
   const liquidity = m.key === "liquidity" ? await loadTechHub() : null;
   const bridges = m.key === "bridges" ? await loadBridges() : null;
+  const symbols = m.key === "trading" ? await loadSymbols() : null;
   const consoleData = ["monitoring", "database", "access", "security"].includes(m.key) ? await loadTechConsole() : null;
   const { user } = await getSuperAdmin();
 
@@ -74,6 +77,9 @@ export default async function ModulePage({ params }: { params: { module: string 
 
       {/* Bridge registry — build/manage any bridge */}
       {bridges && <BridgeManager bridges={bridges} />}
+
+      {/* Symbol & spread management — live to the trading engine */}
+      {symbols && <SymbolManager symbols={symbols} />}
 
       {/* Liquidity live panel */}
       {liquidity && liquidity.ok && (
