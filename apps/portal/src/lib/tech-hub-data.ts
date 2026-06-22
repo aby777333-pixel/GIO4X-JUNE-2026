@@ -24,7 +24,8 @@ export type TechHubResult = { ok: true; data: TechHub } | { ok: false; error: st
 
 export async function loadTechHub(): Promise<TechHubResult> {
   const user = await getCurrentUser();
-  if (user?.profile?.role !== "admin") return { ok: false, error: "Admin access only." };
+  const isSuper = Boolean((user?.profile as { is_super_admin?: boolean } | null)?.is_super_admin);
+  if (user?.profile?.role !== "admin" && !isSuper) return { ok: false, error: "Admin access only." };
 
   let admin;
   try {
