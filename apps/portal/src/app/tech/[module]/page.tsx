@@ -15,6 +15,7 @@ import { SecurityManager } from "@/components/tech/SecurityManager";
 import { FlagManager } from "@/components/tech/FlagManager";
 import { LiquidityManager } from "@/components/tech/LiquidityManager";
 import { ReportingPanel } from "@/components/tech/ReportingPanel";
+import { isCapabilityLive } from "@/lib/tech-capabilities";
 import { RegistryManager, type ConfigField } from "@/components/tech/RegistryManager";
 import { SignalsPanel } from "@/components/tech/SignalsPanel";
 import { AutomationPanel } from "@/components/tech/AutomationPanel";
@@ -89,25 +90,30 @@ export default async function ModulePage({ params }: { params: { module: string 
         </div>
       </div>
 
-      {/* Capabilities (control surface) */}
+      {/* Capabilities — honest live vs planned status */}
       <div className="tech-panel rounded-xl p-5">
-        <h2 className="mb-3 text-sm font-semibold">Capabilities</h2>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-sm font-semibold">Capabilities</h2>
+          <span className="text-[11px] tech-muted">{m.features.filter((f) => isCapabilityLive(m.key, f)).length} of {m.features.length} live · operational controls below</span>
+        </div>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {m.features.map((f) => {
-            const live = m.status === "available";
+            const live = isCapabilityLive(m.key, f);
             return (
-              <div key={f} className="tech-panel2 flex items-center gap-2 rounded-lg px-3 py-2 text-xs">
-                {live ? <CheckCircle2 size={14} className="text-emerald-400" /> : <Circle size={14} className="tech-muted" />}
-                <span className={live ? "" : "tech-muted"}>{f}</span>
+              <div key={f} className={`tech-panel2 flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-xs ${live ? "" : "opacity-70"}`}>
+                <span className="flex items-center gap-2">
+                  {live ? <CheckCircle2 size={14} className="text-emerald-400" /> : <Circle size={14} className="tech-muted" />}
+                  <span className={live ? "" : "tech-muted"}>{f}</span>
+                </span>
+                <span className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase ${live ? "bg-emerald-500/15 text-emerald-300" : "bg-slate-500/15 text-slate-400"}`}>{live ? "Live" : "Planned"}</span>
               </div>
             );
           })}
         </div>
-        {m.status !== "available" && (
-          <p className="mt-3 text-[11px] tech-muted">
-            {m.status === "beta" ? "Partially wired — controls are coming online." : "Planned — provisioned in the registry and ready to build out."}
-          </p>
-        )}
+        <p className="mt-3 text-[11px] tech-muted">
+          <span className="font-semibold text-emerald-300">Live</span> capabilities are operational in the controls below.{" "}
+          <span className="font-semibold text-slate-400">Planned</span> are provisioned and ready to wire once their backend is connected.
+        </p>
       </div>
 
       {/* Bridge registry — build/manage any bridge */}
