@@ -74,8 +74,8 @@ const menuCategories: MenuCategory[] = [
     label: 'Invest',
     icon: <Users size={14} />,
     items: [
-      { href: '/dashboard/copy-trading', icon: <Users size={14} />, label: 'Copy Trading', desc: 'Follow top traders' },
-      { href: '/dashboard/pamm', icon: <PieChart size={14} />, label: 'PAMM / MAM', desc: 'Managed accounts' },
+      { href: 'https://zippy-piroshki-21aa30.netlify.app/copy', icon: <Users size={14} />, label: 'Copy Trading', desc: 'Follow top traders' },
+      { href: 'https://zippy-piroshki-21aa30.netlify.app/pamm', icon: <PieChart size={14} />, label: 'PAMM / MAM', desc: 'Managed accounts' },
       { href: '/dashboard/prop', icon: <Wallet size={14} />, label: 'Prop Trading', desc: 'Funded challenges' },
       { href: '/dashboard/referrals', icon: <Users size={14} />, label: 'IB / Referrals', desc: 'Earn commissions' },
     ],
@@ -180,8 +180,18 @@ export default function TopBar() {
 
         if (mapped.length > 0) {
           setAccounts(mapped);
-          setSelectedAccount(mapped[0]);
-          setActiveAccountId(mapped[0].id);
+          // If the portal opened us with ?account=<number> (the "Open in
+          // Raptor" deep-link), pre-select that account instead of the first.
+          let initial = mapped[0];
+          try {
+            const wanted = new URLSearchParams(window.location.search).get('account');
+            if (wanted) {
+              const match = mapped.find((a) => a.account_number === wanted);
+              if (match) initial = match;
+            }
+          } catch { /* no window / bad params — fall back to first */ }
+          setSelectedAccount(initial);
+          setActiveAccountId(initial.id);
         }
       } catch {
         const fallback: TradingAccount[] = [
