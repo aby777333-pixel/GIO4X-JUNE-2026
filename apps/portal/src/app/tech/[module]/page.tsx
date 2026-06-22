@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { loadTechModule, loadTechConsole, getSuperAdmin, loadBridges, loadApiKeys, loadSecurityRules, loadFlags, loadRegistry, loadSignals, loadJobs, loadAuditRows, loadCapabilities } from "@/lib/tech-hub-console";
+import { loadTechModule, loadTechConsole, getSuperAdmin, loadBridges, loadApiKeys, loadSecurityRules, loadFlags, loadRegistry, loadSignals, loadJobs, loadAuditRows, loadCapabilities, loadApiUsage } from "@/lib/tech-hub-console";
 import { CapabilityManager } from "@/components/tech/CapabilityManager";
+import { ApiUsagePanel } from "@/components/tech/ApiUsagePanel";
 import { AuditConsole } from "@/components/tech/AuditConsole";
 import { loadTechHub, loadExecDashboard, loadRisk } from "@/lib/tech-hub-data";
 import { AnalyticsPanel } from "@/components/tech/AnalyticsPanel";
@@ -56,6 +57,7 @@ export default async function ModulePage({ params }: { params: { module: string 
   const bridges = m.key === "bridges" ? await loadBridges() : null;
   const symbols = ["trading", "spreads"].includes(m.key) ? await loadSymbols() : null;
   const apiKeys = m.key === "api" ? await loadApiKeys() : null;
+  const apiUsage = m.key === "api" ? await loadApiUsage() : null;
   const secRules = m.key === "security" ? await loadSecurityRules() : null;
   const flags = m.key === "platform" ? await loadFlags() : null;
   const reg = REGISTRY_MODULES[m.key] ?? null;
@@ -105,6 +107,7 @@ export default async function ModulePage({ params }: { params: { module: string 
 
       {/* API / Platform / Security / Reporting modules */}
       {apiKeys && <ApiKeyManager keys={apiKeys} />}
+      {apiUsage && <ApiUsagePanel usage={apiUsage} />}
       {flags && <FlagManager flags={flags} />}
       {secRules && <SecurityManager rules={secRules} />}
       {reportExec && <AnalyticsPanel exec={reportExec} />}

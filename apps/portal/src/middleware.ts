@@ -30,6 +30,6 @@ export const config = {
   // from being auth-gated — otherwise the session check 307s the asset to
   // /auth/login and it never loads.
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:jpg|jpeg|png|gif|svg|webp|avif|ico)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|api/v1|.*\\.(?:jpg|jpeg|png|gif|svg|webp|avif|ico)$).*)",
   ],
 };

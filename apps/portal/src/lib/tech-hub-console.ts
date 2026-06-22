@@ -123,6 +123,19 @@ export async function loadJobs(): Promise<Jobs | null> {
   const { data } = await sb.rpc("tech_jobs");
   return (data as Jobs) ?? null;
 }
+export type ApiUsage = {
+  total: number; last_24h: number; last_1h: number; errors_24h: number; avg_latency_ms: number;
+  by_endpoint: { path: string; calls: number; avg_ms: number }[];
+  recent: { key_name: string | null; path: string; method: string; status: number; latency_ms: number; ip: string | null; created_at: string }[];
+};
+export async function loadApiUsage(): Promise<ApiUsage | null> {
+  const { user, isSuper } = await getSuperAdmin();
+  if (!user || !isSuper) return null;
+  const sb = getSupabaseServer() as unknown as LooseClient;
+  const { data } = await sb.rpc("tech_api_usage");
+  return (data as ApiUsage) ?? null;
+}
+
 export type Capability = { capability: string; enabled: boolean; config: Record<string, unknown> };
 export async function loadCapabilities(moduleKey: string): Promise<Capability[]> {
   const { user, isSuper } = await getSuperAdmin();
