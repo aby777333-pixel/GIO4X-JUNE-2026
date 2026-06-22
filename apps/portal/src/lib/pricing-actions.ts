@@ -5,6 +5,7 @@ import { transformTick, PricingCache, pipSize } from "@gio4x/pricing-core";
 import type { ClientTick, InternalTick, PricingContext, RawTick } from "@gio4x/pricing-core";
 import { getSupabaseServer } from "./supabase-server";
 import { loadPricingConfig } from "./pricing-terminal";
+import { terminalSelect } from "./tech-terminal";
 
 type Rpc = { rpc: (fn: string, args?: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }> };
 export type PricingResult = { ok: true; message?: string } | { ok: false; error: string };
@@ -68,3 +69,31 @@ export const deleteLpMarkup = (id: string) => rpc("pricing_lp_markup_delete", { 
 export const upsertLpRouting = (p: Record<string, unknown>) => rpc("pricing_lp_routing_upsert", { p });
 export const toggleLpRouting = (id: string, enabled: boolean) => rpc("pricing_lp_routing_toggle", { p_id: id, p_enabled: enabled });
 export const deleteLpRouting = (id: string) => rpc("pricing_lp_routing_delete", { p_id: id });
+
+// Pull live commission + swap revenue from GIO Raptor into the shared revenue
+// ledger (idempotent full-replace of ref='raptor' rows).
+type RaptorPos = { symbol: string; commission: number | null; swap_accrued: number | null; routing_mode: string | null };
+const r2 = (x: number) => Math.round(x * 100) / 100;
+export async function syncRevenue(): Promise<{ ok: true; rows: number } | { ok: false; error: string }> {
+  const positions = await terminalSelect<RaptorPos>("positions?select=symbol,commission,swap_accrued,routing_mode&limit=5000");
+  if (positions == null) return { ok: false, error: "Could not read GIO Raptor positions." };
+  const agg = new Map<string, { symbol: string; book: string | null; commission: number; swap: number }>();
+  for (const p of positions) {
+    const book = p.routing_mode === "a_book" ? "a_book" : p.routing_mode === "b_book" ? "b_book" : null;
+    const key = `${p.symbol}|${book ?? ""}`;
+    let a = agg.get(key);
+    if (!a) { a = { symbol: p.symbol, book, commission: 0, swap: 0 }; agg.set(key, a); }
+    a.commission += Number(p.commission) || 0;
+    a.swap += Number(p.swap_accrued) || 0;
+  }
+  const rows: Record<string, unknown>[] = [];
+  for (const a of agg.values()) {
+    if (a.commission) rows.push({ account_id: "aggregate", symbol: a.symbol, source: "commission", amount_usd: r2(a.commission), book: a.book });
+    if (a.swap) rows.push({ account_id: "aggregate", symbol: a.symbol, source: "swap", amount_usd: r2(a.swap), book: a.book });
+  }
+  const sb = getSupabaseServer() as unknown as Rpc;
+  const { data, error } = await sb.rpc("dealer_revenue_ingest", { p_rows: rows });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/tech/spreads");
+  return { ok: true, rows: (data as { rows?: number })?.rows ?? 0 };
+}

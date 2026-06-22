@@ -120,6 +120,21 @@ export async function loadLpPricing(): Promise<{ lps: LpHealthRow[]; markup: LpM
   };
 }
 
+export type RevenueData = {
+  total: number; today: number; last_7d: number;
+  by_source: { source: string; amt: number }[];
+  by_symbol: { symbol: string; amt: number }[];
+  by_book: { book: string; amt: number }[];
+  recent: { symbol: string; source: string; amount: number; book: string | null; occurred_at: string }[];
+  rows: number;
+};
+export async function loadRevenue(): Promise<RevenueData | null> {
+  const sb = getSupabaseServer() as unknown as Rpc;
+  const { data } = await sb.rpc("pricing_revenue");
+  const d = data as RevenueData;
+  return d && Object.keys(d).length > 0 ? d : null;
+}
+
 export type PricingAuditRow = { table: string; action: string; previous: unknown; new: unknown; ip: string | null; at: string };
 export async function loadPricingAudit(): Promise<PricingAuditRow[]> {
   const sb = getSupabaseServer() as unknown as Rpc;
