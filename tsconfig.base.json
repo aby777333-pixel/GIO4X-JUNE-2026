@@ -20,6 +20,8 @@
       "@gio4x/ui/*": ["packages/ui/src/*"],
       "@gio4x/supabase": ["packages/supabase/src/index.ts"],
       "@gio4x/supabase/*": ["packages/supabase/src/*"],
+      "@gio4x/dealer-core": ["packages/dealer-core/src/index.ts"],
+      "@gio4x/dealer-core/*": ["packages/dealer-core/src/*"],
       "@gio4x/config/*": ["packages/config/*"]
     }
   }
