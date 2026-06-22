@@ -3,6 +3,7 @@ import { Shell } from "@/components/Shell";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardBody, CardHeader, CardTitle } from "@gio4x/ui";
 import { Download, Image as ImageIcon, FileText, Video, Languages } from "lucide-react";
+import { SampleDataBanner } from "@/components/SampleDataBanner";
 
 const sections = [
   {
@@ -51,6 +52,8 @@ export default function MaterialsPage() {
         title="Marketing Materials"
         subtitle="Brand-approved creatives, copy, and decks. Co-branded versions available on request."
       />
+
+      <SampleDataBanner>Sample creatives — the live asset library is coming soon.</SampleDataBanner>
 
       <div className="grid gap-6 lg:grid-cols-2">
         {sections.map((s) => {

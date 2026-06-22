@@ -5,6 +5,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { Card, CardBody, CardHeader, CardTitle } from "@gio4x/ui";
 import { AccountChip } from "@/components/AccountChip";
 import { Download } from "lucide-react";
+import { SampleDataBanner } from "@/components/SampleDataBanner";
 
 type AcctRow = { id: number; account: string; type: string; client: string; balance: number; volume30d: number; commission30d: number; status: "active" | "dormant" };
 
@@ -38,6 +39,8 @@ export default function IbAccountsPage() {
           </button>
         }
       />
+
+      <SampleDataBanner />
 
       <Card>
         <CardHeader>

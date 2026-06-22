@@ -6,11 +6,19 @@ import { revalidatePath } from "next/cache";
 import { createServerSupabaseClient } from "@gio4x/supabase";
 
 // ---------------------------------------------------------------------------
-// Staff portal auth — a single SHARED username + password (env-configured)
-// gates the staff console. On success we sign into a designated backing
-// staff/admin Supabase account, so every existing /staff page keeps reading
-// data under the same RLS-bound session it always has (nothing about staff
-// data access changes — only the human-facing login does).
+// Staff portal auth — TWO accepted paths, both ending in an RLS-bound session
+// whose profiles.role must be staff/admin:
+//
+//   A) SHARED credential (env-configured username + password) → signs into a
+//      designated backing staff/admin Supabase account. Unchanged, backward-
+//      compatible: every existing /staff page keeps reading under the same
+//      session it always has.
+//
+//   B) PER-USER login — if an email is entered (and it isn't the shared
+//      username), authenticate that individual's own Supabase account directly.
+//      These accounts are minted by the Team module (createStaffUser) and carry
+//      their own role + staff_sections, so per-section RBAC becomes meaningful
+//      instead of everyone sharing one backing identity.
 //
 // Env (server-only):
 //   STAFF_PORTAL_USERNAME          — the shared username staff type
@@ -41,30 +49,46 @@ export async function staffSignIn(formData: FormData): Promise<StaffAuthResult> 
   const backingEmail = process.env.STAFF_PORTAL_ACCOUNT_EMAIL ?? "";
   const backingPass = process.env.STAFF_PORTAL_ACCOUNT_PASSWORD ?? "";
 
-  if (!expectedUser || !expectedPass || !backingEmail || !backingPass) {
+  const sharedConfigured = Boolean(expectedUser && expectedPass && backingEmail && backingPass);
+  const isSharedUsername = sharedConfigured && safeEqual(username, expectedUser);
+
+  // Decide which Supabase credentials to sign in with.
+  let signInEmail: string;
+  let signInPassword: string;
+
+  if (isSharedUsername) {
+    // Path A — shared credential: the password must match too, then we sign
+    // into the backing staff/admin account (unchanged behaviour).
+    if (!safeEqual(password, expectedPass)) {
+      return { ok: false, error: "Invalid staff username or password." };
+    }
+    signInEmail = backingEmail;
+    signInPassword = backingPass;
+  } else if (username.includes("@")) {
+    // Path B — per-user login: authenticate this individual's own account.
+    signInEmail = username.toLowerCase();
+    signInPassword = password;
+  } else if (!sharedConfigured) {
     return {
       ok: false,
-      error: "Staff portal is not configured yet. Please contact an administrator.",
+      error: "Staff portal is not configured. Sign in with your staff email and password.",
     };
-  }
-
-  // Validate the shared credential (constant-ish time on both fields).
-  const userOk = safeEqual(username, expectedUser);
-  const passOk = safeEqual(password, expectedPass);
-  if (!userOk || !passOk) {
+  } else {
     return { ok: false, error: "Invalid staff username or password." };
   }
 
-  // Establish the backing staff Supabase session so RLS-bound pages work.
+  // Establish the Supabase session so RLS-bound pages work.
   const supabase = createServerSupabaseClient(cookies());
   const { data, error } = await supabase.auth.signInWithPassword({
-    email: backingEmail,
-    password: backingPass,
+    email: signInEmail,
+    password: signInPassword,
   });
   if (error || !data.user) {
     return {
       ok: false,
-      error: "Staff portal sign-in failed. The backing account is misconfigured.",
+      error: isSharedUsername
+        ? "Staff portal sign-in failed. The backing account is misconfigured."
+        : "Invalid staff email or password.",
     };
   }
 

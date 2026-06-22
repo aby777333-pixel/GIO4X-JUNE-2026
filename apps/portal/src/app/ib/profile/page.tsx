@@ -4,11 +4,14 @@ import { PageHeader } from "@/components/PageHeader";
 import { Card, CardBody, CardHeader, CardTitle, Button } from "@gio4x/ui";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Award, FileText, Trophy } from "lucide-react";
+import { SampleDataBanner } from "@/components/SampleDataBanner";
 
 export default function IbProfilePage() {
   return (
     <Shell title="IB Profile">
       <PageHeader title="IB Profile" subtitle="Your IB plan, tier, agreements, and payout settings." />
+
+      <SampleDataBanner />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card>

@@ -5,6 +5,7 @@ import { DataTable, type Column } from "@/components/DataTable";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Card, CardBody, Button } from "@gio4x/ui";
 import { Plus } from "lucide-react";
+import { SampleDataBanner } from "@/components/SampleDataBanner";
 
 type Campaign = { id: number; name: string; channel: string; created: string; clicks: number; signups: number; ftd: number; commission: number; status: "active" | "paused" };
 
@@ -40,6 +41,8 @@ export default function CampaignsPage() {
           </Link>
         }
       />
+
+      <SampleDataBanner />
 
       <Card>
         <CardBody className="px-0 pt-2">

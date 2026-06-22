@@ -123,7 +123,7 @@ export function WithdrawForm({
 
       <div className="flex items-center justify-between border-t border-slate-100 pt-4">
         <div className="flex items-center gap-2 text-[11px] text-steel">
-          <ShieldCheck size={14} className="text-sky" /> 2FA will be requested for live amounts.
+          <ShieldCheck size={14} className="text-sky" /> Withdrawals are reviewed by our team before payout.
         </div>
         {!signedIn ? (
           <Link href="/auth/login?redirect=/withdrawals" className="rounded-lg bg-sky px-4 py-2 text-xs font-semibold text-white">

@@ -33,7 +33,7 @@ export default function StaffLoginPage() {
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
           <label htmlFor="username" className="block text-xs font-medium text-steel">
-            Username
+            Username or staff email
           </label>
           <input
             id="username"

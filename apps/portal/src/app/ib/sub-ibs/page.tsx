@@ -5,6 +5,7 @@ import { DataTable, type Column } from "@/components/DataTable";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Card, CardBody, Button } from "@gio4x/ui";
 import { Plus } from "lucide-react";
+import { SampleDataBanner } from "@/components/SampleDataBanner";
 
 type SubIb = { id: number; name: string; uid: string; joined: string; clients: number; volume30d: number; commission30d: number; share: number; status: "active" | "pending" | "suspended" };
 
@@ -52,6 +53,8 @@ export default function SubIbPage() {
           </Link>
         }
       />
+
+      <SampleDataBanner />
 
       <Card>
         <CardBody className="px-0 pt-2">

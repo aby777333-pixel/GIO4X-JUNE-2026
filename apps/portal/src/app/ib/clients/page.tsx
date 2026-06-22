@@ -5,6 +5,7 @@ import { DataTable, type Column } from "@/components/DataTable";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Card, CardBody, CardHeader, CardTitle, Button } from "@gio4x/ui";
 import { Phone, Mail } from "lucide-react";
+import { SampleDataBanner } from "@/components/SampleDataBanner";
 
 type Client = { id: number; name: string; country: string; flag: string; signedUp: string; accounts: number; deposited: number; lastTrade: string; ftd: boolean; kyc: "verified" | "pending" | "rejected" };
 
@@ -65,6 +66,8 @@ export default function IbClientsPage() {
           </Link>
         }
       />
+
+      <SampleDataBanner />
 
       <Card>
         <CardHeader>

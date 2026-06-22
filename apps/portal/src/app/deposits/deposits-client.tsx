@@ -265,7 +265,7 @@ function CardPanel({ signedIn, wallets }: { signedIn: boolean; wallets: WalletOp
 
         <div className="flex items-center justify-between border-t border-slate-100 pt-4">
           <div className="flex items-center gap-2 text-[11px] text-steel">
-            <Shield size={14} className="text-sky" /> 3-D Secure · PCI DSS Level 1
+            <Shield size={14} className="text-sky" /> Encrypted submission · reviewed before funds post
           </div>
           {signedIn ? (
             <Button variant="primary" type="submit" disabled={pending || !walletId}>
