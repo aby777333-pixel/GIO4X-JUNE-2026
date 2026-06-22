@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getSupabaseServer } from "./supabase-server";
 import { getCurrentUser } from "./session";
+import type { AuditRow } from "./tech-hub-console";
 
 export async function techSignOut(): Promise<void> {
   const sb = getSupabaseServer();
@@ -188,6 +189,15 @@ export async function deleteRegistryItem(id: string): Promise<TechResult> {
   const { error } = await sb.rpc("tech_registry_delete", { p_id: id });
   if (error) return { ok: false, error: error.message };
   revalidatePath("/tech", "layout"); return { ok: true, message: "Deleted." };
+}
+
+// ── Audit search ───────────────────────────────────────────────────────────
+export async function searchAudit(q: string): Promise<{ ok: true; rows: AuditRow[] } | { ok: false; error: string }> {
+  const g = await requireSuper(); if (!g.ok) return g;
+  const sb = getSupabaseServer() as unknown as Rpc;
+  const { data, error } = await sb.rpc("tech_audit_search", { p_q: q || null, p_limit: 200 });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true, rows: (data as AuditRow[]) ?? [] };
 }
 
 // ── Automation: scheduled jobs + outbox ────────────────────────────────────

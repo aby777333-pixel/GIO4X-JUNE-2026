@@ -14,7 +14,8 @@ export type TechAdmin = {
   id: string; email: string | null; full_name: string | null; role: string;
   is_super_admin: boolean; tech_permissions: string[] | null; created_at: string;
 };
-export type TechAudit = { actor_email: string | null; action: string; module: string | null; detail: Record<string, unknown>; created_at: string };
+export type TechAudit = { actor_email: string | null; action: string; module: string | null; detail: Record<string, unknown>; ip?: string | null; created_at: string };
+export type AuditRow = { id: string; actor_email: string | null; action: string; module: string | null; detail: Record<string, unknown>; ip: string | null; created_at: string };
 export type TechOverview = {
   db: { size_pretty: string; size_bytes: number; tables: number; profiles: number; trades: number };
   modules: { total: number; enabled: number; available: number; beta: number; roadmap: number };
@@ -121,4 +122,11 @@ export async function loadJobs(): Promise<Jobs | null> {
   const sb = getSupabaseServer() as unknown as LooseClient;
   const { data } = await sb.rpc("tech_jobs");
   return (data as Jobs) ?? null;
+}
+export async function loadAuditRows(): Promise<AuditRow[]> {
+  const { user, isSuper } = await getSuperAdmin();
+  if (!user || !isSuper) return [];
+  const sb = getSupabaseServer() as unknown as LooseClient;
+  const { data } = await sb.rpc("tech_audit_search", { p_q: null, p_limit: 200 });
+  return (data as AuditRow[]) ?? [];
 }

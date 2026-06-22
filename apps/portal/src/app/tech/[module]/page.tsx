@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CheckCircle2, Circle, ArrowLeft } from "lucide-react";
-import { loadTechModule, loadTechConsole, getSuperAdmin, loadBridges, loadApiKeys, loadSecurityRules, loadFlags, loadRegistry, loadSignals, loadJobs } from "@/lib/tech-hub-console";
+import { loadTechModule, loadTechConsole, getSuperAdmin, loadBridges, loadApiKeys, loadSecurityRules, loadFlags, loadRegistry, loadSignals, loadJobs, loadAuditRows } from "@/lib/tech-hub-console";
+import { AuditConsole } from "@/components/tech/AuditConsole";
 import { loadTechHub } from "@/lib/tech-hub-data";
 import { ModuleToggle } from "@/components/tech/ModuleToggle";
 import { SuperAdminToggle } from "@/components/tech/SuperAdminToggle";
@@ -60,6 +61,7 @@ export default async function ModulePage({ params }: { params: { module: string 
   const signals = m.key === "signals" ? await loadSignals() : null;
   const jobs = m.key === "automation" ? await loadJobs() : null;
   const consoleData = ["monitoring", "database", "access", "security"].includes(m.key) ? await loadTechConsole() : null;
+  const auditRows = m.key === "security" ? await loadAuditRows() : null;
   const { user } = await getSuperAdmin();
 
   return (
@@ -208,24 +210,8 @@ export default async function ModulePage({ params }: { params: { module: string 
         </div>
       )}
 
-      {/* Security — audit */}
-      {consoleData && consoleData.ok && m.key === "security" && (
-        <div className="tech-panel rounded-xl p-5">
-          <h2 className="mb-3 text-sm font-semibold">Audit Trail</h2>
-          {consoleData.audit.length === 0 ? (
-            <div className="text-xs tech-muted">No security events logged yet.</div>
-          ) : (
-            <div className="space-y-1">
-              {consoleData.audit.map((a, i) => (
-                <div key={i} className="flex items-center justify-between border-b tech-border py-1.5 text-xs last:border-0">
-                  <span className="font-mono tech-accent">{a.action}{a.module ? ` · ${a.module}` : ""}</span>
-                  <span className="tech-muted">{a.actor_email} · {new Date(a.created_at).toLocaleString()}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+      {/* Security — searchable Audit Center (IP + before/after + export) */}
+      {auditRows && <AuditConsole initial={auditRows} />}
     </div>
   );
 }
