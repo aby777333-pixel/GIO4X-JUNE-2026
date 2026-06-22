@@ -203,13 +203,21 @@ export async function deleteRegistryItem(id: string): Promise<TechResult> {
   revalidatePath("/tech", "layout"); return { ok: true, message: "Deleted." };
 }
 
-// ── Audit search ───────────────────────────────────────────────────────────
+// ── Audit search + rollback ────────────────────────────────────────────────
 export async function searchAudit(q: string): Promise<{ ok: true; rows: AuditRow[] } | { ok: false; error: string }> {
   const g = await requireSuper(); if (!g.ok) return g;
   const sb = getSupabaseServer() as unknown as Rpc;
   const { data, error } = await sb.rpc("tech_audit_search", { p_q: q || null, p_limit: 200 });
   if (error) return { ok: false, error: error.message };
   return { ok: true, rows: (data as AuditRow[]) ?? [] };
+}
+export async function rollbackAudit(id: string): Promise<TechResult> {
+  const g = await requireSuper(); if (!g.ok) return g;
+  const sb = getSupabaseServer() as unknown as Rpc;
+  const { error } = await sb.rpc("tech_rollback", { p_audit_id: id });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/tech", "layout");
+  return { ok: true, message: "Reverted to previous value." };
 }
 
 // ── Automation: scheduled jobs + outbox ────────────────────────────────────

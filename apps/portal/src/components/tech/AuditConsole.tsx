@@ -1,9 +1,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Search, Download, Loader2, ScrollText } from "lucide-react";
-import { searchAudit } from "@/lib/tech-hub-actions";
+import { Search, Download, Loader2, ScrollText, Undo2 } from "lucide-react";
+import { searchAudit, rollbackAudit } from "@/lib/tech-hub-actions";
 import type { AuditRow } from "@/lib/tech-hub-console";
+
+const REVERTIBLE = new Set(["setting.changed", "flag.set", "module.enabled", "module.disabled", "superadmin.granted", "superadmin.revoked"]);
+const canRevert = (r: AuditRow) => REVERTIBLE.has(r.action) && r.detail != null && "before" in r.detail;
 
 function detailView(d: Record<string, unknown>): string {
   if (d == null) return "";
@@ -31,6 +34,11 @@ export function AuditConsole({ initial }: { initial: AuditRow[] }) {
   function run() {
     setErr(null);
     start(async () => { const r = await searchAudit(q); if (r.ok) setRows(r.rows); else setErr(r.error); });
+  }
+  function revert(r: AuditRow) {
+    if (!confirm(`Revert "${r.action}" to its previous value?`)) return;
+    setErr(null);
+    start(async () => { const res = await rollbackAudit(r.id); if (!res.ok) { setErr(res.error); return; } const s = await searchAudit(q); if (s.ok) setRows(s.rows); });
   }
   function dl(format: "csv" | "json") {
     const content = format === "csv" ? toCsv(rows) : JSON.stringify(rows, null, 2);
@@ -65,7 +73,7 @@ export function AuditConsole({ initial }: { initial: AuditRow[] }) {
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
-            <thead><tr className="border-b tech-border text-left tech-muted"><th className="py-2 pr-3">Action</th><th className="py-2 pr-3">Module</th><th className="py-2 pr-3">Change</th><th className="py-2 pr-3">User</th><th className="py-2 pr-3">IP</th><th className="py-2 pr-3 text-right">Time</th></tr></thead>
+            <thead><tr className="border-b tech-border text-left tech-muted"><th className="py-2 pr-3">Action</th><th className="py-2 pr-3">Module</th><th className="py-2 pr-3">Change</th><th className="py-2 pr-3">User</th><th className="py-2 pr-3">IP</th><th className="py-2 pr-3">Time</th><th className="py-2 pr-3 text-right"></th></tr></thead>
             <tbody>
               {rows.map((r) => (
                 <tr key={r.id} className="border-b tech-border last:border-0">
@@ -74,7 +82,14 @@ export function AuditConsole({ initial }: { initial: AuditRow[] }) {
                   <td className="py-1.5 pr-3 font-mono text-[10px] tech-muted">{detailView(r.detail)}</td>
                   <td className="py-1.5 pr-3 tech-muted">{r.actor_email ?? "—"}</td>
                   <td className="py-1.5 pr-3 font-mono text-[10px] tech-muted">{r.ip ?? "—"}</td>
-                  <td className="py-1.5 pr-3 text-right tech-muted">{new Date(r.created_at).toLocaleString()}</td>
+                  <td className="py-1.5 pr-3 tech-muted">{new Date(r.created_at).toLocaleString()}</td>
+                  <td className="py-1.5 pr-3 text-right">
+                    {canRevert(r) && (
+                      <button onClick={() => revert(r)} disabled={pending} className="inline-flex items-center gap-1 rounded border tech-border tech-panel2 px-1.5 py-1 text-[10px] tech-muted hover:tech-accent disabled:opacity-50" title="Revert to previous value">
+                        <Undo2 size={11} /> Revert
+                      </button>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
