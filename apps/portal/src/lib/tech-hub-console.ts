@@ -77,3 +77,19 @@ export async function loadBridges(): Promise<Bridge[]> {
   const { data } = await sb.rpc("tech_bridges_list");
   return (data as Bridge[]) ?? [];
 }
+
+export type ApiKey = { id: string; name: string; key_prefix: string; scopes: string[]; rate_limit: number; status: string; last_used: string | null; created_at: string };
+export type SecurityRule = { id: string; kind: string; value: string; enabled: boolean; note: string | null; created_at: string };
+export type Flag = { key: string; enabled: boolean };
+
+async function rpcList<T>(fn: string): Promise<T[]> {
+  const { user, isSuper } = await getSuperAdmin();
+  if (!user || !isSuper) return [];
+  const sb = getSupabaseServer() as unknown as LooseClient;
+  const { data } = await sb.rpc(fn);
+  return (data as T[]) ?? [];
+}
+
+export const loadApiKeys = () => rpcList<ApiKey>("tech_api_keys_list");
+export const loadSecurityRules = () => rpcList<SecurityRule>("tech_security_list");
+export const loadFlags = () => rpcList<Flag>("tech_flags_list");

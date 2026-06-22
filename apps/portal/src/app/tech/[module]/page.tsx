@@ -1,12 +1,17 @@
 import Link from "next/link";
 import { CheckCircle2, Circle, ArrowLeft } from "lucide-react";
-import { loadTechModule, loadTechConsole, getSuperAdmin, loadBridges } from "@/lib/tech-hub-console";
+import { loadTechModule, loadTechConsole, getSuperAdmin, loadBridges, loadApiKeys, loadSecurityRules, loadFlags } from "@/lib/tech-hub-console";
 import { loadTechHub } from "@/lib/tech-hub-data";
 import { ModuleToggle } from "@/components/tech/ModuleToggle";
 import { SuperAdminToggle } from "@/components/tech/SuperAdminToggle";
 import { BridgeManager } from "@/components/tech/BridgeManager";
 import { loadSymbols } from "@/lib/tech-symbols";
 import { SymbolManager } from "@/components/tech/SymbolManager";
+import { ApiKeyManager } from "@/components/tech/ApiKeyManager";
+import { SecurityManager } from "@/components/tech/SecurityManager";
+import { FlagManager } from "@/components/tech/FlagManager";
+import { LiquidityManager } from "@/components/tech/LiquidityManager";
+import { ReportingPanel } from "@/components/tech/ReportingPanel";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +35,9 @@ export default async function ModulePage({ params }: { params: { module: string 
   const liquidity = m.key === "liquidity" ? await loadTechHub() : null;
   const bridges = m.key === "bridges" ? await loadBridges() : null;
   const symbols = m.key === "trading" ? await loadSymbols() : null;
+  const apiKeys = m.key === "api" ? await loadApiKeys() : null;
+  const secRules = m.key === "security" ? await loadSecurityRules() : null;
+  const flags = m.key === "platform" ? await loadFlags() : null;
   const consoleData = ["monitoring", "database", "access", "security"].includes(m.key) ? await loadTechConsole() : null;
   const { user } = await getSuperAdmin();
 
@@ -81,11 +89,18 @@ export default async function ModulePage({ params }: { params: { module: string 
       {/* Symbol & spread management — live to the trading engine */}
       {symbols && <SymbolManager symbols={symbols} />}
 
+      {/* API / Platform / Security / Reporting modules */}
+      {apiKeys && <ApiKeyManager keys={apiKeys} />}
+      {flags && <FlagManager flags={flags} />}
+      {secRules && <SecurityManager rules={secRules} />}
+      {m.key === "reporting" && <ReportingPanel />}
+
       {/* Liquidity live panel */}
       {liquidity && liquidity.ok && (
         <>
+          <LiquidityManager lps={liquidity.data.lps} />
           <div className="tech-panel rounded-xl p-5">
-            <h2 className="mb-3 text-sm font-semibold">Liquidity Connectors</h2>
+            <h2 className="mb-3 text-sm font-semibold">Liquidity Connectors (live book)</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>

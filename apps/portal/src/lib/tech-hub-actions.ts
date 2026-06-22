@@ -86,3 +86,83 @@ export async function deleteBridge(id: string): Promise<TechResult> {
   revalidatePath("/tech/bridges");
   return { ok: true, message: "Bridge deleted." };
 }
+
+// ── API keys ──────────────────────────────────────────────────────────────
+export async function createApiKey(name: string, scopes: string[], rateLimit: number): Promise<{ ok: true; fullKey: string } | { ok: false; error: string }> {
+  const g = await requireSuper();
+  if (!g.ok) return g;
+  const sb = getSupabaseServer() as unknown as Rpc;
+  const { data, error } = await sb.rpc("tech_api_key_create", { p_name: name, p_scopes: scopes, p_rate_limit: rateLimit });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/tech/api");
+  return { ok: true, fullKey: (data as { full_key?: string })?.full_key ?? "" };
+}
+export async function setApiKeyStatus(id: string, status: string): Promise<TechResult> {
+  const g = await requireSuper(); if (!g.ok) return g;
+  const sb = getSupabaseServer() as unknown as Rpc;
+  const { error } = await sb.rpc("tech_api_key_set_status", { p_id: id, p_status: status });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/tech/api"); return { ok: true, message: `Key ${status}.` };
+}
+export async function deleteApiKey(id: string): Promise<TechResult> {
+  const g = await requireSuper(); if (!g.ok) return g;
+  const sb = getSupabaseServer() as unknown as Rpc;
+  const { error } = await sb.rpc("tech_api_key_delete", { p_id: id });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/tech/api"); return { ok: true, message: "Key deleted." };
+}
+
+// ── Security rules ────────────────────────────────────────────────────────
+export async function upsertSecurityRule(input: { id?: string; kind: string; value: string; note?: string }): Promise<TechResult> {
+  const g = await requireSuper(); if (!g.ok) return g;
+  const sb = getSupabaseServer() as unknown as Rpc;
+  const { error } = await sb.rpc("tech_security_upsert", { p: input });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/tech/security"); return { ok: true, message: input.id ? "Rule updated." : "Rule added." };
+}
+export async function toggleSecurityRule(id: string, enabled: boolean): Promise<TechResult> {
+  const g = await requireSuper(); if (!g.ok) return g;
+  const sb = getSupabaseServer() as unknown as Rpc;
+  const { error } = await sb.rpc("tech_security_toggle", { p_id: id, p_enabled: enabled });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/tech/security"); return { ok: true };
+}
+export async function deleteSecurityRule(id: string): Promise<TechResult> {
+  const g = await requireSuper(); if (!g.ok) return g;
+  const sb = getSupabaseServer() as unknown as Rpc;
+  const { error } = await sb.rpc("tech_security_delete", { p_id: id });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/tech/security"); return { ok: true, message: "Rule deleted." };
+}
+
+// ── Reporting exports (CSV / JSON download) ───────────────────────────────
+function toCsv(rows: Record<string, unknown>[]): string {
+  if (!rows.length) return "";
+  const cols = Object.keys(rows[0]);
+  const esc = (v: unknown) => { const s = v == null ? "" : typeof v === "object" ? JSON.stringify(v) : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  return [cols.join(","), ...rows.map((r) => cols.map((c) => esc(r[c])).join(","))].join("\n");
+}
+export async function exportReport(kind: string, format: "csv" | "json"): Promise<{ ok: true; filename: string; mime: string; content: string } | { ok: false; error: string }> {
+  const g = await requireSuper();
+  if (!g.ok) return g;
+  const sb = getSupabaseServer() as unknown as Rpc;
+  const map: Record<string, string> = { audit: "tech_audit_recent", apikeys: "tech_api_keys_list", bridges: "tech_bridges_list", security: "tech_security_list", overview: "tech_overview" };
+  const fn = map[kind];
+  if (!fn) return { ok: false, error: "Unknown report." };
+  const { data, error } = await sb.rpc(fn, kind === "audit" ? { p_limit: 500 } : {});
+  if (error) return { ok: false, error: error.message };
+  const stamp = kind;
+  if (format === "json" || !Array.isArray(data)) {
+    return { ok: true, filename: `gio4x-${stamp}.json`, mime: "application/json", content: JSON.stringify(data, null, 2) };
+  }
+  return { ok: true, filename: `gio4x-${stamp}.csv`, mime: "text/csv", content: toCsv(data as Record<string, unknown>[]) };
+}
+
+// ── Feature flags (real public.feature_flags) ─────────────────────────────
+export async function setFlag(key: string, enabled: boolean): Promise<TechResult> {
+  const g = await requireSuper(); if (!g.ok) return g;
+  const sb = getSupabaseServer() as unknown as Rpc;
+  const { error } = await sb.rpc("tech_flag_set", { p_key: key, p_enabled: enabled });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/tech/platform"); return { ok: true, message: `${key} ${enabled ? "on" : "off"} — live.` };
+}
