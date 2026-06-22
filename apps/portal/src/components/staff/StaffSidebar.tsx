@@ -21,7 +21,6 @@ import {
   UserCog,
   FileText,
   Mail,
-  Cpu,
   LogOut,
   type LucideIcon,
 } from "lucide-react";
@@ -48,7 +47,6 @@ const nav: Item[] = [
   { key: "events", label: "Event Bus", href: "/staff/events", icon: Radio },
   { key: "documents", label: "Document Builder", href: "/staff/documents", icon: FileText },
   { key: "emailer", label: "Bulk Emailer", href: "/staff/emailer", icon: Mail },
-  { key: "techhub", label: "Tech Hub", href: "/staff/tech-hub", icon: Cpu },
   { key: "team", label: "Team & Access", href: "/staff/team", icon: UserCog },
 ];
 
@@ -93,7 +91,7 @@ export function StaffSidebar({
         </div>
       </div>
 
-      <nav className="mt-4 flex-1 space-y-1 px-3">
+      <nav className="mt-4 min-h-0 flex-1 space-y-1 overflow-y-auto px-3 pb-2">
         {visibleNav.map(({ label, href, icon: Icon }) => {
           const active = href === "/staff" ? pathname === "/staff" : pathname.startsWith(href);
           return (
