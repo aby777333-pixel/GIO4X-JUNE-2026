@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutGrid, KeyRound, Boxes, TerminalSquare, Cable, Waves, CandlestickChart,
   Radio, UserCog, Building2, FileBarChart, Server, Activity, Database, Bot,
-  ShieldCheck, Cpu, Sun, Moon, LogOut, Gauge, type LucideIcon,
+  ShieldCheck, Cpu, Sun, Moon, LogOut, Gauge, Scale, type LucideIcon,
 } from "lucide-react";
 import { techSignOut } from "@/lib/tech-hub-actions";
 import type { TechModule } from "@/lib/tech-hub-console";
@@ -15,7 +15,7 @@ import { TechSearch } from "@/components/tech/TechSearch";
 
 const ICONS: Record<string, LucideIcon> = {
   LayoutGrid, KeyRound, Boxes, TerminalSquare, Cable, Waves, CandlestickChart,
-  Radio, UserCog, Building2, FileBarChart, Server, Activity, Database, Bot, ShieldCheck,
+  Radio, UserCog, Building2, FileBarChart, Server, Activity, Database, Bot, ShieldCheck, Scale,
 };
 
 const STATUS_DOT: Record<string, string> = {

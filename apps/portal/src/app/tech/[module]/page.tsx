@@ -21,6 +21,8 @@ import { ReportingPanel } from "@/components/tech/ReportingPanel";
 import { RegistryManager, type ConfigField } from "@/components/tech/RegistryManager";
 import { SignalsPanel } from "@/components/tech/SignalsPanel";
 import { AutomationPanel } from "@/components/tech/AutomationPanel";
+import { loadDealerOverview, loadBookConfigs } from "@/lib/dealer-cockpit";
+import { DealerCockpit } from "@/components/tech/DealerCockpit";
 
 // Registry-backed modules: which kind + how to present it.
 const REGISTRY_MODULES: Record<string, { kind: string; title: string; addLabel: string; fields: ConfigField[] }> = {
@@ -67,6 +69,8 @@ export default async function ModulePage({ params }: { params: { module: string 
   const signals = m.key === "signals" ? await loadSignals() : null;
   const jobs = m.key === "automation" ? await loadJobs() : null;
   const surveillance = m.key === "automation" ? await loadSurveillance() : null;
+  const dealerOv = m.key === "dealer" ? await loadDealerOverview() : null;
+  const dealerConfigs = m.key === "dealer" ? await loadBookConfigs() : [];
   const consoleData = ["monitoring", "database", "access", "security"].includes(m.key) ? await loadTechConsole() : null;
   const capabilities = await loadCapabilities(m.key);
   const auditRows = m.key === "security" ? await loadAuditRows() : null;
@@ -124,6 +128,9 @@ export default async function ModulePage({ params }: { params: { module: string 
       {/* Automation & AI (scheduled jobs + outbox + live trade surveillance) */}
       {jobs && <AutomationPanel jobs={jobs} />}
       {surveillance && <SurveillancePanel data={surveillance} />}
+
+      {/* Dealer Desk cockpit */}
+      {dealerOv && <DealerCockpit ov={dealerOv} configs={dealerConfigs} />}
 
       {/* Liquidity live panel */}
       {liquidity && liquidity.ok && (

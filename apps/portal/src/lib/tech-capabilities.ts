@@ -19,6 +19,7 @@ export const CAPABILITY_LIVE: Record<string, string[]> = {
     "Aggregation / best bid-ask", "Change history & audit", "Rollback-ready",
   ],
   trading: ["Symbol & contract specs", "Instrument create/delete", "Asset categories"],
+  dealer: ["A-Book / B-Book / Hybrid routing", "Scope-based book config", "Live routing preview", "Exposure aggregation", "Liquidity provider management"],
   signals: ["Signal providers", "Copy trading", "PAMM/MAM strategies"],
   access: ["Super admin management", "Technical admin management", "Access audit trails"],
   broker_ops: ["White-label provisioning", "Multi-brand"],
