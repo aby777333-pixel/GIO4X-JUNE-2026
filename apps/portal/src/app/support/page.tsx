@@ -5,11 +5,12 @@ import { Card, CardBody, CardHeader, CardTitle } from "@gio4x/ui";
 import { DataTable, type Column } from "@/components/DataTable";
 import { StatusBadge } from "@/components/StatusBadge";
 import { LINKS } from "@/lib/constants";
-import { BookOpen, HelpCircle, Mail, MessageCircle, Phone, type LucideIcon } from "lucide-react";
+import { BookOpen, Mail, MessageCircle, Phone, type LucideIcon } from "lucide-react";
 import { getCurrentUser } from "@/lib/session";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { NewTicketForm } from "./new-ticket-form";
 import { LiveChatButton } from "./live-chat-button";
+import { HelpTopics } from "./help-topics";
 
 type TicketRow = {
   id: string;
@@ -146,26 +147,7 @@ export default async function SupportPage() {
           <CardTitle>Top help topics</CardTitle>
         </CardHeader>
         <CardBody>
-          <div className="grid gap-3 md:grid-cols-2">
-            {[
-              "How long do withdrawals take?",
-              "Why is my deposit pending?",
-              "Reset my GIO Raptor account password",
-              "How does the rebate calculation work?",
-              "What documents are accepted for KYC?",
-              "Switching account currency / leverage",
-            ].map((q) => (
-              <Link
-                key={q}
-                href={`${LINKS.website.faq}?q=${encodeURIComponent(q)}`}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-start gap-2 rounded-lg border border-slate-100 p-3 text-sm text-navy transition hover:border-sky/30 hover:bg-sky/5"
-              >
-                <HelpCircle size={14} className="mt-0.5 text-sky" /> {q}
-              </Link>
-            ))}
-          </div>
+          <HelpTopics />
         </CardBody>
       </Card>
     </Shell>
