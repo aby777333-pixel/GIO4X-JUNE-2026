@@ -123,6 +123,15 @@ export async function loadJobs(): Promise<Jobs | null> {
   const { data } = await sb.rpc("tech_jobs");
   return (data as Jobs) ?? null;
 }
+export type Capability = { capability: string; enabled: boolean; config: Record<string, unknown> };
+export async function loadCapabilities(moduleKey: string): Promise<Capability[]> {
+  const { user, isSuper } = await getSuperAdmin();
+  if (!user || !isSuper) return [];
+  const sb = getSupabaseServer() as unknown as LooseClient;
+  const { data } = await sb.rpc("tech_capabilities_list", { p_module: moduleKey });
+  return (data as Capability[]) ?? [];
+}
+
 export async function loadAuditRows(): Promise<AuditRow[]> {
   const { user, isSuper } = await getSuperAdmin();
   if (!user || !isSuper) return [];

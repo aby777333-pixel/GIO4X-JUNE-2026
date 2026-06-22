@@ -180,6 +180,22 @@ export async function setFlag(key: string, enabled: boolean): Promise<TechResult
   revalidatePath("/tech/platform"); return { ok: true, message: `${key} ${enabled ? "on" : "off"} — live.` };
 }
 
+// ── Capabilities (every module aspect, editable + persisted) ───────────────
+export async function toggleCapability(moduleKey: string, capability: string, enabled: boolean): Promise<TechResult> {
+  const g = await requireSuper(); if (!g.ok) return g;
+  const sb = getSupabaseServer() as unknown as Rpc;
+  const { error } = await sb.rpc("tech_capability_toggle", { p_module: moduleKey, p_capability: capability, p_enabled: enabled });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath(`/tech/${moduleKey}`); return { ok: true };
+}
+export async function setCapabilityConfig(moduleKey: string, capability: string, config: Record<string, unknown>): Promise<TechResult> {
+  const g = await requireSuper(); if (!g.ok) return g;
+  const sb = getSupabaseServer() as unknown as Rpc;
+  const { error } = await sb.rpc("tech_capability_config", { p_module: moduleKey, p_capability: capability, p_config: config });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath(`/tech/${moduleKey}`); return { ok: true, message: "Settings saved." };
+}
+
 // ── Generic registry (infra / brokers / env / extensions / spread profiles) ─
 export async function upsertRegistryItem(input: { id?: string; kind: string; name: string; label?: string; status?: string; config?: Record<string, unknown> }): Promise<TechResult> {
   const g = await requireSuper(); if (!g.ok) return g;
