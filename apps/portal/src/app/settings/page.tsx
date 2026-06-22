@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Card, CardBody } from "@gio4x/ui";
 import { getCurrentUser } from "@/lib/session";
 import { getSupabaseServer } from "@/lib/supabase-server";
-import { DEFAULT_PREFERENCES, type Preferences } from "./settings-actions";
+import { DEFAULT_PREFERENCES, type Preferences } from "./preferences";
 import { SettingsForm, type AccountOption } from "./settings-form";
 
 export default async function SettingsPage() {

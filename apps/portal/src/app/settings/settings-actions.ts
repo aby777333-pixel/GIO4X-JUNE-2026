@@ -4,37 +4,14 @@ import { revalidatePath } from "next/cache";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { requireUser } from "@/lib/session";
 import type { TablesUpdate } from "@gio4x/supabase";
-
-export type ActionResult =
-  | { ok: true; message?: string }
-  | { ok: false; error: string };
+import { DEFAULT_PREFERENCES, type Preferences } from "./preferences";
 
 // Display/trading/privacy preferences live under profiles.metadata.preferences
 // (jsonb) so no schema change is needed; language + timezone map to their own
 // first-class columns (also read by the Profile page).
-export type Preferences = {
-  density: string;
-  sidebar: string;
-  displayCurrency: string;
-  defaultAccount: string;
-  defaultLot: string;
-  confirmTrades: string;
-  privacyTradeData: boolean;
-  privacyMarketing: boolean;
-  privacyLeaderboard: boolean;
-};
-
-export const DEFAULT_PREFERENCES: Preferences = {
-  density: "Comfortable",
-  sidebar: "Auto (collapse on mobile)",
-  displayCurrency: "USD",
-  defaultAccount: "Ask each time",
-  defaultLot: "0.10",
-  confirmTrades: "Always",
-  privacyTradeData: true,
-  privacyMarketing: false,
-  privacyLeaderboard: true,
-};
+export type ActionResult =
+  | { ok: true; message?: string }
+  | { ok: false; error: string };
 
 export async function saveSettings(formData: FormData): Promise<ActionResult> {
   const user = await requireUser().catch(() => null);

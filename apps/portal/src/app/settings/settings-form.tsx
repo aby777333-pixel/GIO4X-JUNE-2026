@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { Card, CardBody, CardHeader, CardTitle, Button } from "@gio4x/ui";
-import { saveSettings, type Preferences } from "./settings-actions";
+import { saveSettings } from "./settings-actions";
+import type { Preferences } from "./preferences";
 
 export type AccountOption = { value: string; label: string };
 
