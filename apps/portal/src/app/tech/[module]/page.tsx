@@ -13,7 +13,7 @@ import { SuperAdminToggle } from "@/components/tech/SuperAdminToggle";
 import { BridgeManager } from "@/components/tech/BridgeManager";
 import { loadSymbols } from "@/lib/tech-symbols";
 import { SymbolManager } from "@/components/tech/SymbolManager";
-import { loadPricingOverview, loadPricingConfig, loadPricingRules, loadCommissionSwap, loadLpPricing, loadRevenue } from "@/lib/pricing-terminal";
+import { loadPricingOverview, loadPricingConfig, loadPricingRules, loadCommissionSwap, loadLpPricing, loadRevenue, loadPricingAudit, loadEmergency } from "@/lib/pricing-terminal";
 import { PricingPreview } from "@/components/tech/PricingPreview";
 import { SpreadManager } from "@/components/tech/SpreadManager";
 import { MarkupManager } from "@/components/tech/MarkupManager";
@@ -21,6 +21,9 @@ import { SmartRulesManager } from "@/components/tech/SmartRulesManager";
 import { CommissionSwapManager } from "@/components/tech/CommissionSwapManager";
 import { LpMarkupManager } from "@/components/tech/LpMarkupManager";
 import { RevenueMonitor } from "@/components/tech/RevenueMonitor";
+import { PricingAnalytics } from "@/components/tech/PricingAnalytics";
+import { EmergencyPanel } from "@/components/tech/EmergencyPanel";
+import { PricingAuditTimeline } from "@/components/tech/PricingAuditTimeline";
 import { ApiKeyManager } from "@/components/tech/ApiKeyManager";
 import { SecurityManager } from "@/components/tech/SecurityManager";
 import { FlagManager } from "@/components/tech/FlagManager";
@@ -80,6 +83,8 @@ export default async function ModulePage({ params }: { params: { module: string 
   const commSwap = m.key === "spreads" ? await loadCommissionSwap() : null;
   const lpPricing = m.key === "spreads" ? await loadLpPricing() : null;
   const revenue = m.key === "spreads" ? await loadRevenue() : null;
+  const pricingAudit = m.key === "spreads" ? await loadPricingAudit() : null;
+  const emergency = m.key === "spreads" ? await loadEmergency() : null;
   const signals = m.key === "signals" ? await loadSignals() : null;
   const jobs = m.key === "automation" ? await loadJobs() : null;
   const surveillance = m.key === "automation" ? await loadSurveillance() : null;
@@ -135,6 +140,9 @@ export default async function ModulePage({ params }: { params: { module: string 
           <CommissionSwapManager commission={commSwap?.commission ?? []} swap={commSwap?.swap ?? []} />
           <LpMarkupManager lps={lpPricing?.lps ?? []} markup={lpPricing?.markup ?? []} routing={lpPricing?.routing ?? []} />
           {revenue && <RevenueMonitor data={revenue} />}
+          <PricingAnalytics />
+          <EmergencyPanel recent={emergency ?? []} />
+          {pricingAudit && <PricingAuditTimeline rows={pricingAudit} />}
         </>
       )}
 

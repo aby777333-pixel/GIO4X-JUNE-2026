@@ -4,8 +4,8 @@ import { revalidatePath } from "next/cache";
 import { transformTick, PricingCache, pipSize } from "@gio4x/pricing-core";
 import type { ClientTick, InternalTick, PricingContext, RawTick } from "@gio4x/pricing-core";
 import { getSupabaseServer } from "./supabase-server";
-import { loadPricingConfig } from "./pricing-terminal";
-import { terminalSelect } from "./tech-terminal";
+import { loadPricingConfig, loadRevenue, loadPricingAudit } from "./pricing-terminal";
+import { terminalSelect, terminalPatch } from "./tech-terminal";
 
 type Rpc = { rpc: (fn: string, args?: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }> };
 export type PricingResult = { ok: true; message?: string } | { ok: false; error: string };
@@ -96,4 +96,46 @@ export async function syncRevenue(): Promise<{ ok: true; rows: number } | { ok: 
   if (error) return { ok: false, error: error.message };
   revalidatePath("/tech/spreads");
   return { ok: true, rows: (data as { rows?: number })?.rows ?? 0 };
+}
+
+// ── Audit rollback ──────────────────────────────────────────────────────────
+export const rollbackPricing = (auditId: string) => rpc("pricing_rollback", { p_audit_id: auditId });
+
+// ── Analytics & reports export (CSV / JSON) ─────────────────────────────────
+function toCsv(rows: Record<string, unknown>[]): string {
+  if (!rows.length) return "";
+  const cols = Object.keys(rows[0]);
+  const esc = (v: unknown) => { const s = v == null ? "" : typeof v === "object" ? JSON.stringify(v) : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  return [cols.join(","), ...rows.map((r) => cols.map((c) => esc(r[c])).join(","))].join("\n");
+}
+export async function exportPricingReport(kind: string, format: "csv" | "json"): Promise<{ ok: true; filename: string; mime: string; content: string } | { ok: false; error: string }> {
+  let rows: Record<string, unknown>[] = [];
+  if (kind === "revenue_by_symbol") { const r = await loadRevenue(); rows = (r?.by_symbol ?? []) as unknown as Record<string, unknown>[]; }
+  else if (kind === "revenue_by_source") { const r = await loadRevenue(); rows = (r?.by_source ?? []) as unknown as Record<string, unknown>[]; }
+  else if (kind === "spreads") { const c = await loadPricingConfig(); rows = (c.spreadConfig ?? []) as unknown as Record<string, unknown>[]; }
+  else if (kind === "markups") { const c = await loadPricingConfig(); rows = (c.markupLayers ?? []) as unknown as Record<string, unknown>[]; }
+  else if (kind === "audit") { rows = (await loadPricingAudit()).map((a) => ({ at: a.at, table: a.table, action: a.action, ip: a.ip })); }
+  else return { ok: false, error: "Unknown report." };
+  if (format === "json") return { ok: true, filename: `gio4x-pricing-${kind}.json`, mime: "application/json", content: JSON.stringify(rows, null, 2) };
+  return { ok: true, filename: `gio4x-pricing-${kind}.csv`, mime: "text/csv", content: toCsv(rows) };
+}
+
+// ── Dealer override / emergency controls ────────────────────────────────────
+export type EmergencyInput = { symbol: string; action: "freeze" | "unfreeze" | "expand_spread"; amount?: number; reason: string };
+export async function emergencyControl(input: EmergencyInput): Promise<PricingResult> {
+  const enc = encodeURIComponent(input.symbol);
+  if (input.action === "freeze" || input.action === "unfreeze") {
+    const r = await terminalPatch(`instruments?symbol=eq.${enc}`, { is_active: input.action === "unfreeze" });
+    if (!r.ok) return { ok: false, error: r.error ?? "Terminal update failed." };
+  } else if (input.action === "expand_spread") {
+    const cur = await terminalSelect<{ spread_markup: number | null }>(`instruments?symbol=eq.${enc}&select=spread_markup`);
+    const base = Number(cur?.[0]?.spread_markup ?? 0);
+    const r = await terminalPatch(`instruments?symbol=eq.${enc}`, { spread_markup: base + (Number(input.amount) || 0) });
+    if (!r.ok) return { ok: false, error: r.error ?? "Terminal update failed." };
+  }
+  const sb = getSupabaseServer() as unknown as Rpc;
+  const { error } = await sb.rpc("pricing_emergency_log", { p: { symbol: input.symbol, action: input.action, reason: input.reason, detail: { amount: input.amount ?? null } } });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/tech/spreads");
+  return { ok: true, message: `${input.action} applied to ${input.symbol} — live + alerted.` };
 }

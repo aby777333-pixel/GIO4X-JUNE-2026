@@ -135,9 +135,16 @@ export async function loadRevenue(): Promise<RevenueData | null> {
   return d && Object.keys(d).length > 0 ? d : null;
 }
 
-export type PricingAuditRow = { table: string; action: string; previous: unknown; new: unknown; ip: string | null; at: string };
+export type PricingAuditRow = { id: string; table: string; action: string; previous: Record<string, unknown> | null; new: Record<string, unknown> | null; ip: string | null; device: string | null; at: string };
 export async function loadPricingAudit(): Promise<PricingAuditRow[]> {
   const sb = getSupabaseServer() as unknown as Rpc;
-  const { data } = await sb.rpc("pricing_audit", { p_limit: 40 });
+  const { data } = await sb.rpc("pricing_audit", { p_limit: 60 });
   return (data as PricingAuditRow[]) ?? [];
+}
+
+export type EmergencyRow = { symbol: string | null; action: string; reason: string | null; at: string };
+export async function loadEmergency(): Promise<EmergencyRow[]> {
+  const sb = getSupabaseServer() as unknown as Rpc;
+  const { data } = await sb.rpc("pricing_emergency_recent");
+  return (data as EmergencyRow[]) ?? [];
 }
