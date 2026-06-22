@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ["@gio4x/ui", "@gio4x/supabase", "@gio4x/dealer-core"],
+  transpilePackages: ["@gio4x/ui", "@gio4x/supabase", "@gio4x/dealer-core", "@gio4x/scope-engine", "@gio4x/pricing-core"],
   images: {
     formats: ["image/webp"],
   },

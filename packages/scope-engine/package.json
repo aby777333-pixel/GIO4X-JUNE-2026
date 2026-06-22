@@ -1,5 +1,5 @@
 {
-  "name": "@gio4x/dealer-core",
+  "name": "@gio4x/scope-engine",
   "version": "0.1.0",
   "private": true,
   "main": "./src/index.ts",
@@ -7,10 +7,6 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
-  },
-  "dependencies": {
-    "@gio4x/scope-engine": "*",
-    "zod": "^3.23.8"
   },
   "devDependencies": {
     "vitest": "^2.1.8"

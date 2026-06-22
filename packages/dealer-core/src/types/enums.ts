@@ -10,12 +10,9 @@ export type DealingMode = (typeof DEALING_MODES)[number];
 export const EXECUTION_MODELS = ["market", "instant", "stp", "ecn", "dma", "dealer"] as const;
 export type ExecutionModel = (typeof EXECUTION_MODELS)[number];
 
-// Most-specific → least-specific. The scope resolver walks this exact order.
-export const SCOPE_PRECEDENCE = [
-  "account", "account_type", "client_group", "trading_group",
-  "white_label", "country", "symbol", "asset_class", "global",
-] as const;
-export type ScopeType = (typeof SCOPE_PRECEDENCE)[number];
+// Scope cascade is shared with PRICING-CORE — re-exported from @gio4x/scope-engine
+// so existing `@gio4x/dealer-core` imports of SCOPE_PRECEDENCE/ScopeType keep working.
+export { SCOPE_PRECEDENCE, type ScopeType } from "@gio4x/scope-engine";
 
 export const INTERVENTION_ACTIONS = ["accept", "reject", "delay", "requote", "approve", "force_route"] as const;
 export type InterventionAction = (typeof INTERVENTION_ACTIONS)[number];

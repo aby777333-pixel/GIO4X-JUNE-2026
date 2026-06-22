@@ -22,6 +22,10 @@
       "@gio4x/supabase/*": ["packages/supabase/src/*"],
       "@gio4x/dealer-core": ["packages/dealer-core/src/index.ts"],
       "@gio4x/dealer-core/*": ["packages/dealer-core/src/*"],
+      "@gio4x/scope-engine": ["packages/scope-engine/src/index.ts"],
+      "@gio4x/scope-engine/*": ["packages/scope-engine/src/*"],
+      "@gio4x/pricing-core": ["packages/pricing-core/src/index.ts"],
+      "@gio4x/pricing-core/*": ["packages/pricing-core/src/*"],
       "@gio4x/config/*": ["packages/config/*"]
     }
   }
