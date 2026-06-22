@@ -23,7 +23,6 @@ import {
   Gift,
   Download,
   Wrench,
-  Sparkles,
   ChevronDown,
   ChevronRight,
   LayoutDashboard,
@@ -95,7 +94,7 @@ const clientNavMain: NavItem[] = [
 
 const clientNavSecondary: NavItem[] = [
   { label: "Promotions", href: "/promotions", icon: Gift },
-  { label: "POINTS MALL", href: "/points", icon: Sparkles },
+  // POINTS MALL temporarily removed from nav (page kept at /points for later use).
   { label: "Calendar & News", href: "/calendar", icon: Calendar },
   {
     label: "Tools",
