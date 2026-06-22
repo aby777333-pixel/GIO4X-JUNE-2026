@@ -13,6 +13,8 @@
     "@gio4x/supabase": "*",
     "@gio4x/ui": "*",
     "@supabase/supabase-js": "^2.99.1",
+    "docx": "^8.5.0",
+    "jspdf": "^2.5.2",
     "lucide-react": "^0.577.0",
     "next": "14.2.35",
     "qrcode": "^1.5.4",

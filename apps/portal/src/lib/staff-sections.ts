@@ -23,6 +23,8 @@ export const STAFF_SECTIONS: StaffSection[] = [
   { key: "pamm", href: "/staff/pamm", label: "PAMM / MAM" },
   { key: "trades", href: "/staff/trades", label: "Trade Log" },
   { key: "ledger", href: "/staff/ledger", label: "General Ledger" },
+  { key: "documents", href: "/staff/documents", label: "Document Builder" },
+  { key: "emailer", href: "/staff/emailer", label: "Bulk Emailer" },
   { key: "events", href: "/staff/events", label: "Event Bus" },
   { key: "team", href: "/staff/team", label: "Team & Access", adminOnly: true },
 ];

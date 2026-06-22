@@ -19,6 +19,8 @@ import {
   Radio,
   CandlestickChart,
   UserCog,
+  FileText,
+  Mail,
   LogOut,
   type LucideIcon,
 } from "lucide-react";
@@ -43,6 +45,8 @@ const nav: Item[] = [
   { key: "trades", label: "Trade Log", href: "/staff/trades", icon: CandlestickChart },
   { key: "ledger", label: "General Ledger", href: "/staff/ledger", icon: BookOpen },
   { key: "events", label: "Event Bus", href: "/staff/events", icon: Radio },
+  { key: "documents", label: "Document Builder", href: "/staff/documents", icon: FileText },
+  { key: "emailer", label: "Bulk Emailer", href: "/staff/emailer", icon: Mail },
   { key: "team", label: "Team & Access", href: "/staff/team", icon: UserCog },
 ];
 
