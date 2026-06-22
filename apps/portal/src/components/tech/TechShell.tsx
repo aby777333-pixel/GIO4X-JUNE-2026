@@ -7,10 +7,11 @@ import { usePathname } from "next/navigation";
 import {
   LayoutGrid, KeyRound, Boxes, TerminalSquare, Cable, Waves, CandlestickChart,
   Radio, UserCog, Building2, FileBarChart, Server, Activity, Database, Bot,
-  ShieldCheck, Cpu, Sun, Moon, LogOut, Gauge, Search, type LucideIcon,
+  ShieldCheck, Cpu, Sun, Moon, LogOut, Gauge, type LucideIcon,
 } from "lucide-react";
 import { techSignOut } from "@/lib/tech-hub-actions";
 import type { TechModule } from "@/lib/tech-hub-console";
+import { TechSearch } from "@/components/tech/TechSearch";
 
 const ICONS: Record<string, LucideIcon> = {
   LayoutGrid, KeyRound, Boxes, TerminalSquare, Cable, Waves, CandlestickChart,
@@ -96,9 +97,7 @@ export function TechShell({
         {/* Main */}
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="tech-panel flex items-center justify-between gap-4 border-b px-5 py-3">
-            <div className="flex items-center gap-2 rounded-lg px-3 py-1.5 tech-panel2 tech-border border text-xs tech-muted">
-              <Search size={14} /> <span className="hidden sm:inline">Search modules, settings, logs…</span>
-            </div>
+            <TechSearch modules={modules} />
             <div className="flex items-center gap-3">
               <button
                 type="button"
