@@ -21,6 +21,7 @@ import {
   UserCog,
   FileText,
   Mail,
+  Cpu,
   LogOut,
   type LucideIcon,
 } from "lucide-react";
@@ -47,6 +48,7 @@ const nav: Item[] = [
   { key: "events", label: "Event Bus", href: "/staff/events", icon: Radio },
   { key: "documents", label: "Document Builder", href: "/staff/documents", icon: FileText },
   { key: "emailer", label: "Bulk Emailer", href: "/staff/emailer", icon: Mail },
+  { key: "techhub", label: "Tech Hub", href: "/staff/tech-hub", icon: Cpu },
   { key: "team", label: "Team & Access", href: "/staff/team", icon: UserCog },
 ];
 
