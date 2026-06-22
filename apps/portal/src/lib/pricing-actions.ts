@@ -61,3 +61,10 @@ export const deleteCommission = (id: string) => rpc("pricing_commission_delete",
 export const upsertSwap = (p: Record<string, unknown>) => rpc("pricing_swap_upsert", { p });
 export const toggleSwap = (id: string, enabled: boolean) => rpc("pricing_swap_toggle", { p_id: id, p_enabled: enabled });
 export const deleteSwap = (id: string) => rpc("pricing_swap_delete", { p_id: id });
+
+export const upsertLpMarkup = (p: Record<string, unknown>) => rpc("pricing_lp_markup_upsert", { p });
+export const toggleLpMarkup = (id: string, enabled: boolean) => rpc("pricing_lp_markup_toggle", { p_id: id, p_enabled: enabled });
+export const deleteLpMarkup = (id: string) => rpc("pricing_lp_markup_delete", { p_id: id });
+export const upsertLpRouting = (p: Record<string, unknown>) => rpc("pricing_lp_routing_upsert", { p });
+export const toggleLpRouting = (id: string, enabled: boolean) => rpc("pricing_lp_routing_toggle", { p_id: id, p_enabled: enabled });
+export const deleteLpRouting = (id: string) => rpc("pricing_lp_routing_delete", { p_id: id });

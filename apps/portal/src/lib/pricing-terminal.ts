@@ -107,6 +107,19 @@ export async function loadCommissionSwap(): Promise<{ commission: CommissionConf
   return { commission: (d.commission ?? []).map(mapCommission), swap: (d.swap ?? []).map(mapSwap) };
 }
 
+export type LpHealthRow = { id: string; name: string; status: string; is_primary: boolean; priority: number; reject_rate: number; avg_fill_ms: number | null };
+export type RoutingRowUi = { id: string; scope_type: string; scope_ref: string | null; mode: string; enabled: boolean };
+export async function loadLpPricing(): Promise<{ lps: LpHealthRow[]; markup: LpMarkupRow[]; routing: RoutingRowUi[] }> {
+  const sb = getSupabaseServer() as unknown as Rpc;
+  const { data } = await sb.rpc("pricing_lp");
+  const d = (data ?? {}) as { lps?: Row[]; lp_markup?: Row[]; routing?: Row[] };
+  return {
+    lps: (d.lps ?? []).map((r) => ({ id: String(r.id), name: String(r.name), status: String(r.status), is_primary: r.is_primary === true, priority: n(r.priority), reject_rate: n(r.reject_rate), avg_fill_ms: r.avg_fill_ms == null ? null : n(r.avg_fill_ms) })),
+    markup: (d.lp_markup ?? []).map(mapLpMarkup),
+    routing: (d.routing ?? []).map((r) => ({ id: String(r.id), scope_type: String(r.scope_type), scope_ref: (r.scope_ref as string) ?? null, mode: String(r.mode), enabled: r.enabled !== false })),
+  };
+}
+
 export type PricingAuditRow = { table: string; action: string; previous: unknown; new: unknown; ip: string | null; at: string };
 export async function loadPricingAudit(): Promise<PricingAuditRow[]> {
   const sb = getSupabaseServer() as unknown as Rpc;
