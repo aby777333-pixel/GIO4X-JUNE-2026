@@ -16,6 +16,14 @@ export default function SignupPage() {
     (search.get("role") as SignupRole) || "trader",
   );
   const referralFromUrl = search.get("ref") || "";
+  // Account type carried over from the website's account-types page.
+  const PLAN_LABELS: Record<string, string> = {
+    classic: "Classic — $150 min deposit",
+    premium: "Premium — $500 min deposit",
+    ecn: "ECN — $2,000 min deposit",
+  };
+  const planFromUrl = (search.get("plan") || "").toLowerCase();
+  const plan = PLAN_LABELS[planFromUrl] ? planFromUrl : "";
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -29,6 +37,7 @@ export default function SignupPage() {
         phone: String(fd.get("phone") || "") || undefined,
         role,
         referralCode: String(fd.get("referral_code") || "") || undefined,
+        plan: plan || undefined,
       });
       if (res.ok) {
         router.push(res.redirectTo ?? "/auth/verify-email");
@@ -52,6 +61,13 @@ export default function SignupPage() {
       }
     >
       <form onSubmit={onSubmit} className="space-y-4">
+        {plan ? (
+          <div className="flex items-center justify-between rounded-lg border border-sky/30 bg-sky/5 px-3 py-2">
+            <span className="text-xs font-medium text-navy">
+              Selected account type: <span className="text-sky">{PLAN_LABELS[plan]}</span>
+            </span>
+          </div>
+        ) : null}
         <RoleSelect value={role} onChange={setRole} disabled={pending} />
 
         <div>

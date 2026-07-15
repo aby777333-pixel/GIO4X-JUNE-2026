@@ -20,6 +20,8 @@ export type SignupInput = {
   phone?: string;
   role: "trader" | "ib" | "affiliate";
   referralCode?: string;
+  /** Account type chosen on the website (classic | premium | ecn). */
+  plan?: string;
 };
 
 // ---------------------------------------------------------------------------
@@ -70,13 +72,15 @@ export async function signUp(input: SignupInput): Promise<AuthActionResult> {
     email,
     password: input.password,
     options: {
-      emailRedirectTo: `${siteUrl()}/auth/callback?next=/`,
+      // New clients land on KYC right after confirming their email.
+      emailRedirectTo: `${siteUrl()}/auth/callback?next=/verification`,
       data: {
         full_name: input.fullName,
         phone: input.phone || null,
         role: input.role,
         source: "website",
         referral_code: input.referralCode || null,
+        requested_plan: input.plan || null,
       },
     },
   });
