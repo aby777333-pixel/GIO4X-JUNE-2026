@@ -39,6 +39,9 @@ export default async function ClientHomePage() {
 
   let totalUsd = 0;
   let accounts = demoAccounts;
+  // Launch Terminal carries the client's account criteria (demo/live) into
+  // the GIORAPTOR terminal, which honors ?account= deep-links.
+  let launchUrl: string = TERMINAL_URL;
 
   if (user) {
     const supabase = getSupabaseServer();
@@ -46,11 +49,24 @@ export default async function ClientHomePage() {
       loadWalletRollup(),
       supabase
         .from("trading_accounts")
-        .select("id, account_number, balance, base_currency, plan_name, status")
+        .select("id, account_number, balance, base_currency, plan_name, status, account_kind, server")
         .order("created_at", { ascending: false })
         .limit(3),
     ]);
     totalUsd = totalUsdEstimate;
+    const rows = accountRows.data ?? [];
+    const primary =
+      rows.find((a) => a.account_kind !== "demo" && a.status === "active") ??
+      rows.find((a) => a.status === "active") ??
+      rows[0];
+    if (primary?.account_number) {
+      const params = new URLSearchParams({
+        account: String(primary.account_number),
+        demo: primary.account_kind === "demo" ? "1" : "0",
+      });
+      if (primary.server) params.set("server", String(primary.server));
+      launchUrl = `${TERMINAL_URL}?${params.toString()}`;
+    }
     accounts = (accountRows.data ?? []).map((a) => ({
       id: a.id,
       number: a.account_number,
@@ -68,7 +84,7 @@ export default async function ClientHomePage() {
       <HeroShowcase />
 
       <Link
-        href={TERMINAL_URL}
+        href={launchUrl}
         target="_blank"
         rel="noopener noreferrer"
         className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-sky/30 bg-gradient-to-r from-sky/10 via-sky/5 to-transparent px-5 py-4 transition hover:border-sky/60 hover:shadow-lg"
