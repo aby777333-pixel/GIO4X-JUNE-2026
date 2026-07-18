@@ -22,6 +22,7 @@ export const STAFF_SECTIONS: StaffSection[] = [
   { key: "copy", href: "/staff/copy", label: "Copy Trading" },
   { key: "pamm", href: "/staff/pamm", label: "PAMM / MAM" },
   { key: "trades", href: "/staff/trades", label: "Trade Log" },
+  { key: "broker", href: "/staff/broker", label: "Broker Controls" },
   { key: "ledger", href: "/staff/ledger", label: "General Ledger" },
   { key: "documents", href: "/staff/documents", label: "Document Builder" },
   { key: "emailer", href: "/staff/emailer", label: "Bulk Emailer" },
