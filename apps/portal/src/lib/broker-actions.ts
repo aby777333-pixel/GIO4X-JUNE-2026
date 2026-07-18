@@ -11,7 +11,7 @@
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/session";
 import { canAccessSection } from "@/lib/staff-sections";
-import { terminalSelect, terminalPatch, terminalInsert } from "@/lib/tech-terminal";
+import { terminalSelect, terminalPatch, terminalInsert, terminalDelete } from "@/lib/tech-terminal";
 
 export type BrokerInstrument = {
   symbol: string;
@@ -26,6 +26,16 @@ export type BrokerInstrument = {
   max_lot: number;
   routing_mode: string;
   session_hours: string | null;
+  enforce_sessions: boolean;
+};
+
+export type TradingBlock = {
+  id: string;
+  symbol: string | null;
+  reason: string;
+  starts_at: string;
+  ends_at: string;
+  created_by: string;
 };
 
 export type BrokerAuditRow = {
@@ -40,6 +50,7 @@ export type BrokerAuditRow = {
 // yet (labelled honestly in the UI).
 const EDITABLE: Record<string, { min?: number; max?: number; kind: "number" | "boolean" | "routing" }> = {
   is_active: { kind: "boolean" },
+  enforce_sessions: { kind: "boolean" },
   spread_markup: { kind: "number", min: 0, max: 100 },
   commission_per_lot: { kind: "number", min: 0, max: 500 },
   swap_long: { kind: "number", min: -500, max: 500 },
@@ -63,9 +74,63 @@ export async function listBrokerInstruments(): Promise<BrokerInstrument[] | null
   const gate = await requireBrokerAccess();
   if (!gate.ok) return null;
   const rows = await terminalSelect<BrokerInstrument>(
-    "instruments?select=symbol,type,description,is_active,spread_markup,commission_per_lot,swap_long,swap_short,min_lot,max_lot,routing_mode,session_hours&order=symbol.asc",
+    "instruments?select=symbol,type,description,is_active,spread_markup,commission_per_lot,swap_long,swap_short,min_lot,max_lot,routing_mode,session_hours,enforce_sessions&order=symbol.asc",
   );
   return rows;
+}
+
+// ── Trading blocks (news/maintenance windows, enforced in place_market_order) ──
+
+export async function listTradingBlocks(): Promise<TradingBlock[] | null> {
+  const gate = await requireBrokerAccess();
+  if (!gate.ok) return null;
+  // Current + future blocks (past ones age out of the view; audit keeps history).
+  return terminalSelect<TradingBlock>(
+    `broker_trading_blocks?select=id,symbol,reason,starts_at,ends_at,created_by&ends_at=gt.${encodeURIComponent(new Date().toISOString())}&order=starts_at.asc`,
+  );
+}
+
+export async function createTradingBlock(input: {
+  symbol: string | null; reason: string; startsAt: string; endsAt: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const gate = await requireBrokerAccess();
+  if (!gate.ok) return { ok: false, error: gate.error };
+  const reason = input.reason.trim();
+  if (!reason) return { ok: false, error: "A reason is required (shown to traders)." };
+  const starts = new Date(input.startsAt), ends = new Date(input.endsAt);
+  if (!(starts.getTime() > 0) || !(ends.getTime() > 0)) return { ok: false, error: "Enter valid start and end times." };
+  if (ends <= starts) return { ok: false, error: "End must be after start." };
+
+  const res = await terminalInsert("broker_trading_blocks", {
+    symbol: input.symbol || null, reason,
+    starts_at: starts.toISOString(), ends_at: ends.toISOString(),
+    created_by: gate.actor,
+  });
+  if (!res.ok) return res;
+  await terminalInsert("broker_config_audit", {
+    actor: gate.actor, symbol: input.symbol || "ALL", field: "trading_block",
+    old_value: null,
+    new_value: `${reason} (${starts.toISOString()} → ${ends.toISOString()})`,
+  });
+  revalidatePath("/staff/broker");
+  return { ok: true };
+}
+
+export async function deleteTradingBlock(id: string): Promise<{ ok: boolean; error?: string }> {
+  const gate = await requireBrokerAccess();
+  if (!gate.ok) return { ok: false, error: gate.error };
+  const cur = await terminalSelect<TradingBlock>(
+    `broker_trading_blocks?id=eq.${encodeURIComponent(id)}&select=id,symbol,reason,starts_at,ends_at&limit=1`,
+  );
+  const res = await terminalDelete(`broker_trading_blocks?id=eq.${encodeURIComponent(id)}`);
+  if (!res.ok) return res;
+  await terminalInsert("broker_config_audit", {
+    actor: gate.actor, symbol: cur?.[0]?.symbol ?? "ALL", field: "trading_block",
+    old_value: cur?.[0] ? `${cur[0].reason} (${cur[0].starts_at} → ${cur[0].ends_at})` : id,
+    new_value: "removed",
+  });
+  revalidatePath("/staff/broker");
+  return { ok: true };
 }
 
 export async function listBrokerAudit(): Promise<BrokerAuditRow[] | null> {

@@ -9,7 +9,104 @@ import { Card, CardBody } from "@gio4x/ui";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
 import { ShieldAlert } from "lucide-react";
-import { updateBrokerInstrument, type BrokerInstrument, type BrokerAuditRow } from "@/lib/broker-actions";
+import {
+  updateBrokerInstrument, createTradingBlock, deleteTradingBlock,
+  type BrokerInstrument, type BrokerAuditRow, type TradingBlock,
+} from "@/lib/broker-actions";
+
+function TradingBlocksCard({
+  blocks, onSaved, onError,
+}: {
+  blocks: TradingBlock[] | null;
+  onSaved: (msg: string) => void;
+  onError: (msg: string) => void;
+}) {
+  const [symbol, setSymbol] = useState("");
+  const [reason, setReason] = useState("");
+  const [startsAt, setStartsAt] = useState("");
+  const [endsAt, setEndsAt] = useState("");
+  const [pending, startTransition] = useTransition();
+
+  const create = () =>
+    startTransition(async () => {
+      const r = await createTradingBlock({ symbol: symbol.trim().toUpperCase() || null, reason, startsAt, endsAt });
+      if (r.ok) { onSaved(`trading block ${symbol.trim().toUpperCase() || "ALL"} — ${reason.trim()}`); setReason(""); setStartsAt(""); setEndsAt(""); setSymbol(""); }
+      else onError(r.error ?? "Could not create the block");
+    });
+
+  const remove = (b: TradingBlock) =>
+    startTransition(async () => {
+      const r = await deleteTradingBlock(b.id);
+      if (r.ok) onSaved(`trading block removed (${b.symbol ?? "ALL"})`);
+      else onError(r.error ?? "Could not remove the block");
+    });
+
+  const fmt = (s: string) => new Date(s).toISOString().slice(0, 16).replace("T", " ") + " UTC";
+
+  return (
+    <Card>
+      <CardBody>
+        <div className="mb-2 text-sm font-semibold text-navy">Trading blocks (news / maintenance windows)</div>
+        <p className="mb-3 text-[11px] text-steel">
+          New orders for the symbol (or all symbols) are rejected while a block is active — traders see your reason and the end time. Closing existing positions stays allowed.
+        </p>
+        <div className="mb-3 flex flex-wrap items-end gap-2">
+          <label className="text-[10px] uppercase tracking-wide text-steel">Symbol
+            <input value={symbol} onChange={(e) => setSymbol(e.target.value)} placeholder="blank = ALL"
+              className="mt-0.5 block w-24 rounded border border-steel/25 px-2 py-1 font-mono text-[11px] uppercase text-navy outline-none focus:border-sky" />
+          </label>
+          <label className="text-[10px] uppercase tracking-wide text-steel">Reason (shown to traders)
+            <input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. NFP release"
+              className="mt-0.5 block w-52 rounded border border-steel/25 px-2 py-1 text-[11px] text-navy outline-none focus:border-sky" />
+          </label>
+          <label className="text-[10px] uppercase tracking-wide text-steel">Starts
+            <input type="datetime-local" value={startsAt} onChange={(e) => setStartsAt(e.target.value)}
+              className="mt-0.5 block rounded border border-steel/25 px-2 py-1 text-[11px] text-navy outline-none focus:border-sky" />
+          </label>
+          <label className="text-[10px] uppercase tracking-wide text-steel">Ends
+            <input type="datetime-local" value={endsAt} onChange={(e) => setEndsAt(e.target.value)}
+              className="mt-0.5 block rounded border border-steel/25 px-2 py-1 text-[11px] text-navy outline-none focus:border-sky" />
+          </label>
+          <button onClick={create} disabled={pending || !reason.trim() || !startsAt || !endsAt}
+            className="rounded bg-sky px-3 py-1.5 text-[11px] font-bold text-white disabled:opacity-40">
+            Add block
+          </button>
+        </div>
+        {(blocks ?? []).length === 0 ? (
+          <p className="text-[11px] text-steel">No current or upcoming blocks.</p>
+        ) : (
+          <table className="w-full text-left text-[11px]">
+            <thead>
+              <tr className="border-b border-steel/25 text-[10px] uppercase tracking-wide text-steel">
+                <th className="px-2 py-1.5">Symbol</th>
+                <th className="px-2 py-1.5">Reason</th>
+                <th className="px-2 py-1.5">Window (UTC)</th>
+                <th className="px-2 py-1.5">By</th>
+                <th className="px-2 py-1.5" />
+              </tr>
+            </thead>
+            <tbody>
+              {(blocks ?? []).map((b) => {
+                const active = new Date(b.starts_at) <= new Date() && new Date() <= new Date(b.ends_at);
+                return (
+                  <tr key={b.id} className="border-b border-steel/10">
+                    <td className="px-2 py-1.5 font-mono text-navy">{b.symbol ?? "ALL"}</td>
+                    <td className="px-2 py-1.5 text-navy">{b.reason} {active && <StatusBadge tone="danger">active</StatusBadge>}</td>
+                    <td className="px-2 py-1.5 font-mono text-steel">{fmt(b.starts_at)} → {fmt(b.ends_at)}</td>
+                    <td className="px-2 py-1.5 text-steel">{b.created_by}</td>
+                    <td className="px-2 py-1.5 text-right">
+                      <button onClick={() => remove(b)} disabled={pending} className="text-[11px] font-semibold text-danger disabled:opacity-40">Remove</button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+      </CardBody>
+    </Card>
+  );
+}
 
 function NumberCell({
   symbol, field, value, step, onSaved, onError,
@@ -46,10 +143,11 @@ function NumberCell({
 }
 
 export function BrokerControls({
-  instruments, audit,
+  instruments, audit, blocks,
 }: {
   instruments: BrokerInstrument[] | null;
   audit: BrokerAuditRow[] | null;
+  blocks: TradingBlock[] | null;
 }) {
   const [rows, setRows] = useState<BrokerInstrument[]>(instruments ?? []);
   const [notice, setNotice] = useState<string | null>(null);
@@ -58,6 +156,16 @@ export function BrokerControls({
 
   const saved = (msg: string) => { setNotice(`Saved: ${msg} (audited)`); setError(null); };
   const failed = (msg: string) => { setError(msg); setNotice(null); };
+
+  const toggleSessions = (r: BrokerInstrument) =>
+    startTransition(async () => {
+      const next = !r.enforce_sessions;
+      const res = await updateBrokerInstrument(r.symbol, "enforce_sessions", next);
+      if (res.ok) {
+        setRows((prev) => prev.map((x) => (x.symbol === r.symbol ? { ...x, enforce_sessions: next } : x)));
+        saved(`${r.symbol} session enforcement ${next ? "ON" : "OFF"}`);
+      } else failed(res.error ?? "Update failed");
+    });
 
   const toggleActive = (r: BrokerInstrument) =>
     startTransition(async () => {
@@ -118,6 +226,7 @@ export function BrokerControls({
                 <th className="px-3 py-2 text-right">Min lot</th>
                 <th className="px-3 py-2 text-right">Max lot</th>
                 <th className="px-3 py-2 text-right">Spread markup</th>
+                <th className="px-3 py-2">Sessions</th>
                 <th className="px-3 py-2">Routing</th>
               </tr>
             </thead>
@@ -154,6 +263,15 @@ export function BrokerControls({
                     <NumberCell symbol={r.symbol} field="spread_markup" value={r.spread_markup} step="0.1" onSaved={saved} onError={failed} />
                   </td>
                   <td className="px-3 py-2">
+                    <button onClick={() => toggleSessions(r)} disabled={pending}
+                      title={r.session_hours === "24x7" ? "24x7 symbol — never closes" : "Toggle weekend-close enforcement (Fri 21:00 → Sun 21:00 UTC)"}
+                      className="disabled:opacity-50">
+                      <StatusBadge tone={r.session_hours === "24x7" ? "neutral" : r.enforce_sessions ? "success" : "warning"}>
+                        {r.session_hours === "24x7" ? "24×7" : r.enforce_sessions ? "Enforced" : "Off"}
+                      </StatusBadge>
+                    </button>
+                  </td>
+                  <td className="px-3 py-2">
                     <select
                       value={r.routing_mode}
                       onChange={(e) => setRouting(r, e.target.value)}
@@ -172,6 +290,8 @@ export function BrokerControls({
         </CardBody>
       </Card>
 
+      <TradingBlocksCard blocks={blocks} onSaved={saved} onError={failed} />
+
       <Card>
         <CardBody>
           <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-navy">
@@ -179,7 +299,9 @@ export function BrokerControls({
           </div>
           <ul className="space-y-1 text-[12px] text-steel">
             <li>• <b>Trading Enabled/Disabled, Min/Max lot, Commission</b> — enforced by the terminal&apos;s <code>place_market_order</code>: disabled symbols reject new orders; lots outside bounds reject; commission is charged per lot at open.</li>
-            <li>• <b>Swap long/short</b> — applied by <code>close_position</code>: whole calendar days held × rate × lots, added to realized P&amp;L (negative = cost to the trader). Triple-swap Wednesday is not applied yet.</li>
+            <li>• <b>Swap long/short</b> — applied by <code>close_position</code>: whole calendar days held × rate × lots, added to realized P&amp;L (negative = cost). <b>Wednesday counts triple</b> (standard rollover convention, simplified to calendar days).</li>
+            <li>• <b>Sessions</b> — when Enforced, <code>place_market_order</code> rejects new orders from Fri 21:00 to Sun 21:00 UTC. Default is Off so the 24/7 demo feed keeps trading until you flip it; 24×7 symbols (crypto) never close.</li>
+            <li>• <b>Trading blocks</b> — active windows below make <code>place_market_order</code> reject new orders for the symbol (or all symbols) with your reason and the end time. Existing positions can still be closed.</li>
             <li>• <b>Routing</b> — consumed by the Dealer Desk bridge (A/B-book assignment sync).</li>
             <li>• <b>Spread markup</b> — stored broker config read by the pricing layer; the terminal&apos;s demo feed does not add it to displayed quotes yet.</li>
             <li>• Traders have no access to any of this: writes go through the staff-only service-role bridge and are recorded in the audit trail below.</li>
