@@ -5,6 +5,13 @@
 // from the RLS-locked bridge_secrets; we then talk to the terminal directly.
 
 async function terminalCfg(): Promise<{ url: string; key: string } | null> {
+  // Direct env credentials first (Netlify hosting has no portal service key,
+  // so the bridge_secrets indirection is unreachable there). Same values as
+  // the bridge_secrets rows, just injected as env.
+  const directUrl = process.env.RAPTOR_BRIDGE_URL;
+  const directKey = process.env.RAPTOR_BRIDGE_SERVICE_KEY;
+  if (directUrl && directKey) return { url: directUrl, key: directKey };
+
   const purl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const pkey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!purl || !pkey) return null;
