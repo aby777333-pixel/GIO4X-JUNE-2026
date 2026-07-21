@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getSupabaseServer } from "./supabase-server";
 import { getCurrentUser } from "./session";
+import { isValidResolutionCode } from "./ticket-constants";
 import type { Enums } from "@gio4x/supabase";
 
 export type StaffActionResult = { ok: true } | { ok: false; error: string };
@@ -63,13 +64,34 @@ export async function setTicketStatus(
   const { user, error } = await requireStaff();
   if (!user) return { ok: false, error };
   const supabase = getSupabaseServer();
+  // Stamp resolved_at when the ticket first reaches a terminal state; clear it
+  // if the ticket is reopened so time-to-resolution stays truthful.
+  const terminal = status === "resolved" || status === "closed";
   const { error: updErr } = await supabase
     .from("support_tickets")
-    .update({ status })
+    .update({ status, resolved_at: terminal ? new Date().toISOString() : null })
     .eq("id", ticketId);
   if (updErr) return { ok: false, error: updErr.message };
   revalidatePath(`/staff/tickets/${ticketId}`);
   revalidatePath("/staff/tickets");
+  return { ok: true };
+}
+
+export async function setTicketResolution(
+  ticketId: string,
+  code: string,
+  note: string,
+): Promise<StaffActionResult> {
+  const { user, error } = await requireStaff();
+  if (!user) return { ok: false, error };
+  if (code && !isValidResolutionCode(code)) return { ok: false, error: "Unknown resolution code." };
+  const supabase = getSupabaseServer();
+  const { error: updErr } = await supabase
+    .from("support_tickets")
+    .update({ resolution_code: code || null, resolution_note: note.trim() || null })
+    .eq("id", ticketId);
+  if (updErr) return { ok: false, error: updErr.message };
+  revalidatePath(`/staff/tickets/${ticketId}`);
   return { ok: true };
 }
 

@@ -1920,8 +1920,12 @@ export type Database = {
           assigned_staff: string | null
           category: Database["public"]["Enums"]["ticket_category"]
           created_at: string
+          csat_score: number | null
           id: string
           priority: Database["public"]["Enums"]["ticket_priority"]
+          resolution_code: string | null
+          resolution_note: string | null
+          resolved_at: string | null
           status: Database["public"]["Enums"]["ticket_status"]
           subject: string
           ticket_ref: string
@@ -1932,8 +1936,12 @@ export type Database = {
           assigned_staff?: string | null
           category?: Database["public"]["Enums"]["ticket_category"]
           created_at?: string
+          csat_score?: number | null
           id?: string
           priority?: Database["public"]["Enums"]["ticket_priority"]
+          resolution_code?: string | null
+          resolution_note?: string | null
+          resolved_at?: string | null
           status?: Database["public"]["Enums"]["ticket_status"]
           subject: string
           ticket_ref: string
@@ -1944,8 +1952,12 @@ export type Database = {
           assigned_staff?: string | null
           category?: Database["public"]["Enums"]["ticket_category"]
           created_at?: string
+          csat_score?: number | null
           id?: string
           priority?: Database["public"]["Enums"]["ticket_priority"]
+          resolution_code?: string | null
+          resolution_note?: string | null
+          resolved_at?: string | null
           status?: Database["public"]["Enums"]["ticket_status"]
           subject?: string
           ticket_ref?: string

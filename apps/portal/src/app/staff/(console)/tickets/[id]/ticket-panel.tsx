@@ -9,7 +9,9 @@ import {
   setTicketStatus,
   setTicketPriority,
   assignTicketToMe,
+  setTicketResolution,
 } from "@/lib/staff-actions";
+import { RESOLUTION_CODES } from "@/lib/ticket-constants";
 
 type Status = "open" | "in_progress" | "waiting_customer" | "resolved" | "closed";
 type Priority = "low" | "normal" | "high" | "urgent";
@@ -22,18 +24,28 @@ export function StaffTicketPanel({
   status,
   priority,
   assigned,
+  resolutionCode,
+  resolutionNote,
+  resolvedAt,
   customer,
 }: {
   ticketId: string;
   status: Status;
   priority: Priority;
   assigned: boolean;
+  resolutionCode: string;
+  resolutionNote: string;
+  resolvedAt: string | null;
   customer: { name: string; email: string | null; country: string | null };
 }) {
   const router = useRouter();
   const [body, setBody] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const [rCode, setRCode] = useState(resolutionCode);
+  const [rNote, setRNote] = useState(resolutionNote);
+  const [rSaved, setRSaved] = useState(false);
+  const terminal = status === "resolved" || status === "closed";
 
   function run(fn: () => Promise<{ ok: boolean; error?: string }>) {
     setError(null);
@@ -130,6 +142,43 @@ export function StaffTicketPanel({
           </div>
         )}
       </div>
+
+      {terminal ? (
+        <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-3">
+          <label className="block text-[11px] font-semibold uppercase tracking-wide text-steel-light">
+            Resolution
+          </label>
+          <select
+            value={rCode}
+            disabled={pending}
+            onChange={(e) => { setRCode(e.target.value); setRSaved(false); }}
+            className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-sm"
+          >
+            <option value="">— select a resolution code —</option>
+            {RESOLUTION_CODES.map((r) => (
+              <option key={r.code} value={r.code}>{r.label}</option>
+            ))}
+          </select>
+          <textarea
+            value={rNote}
+            onChange={(e) => { setRNote(e.target.value); setRSaved(false); }}
+            rows={2}
+            placeholder="Resolution note (optional, internal)"
+            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+          />
+          <button
+            type="button"
+            disabled={pending}
+            onClick={() => run(async () => { const r = await setTicketResolution(ticketId, rCode, rNote); if (r.ok) setRSaved(true); return r; })}
+            className="w-full rounded-lg border border-sky/30 px-3 py-1.5 text-sm font-medium text-sky transition hover:bg-sky/5 disabled:opacity-50"
+          >
+            {rSaved ? "Saved ✓" : "Save resolution"}
+          </button>
+          {resolvedAt ? (
+            <p className="text-[11px] text-steel">Resolved {new Date(resolvedAt).toLocaleString()}</p>
+          ) : null}
+        </div>
+      ) : null}
 
       <div className="rounded-xl border border-slate-200 bg-white p-4">
         <form onSubmit={onReply} className="space-y-2">

@@ -22,7 +22,7 @@ export default async function StaffTicketDetailPage({ params }: { params: { id: 
 
   const { data: ticket } = await supabase
     .from("support_tickets")
-    .select("id, ticket_ref, subject, status, priority, category, created_at, updated_at, user_id, assigned_staff")
+    .select("id, ticket_ref, subject, status, priority, category, created_at, updated_at, user_id, assigned_staff, resolution_code, resolution_note, resolved_at")
     .eq("id", params.id)
     .maybeSingle();
 
@@ -100,6 +100,9 @@ export default async function StaffTicketDetailPage({ params }: { params: { id: 
           status={status}
           priority={ticket.priority as "low" | "normal" | "high" | "urgent"}
           assigned={!!ticket.assigned_staff}
+          resolutionCode={ticket.resolution_code ?? ""}
+          resolutionNote={ticket.resolution_note ?? ""}
+          resolvedAt={ticket.resolved_at ?? null}
           customer={{
             name: customerName,
             email: customer?.email ?? null,
