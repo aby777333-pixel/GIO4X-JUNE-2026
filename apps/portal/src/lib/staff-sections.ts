@@ -30,6 +30,7 @@ export const STAFF_SECTIONS: StaffSection[] = [
   { key: "documents", href: "/staff/documents", label: "Document Builder" },
   { key: "emailer", href: "/staff/emailer", label: "Bulk Emailer" },
   { key: "events", href: "/staff/events", label: "Event Bus" },
+  { key: "config", href: "/staff/config", label: "Configuration", adminOnly: true },
   { key: "team", href: "/staff/team", label: "Team & Access", adminOnly: true },
 ];
 

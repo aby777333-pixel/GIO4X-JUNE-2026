@@ -8,6 +8,7 @@ import {
   Gauge,
   ScanSearch,
   FileBarChart,
+  SlidersHorizontal,
   MessagesSquare,
   Ticket,
   Users,
@@ -55,6 +56,7 @@ const nav: Item[] = [
   { key: "events", label: "Event Bus", href: "/staff/events", icon: Radio },
   { key: "documents", label: "Document Builder", href: "/staff/documents", icon: FileText },
   { key: "emailer", label: "Bulk Emailer", href: "/staff/emailer", icon: Mail },
+  { key: "config", label: "Configuration", href: "/staff/config", icon: SlidersHorizontal },
   { key: "team", label: "Team & Access", href: "/staff/team", icon: UserCog },
 ];
 
