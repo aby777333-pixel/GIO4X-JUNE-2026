@@ -3,7 +3,9 @@ import type { ReactNode } from "react";
 import { Card, CardBody, CardHeader, CardTitle } from "@gio4x/ui";
 import { PageHeader } from "@/components/PageHeader";
 import { loadFeatureFlags } from "@/lib/config-actions";
+import { loadAccountTypes } from "@/lib/account-type-actions";
 import { FlagsClient } from "./flags-client";
+import { AccountTypesClient } from "./account-types-client";
 import {
   Landmark, Receipt, Network, ShieldCheck, Gauge, ScanSearch, FileBarChart, Server, ArrowRight,
 } from "lucide-react";
@@ -27,7 +29,7 @@ const CONFIG_MAP: Entry[] = [
 ];
 
 export default async function ConfigPage() {
-  const flags = await loadFeatureFlags();
+  const [flags, accountTypes] = await Promise.all([loadFeatureFlags(), loadAccountTypes()]);
 
   return (
     <div className="space-y-5">
@@ -43,6 +45,17 @@ export default async function ConfigPage() {
             Turn platform modules and features on or off for everyone. Admin-only.
           </p>
           <FlagsClient flags={flags} />
+        </CardBody>
+      </Card>
+
+      <Card>
+        <CardHeader><CardTitle>Account types</CardTitle></CardHeader>
+        <CardBody>
+          <p className="mb-3 text-xs text-steel">
+            The plans clients can open — leverage, minimum deposit, spread and commission. Editing here changes the
+            live account-open form. Admin-only.
+          </p>
+          <AccountTypesClient rows={accountTypes} />
         </CardBody>
       </Card>
 

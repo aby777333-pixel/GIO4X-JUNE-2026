@@ -17,6 +17,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_types: {
+        Row: {
+          active: boolean
+          base_currency: string
+          commission: string | null
+          created_at: string
+          id: string
+          leverage: number
+          min_deposit: number
+          name: string
+          sort: number
+          spread_from: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          base_currency?: string
+          commission?: string | null
+          created_at?: string
+          id?: string
+          leverage?: number
+          min_deposit?: number
+          name: string
+          sort?: number
+          spread_from?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          base_currency?: string
+          commission?: string | null
+          created_at?: string
+          id?: string
+          leverage?: number
+          min_deposit?: number
+          name?: string
+          sort?: number
+          spread_from?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       announcements: {
         Row: {
           active: boolean

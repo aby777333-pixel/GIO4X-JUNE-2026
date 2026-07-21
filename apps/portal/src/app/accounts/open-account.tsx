@@ -13,15 +13,20 @@ const PLANS = ["Classic", "Premium", "ECN", "Cent", "Swap-Free STP"] as const;
 export function OpenLiveAccountButton({
   variant = "primary",
   label = "Open Live Account",
+  plans,
 }: {
   variant?: "primary" | "ghost";
   label?: string;
+  plans?: string[];
 }) {
   const router = useRouter();
+  // Broker-configured plans (from Configuration → Account types) with a safe
+  // fallback to the built-in list, so the form always works.
+  const planList = plans && plans.length > 0 ? plans : [...PLANS];
   const [open, setOpen] = useState(false);
   const [currency, setCurrency] = useState<(typeof CURRENCIES)[number]>("USD");
   const [leverage, setLeverage] = useState<number>(500);
-  const [plan, setPlan] = useState<(typeof PLANS)[number]>("Classic");
+  const [plan, setPlan] = useState<string>(planList[0]);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -77,10 +82,10 @@ export function OpenLiveAccountButton({
                 <label className="block text-xs font-medium text-steel">Plan</label>
                 <select
                   value={plan}
-                  onChange={(e) => setPlan(e.target.value as (typeof PLANS)[number])}
+                  onChange={(e) => setPlan(e.target.value)}
                   className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
                 >
-                  {PLANS.map((p) => (
+                  {planList.map((p) => (
                     <option key={p} value={p}>{p}</option>
                   ))}
                 </select>

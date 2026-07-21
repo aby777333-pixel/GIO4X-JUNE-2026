@@ -9,6 +9,7 @@ import { LINKS } from "@/lib/constants";
 import { getCurrentUser } from "@/lib/session";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { OpenLiveAccountButton } from "./open-account";
+import { loadActiveAccountTypeNames } from "@/lib/account-type-actions";
 import {
   ArrowDownToLine,
   ArrowLeftRight,
@@ -57,6 +58,7 @@ const fmt = (n: number, c: string) =>
 
 export default async function AccountsPage() {
   const user = await getCurrentUser();
+  const planNames = await loadActiveAccountTypeNames().catch(() => []);
 
   let accounts: AccountRow[] = demoAccounts;
   if (user) {
@@ -87,7 +89,7 @@ export default async function AccountsPage() {
         subtitle="All your trading accounts in one place. Open new ones, fund them, switch between live and demo."
         actions={
           <>
-            <OpenLiveAccountButton />
+            <OpenLiveAccountButton plans={planNames} />
             <Link
               href="/accounts/demo"
               className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-navy hover:border-sky/40"
@@ -147,7 +149,7 @@ export default async function AccountsPage() {
               >
                 <Plus size={14} /> Create Demo
               </Link>
-              <OpenLiveAccountButton variant="ghost" label="Open Live" />
+              <OpenLiveAccountButton variant="ghost" label="Open Live" plans={planNames} />
             </div>
           </CardBody>
         </Card>
