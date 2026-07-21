@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Card, CardBody } from "@gio4x/ui";
 import { StatusBadge, type StatusTone } from "@/components/StatusBadge";
 import { getSupabaseServer } from "@/lib/supabase-server";
+import { slaFor, SLA_TONE, type TicketPriority, type TicketStatus } from "@/lib/sla";
 
 export const dynamic = "force-dynamic";
 
@@ -41,11 +42,28 @@ export default async function StaffTicketsPage({
 
   let query = supabase
     .from("support_tickets")
-    .select("id, ticket_ref, subject, status, priority, category, assigned_staff, updated_at, user_id")
+    .select("id, ticket_ref, subject, status, priority, category, assigned_staff, created_at, updated_at, user_id")
     .order("updated_at", { ascending: false })
     .limit(200);
 
   if (active !== "all") query = query.eq("status", active as Status);
+
+  // Triage snapshot over ALL live tickets (independent of the status filter).
+  const { data: liveTickets } = await supabase
+    .from("support_tickets")
+    .select("status, priority, assigned_staff, created_at")
+    .in("status", ["open", "in_progress", "waiting_customer"])
+    .limit(1000);
+
+  const nowMs = Date.now();
+  const live = liveTickets ?? [];
+  const triage = {
+    active: live.length,
+    breached: live.filter((t) => slaFor(t.priority as TicketPriority, t.status as TicketStatus, t.created_at, nowMs).state === "breached").length,
+    atRisk: live.filter((t) => slaFor(t.priority as TicketPriority, t.status as TicketStatus, t.created_at, nowMs).state === "at_risk").length,
+    unassigned: live.filter((t) => !t.assigned_staff && t.status !== "waiting_customer").length,
+    waiting: live.filter((t) => t.status === "waiting_customer").length,
+  };
 
   const { data: tickets } = await query;
   const rows = tickets ?? [];
@@ -65,7 +83,28 @@ export default async function StaffTicketsPage({
 
   return (
     <>
-      <PageHeader title="Tickets" subtitle="All customer support tickets." />
+      <PageHeader title="Tickets" subtitle="All customer support tickets, with SLA timers by priority." />
+
+      {/* SLA triage — the queue's health at a glance */}
+      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
+        {([
+          { label: "Live tickets", value: triage.active, tone: "neutral" as const },
+          { label: "SLA breached", value: triage.breached, tone: "danger" as const },
+          { label: "At risk", value: triage.atRisk, tone: "warning" as const },
+          { label: "Unassigned", value: triage.unassigned, tone: "warning" as const },
+          { label: "Waiting on customer", value: triage.waiting, tone: "info" as const },
+        ]).map((s) => (
+          <div key={s.label} className="rounded-xl border border-slate-200 p-3">
+            <div className="text-[10px] uppercase tracking-wide text-steel">{s.label}</div>
+            <div className="mt-0.5 flex items-center gap-2">
+              <span className="font-mono text-lg font-bold text-navy">{s.value}</span>
+              {s.value > 0 && (s.tone === "danger" || s.tone === "warning") && (
+                <StatusBadge tone={s.tone}>{s.tone === "danger" ? "act now" : "watch"}</StatusBadge>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
 
       <div className="mb-4 flex flex-wrap gap-2">
         {STATUS_FILTERS.map((f) => (
@@ -111,6 +150,11 @@ export default async function StaffTicketsPage({
                   </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
+                  {(() => {
+                    const sla = slaFor(t.priority as TicketPriority, t.status as TicketStatus, t.created_at, nowMs);
+                    if (sla.state === "done") return null;
+                    return <StatusBadge tone={SLA_TONE[sla.state]}>{sla.label}</StatusBadge>;
+                  })()}
                   <StatusBadge tone={priorityTone(t.priority as Priority)}>
                     {t.priority}
                   </StatusBadge>
