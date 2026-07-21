@@ -17,16 +17,24 @@ export function OpenLiveAccountButton({
 }: {
   variant?: "primary" | "ghost";
   label?: string;
-  plans?: string[];
+  plans?: { name: string; leverage: number }[];
 }) {
   const router = useRouter();
   // Broker-configured plans (from Configuration → Account types) with a safe
   // fallback to the built-in list, so the form always works.
-  const planList = plans && plans.length > 0 ? plans : [...PLANS];
+  const planList = plans && plans.length > 0 ? plans : PLANS.map((name) => ({ name, leverage: 500 }));
   const [open, setOpen] = useState(false);
   const [currency, setCurrency] = useState<(typeof CURRENCIES)[number]>("USD");
-  const [leverage, setLeverage] = useState<number>(500);
-  const [plan, setPlan] = useState<string>(planList[0]);
+  const [leverage, setLeverage] = useState<number>(planList[0].leverage);
+  const [plan, setPlan] = useState<string>(planList[0].name);
+
+  // Selecting a plan defaults the leverage to that plan's configured value;
+  // the trader can still override it below.
+  const onPlanChange = (name: string) => {
+    setPlan(name);
+    const found = planList.find((p) => p.name === name);
+    if (found) setLeverage(found.leverage);
+  };
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -82,11 +90,11 @@ export function OpenLiveAccountButton({
                 <label className="block text-xs font-medium text-steel">Plan</label>
                 <select
                   value={plan}
-                  onChange={(e) => setPlan(e.target.value)}
+                  onChange={(e) => onPlanChange(e.target.value)}
                   className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
                 >
                   {planList.map((p) => (
-                    <option key={p} value={p}>{p}</option>
+                    <option key={p.name} value={p.name}>{p.name}</option>
                   ))}
                 </select>
               </div>
@@ -110,7 +118,7 @@ export function OpenLiveAccountButton({
                     onChange={(e) => setLeverage(Number(e.target.value))}
                     className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
                   >
-                    {LEVERAGES.map((l) => (
+                    {Array.from(new Set([...LEVERAGES, leverage])).sort((a, b) => a - b).map((l) => (
                       <option key={l} value={l}>1:{l}</option>
                     ))}
                   </select>

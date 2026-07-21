@@ -37,15 +37,18 @@ export async function loadAccountTypes(): Promise<AccountTypeRow[]> {
   return (data ?? []) as AccountTypeRow[];
 }
 
-/** Active plan names, for the account-open form (fallback handled by caller). */
-export async function loadActiveAccountTypeNames(): Promise<string[]> {
+export type AccountTypeOption = { name: string; leverage: number };
+
+/** Active plans (name + default leverage) for the account-open form. Caller
+ *  falls back to the built-in list if this is empty. */
+export async function loadActiveAccountTypes(): Promise<AccountTypeOption[]> {
   const supabase = getSupabaseServer();
   const { data } = await supabase
     .from("account_types")
-    .select("name")
+    .select("name, leverage")
     .eq("active", true)
     .order("sort", { ascending: true });
-  return (data ?? []).map((r) => r.name);
+  return (data ?? []).map((r) => ({ name: r.name, leverage: Number(r.leverage) }));
 }
 
 function validate(input: { name: string; leverage: number; minDeposit: number }): Result {
