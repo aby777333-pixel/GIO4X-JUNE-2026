@@ -17,6 +17,7 @@ export const STAFF_SECTIONS: StaffSection[] = [
   { key: "crm", href: "/staff/crm", label: "Leads & CRM" },
   { key: "customers", href: "/staff/customers", label: "Customers" },
   { key: "kyc", href: "/staff/kyc", label: "KYC" },
+  { key: "compliance", href: "/staff/compliance", label: "Compliance" },
   { key: "funds", href: "/staff/funds", label: "Funds & Settlement" },
   { key: "fees", href: "/staff/fees", label: "Fee Engine" },
   { key: "ib", href: "/staff/ib", label: "IB Network" },

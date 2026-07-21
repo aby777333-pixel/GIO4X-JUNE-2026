@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Gauge,
+  ScanSearch,
   MessagesSquare,
   Ticket,
   Users,
@@ -40,6 +41,7 @@ const nav: Item[] = [
   { key: "crm", label: "Leads & CRM", href: "/staff/crm", icon: Contact },
   { key: "customers", label: "Customers", href: "/staff/customers", icon: Users },
   { key: "kyc", label: "KYC", href: "/staff/kyc", icon: ShieldCheck },
+  { key: "compliance", label: "Compliance", href: "/staff/compliance", icon: ScanSearch },
   { key: "funds", label: "Funds & Settlement", href: "/staff/funds", icon: Banknote },
   { key: "fees", label: "Fee Engine", href: "/staff/fees", icon: Receipt },
   { key: "ib", label: "IB Network", href: "/staff/ib", icon: Network },
