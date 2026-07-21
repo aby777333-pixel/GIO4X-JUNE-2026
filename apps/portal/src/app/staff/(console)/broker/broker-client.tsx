@@ -4,15 +4,36 @@
 // terminal instruments table through the audited server action. Honesty
 // labels state exactly where each field is enforced.
 
-import { useState, useTransition } from "react";
+import { Fragment, useState, useTransition } from "react";
 import { Card, CardBody } from "@gio4x/ui";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
-import { ShieldAlert } from "lucide-react";
+import { ShieldAlert, Layers } from "lucide-react";
 import {
-  updateBrokerInstrument, createTradingBlock, deleteTradingBlock,
+  updateBrokerInstrument, updateBrokerGroup, createTradingBlock, deleteTradingBlock,
   type BrokerInstrument, type BrokerAuditRow, type TradingBlock,
 } from "@/lib/broker-actions";
+
+// Fields that can be applied to a whole group at once (mirrors EDITABLE server-side).
+type GroupFieldKind = "number" | "bool" | "routing";
+const GROUP_FIELDS: { field: string; label: string; kind: GroupFieldKind; step?: string }[] = [
+  { field: "commission_per_lot", label: "Commission /lot", kind: "number", step: "0.5" },
+  { field: "swap_long", label: "Swap long /lot/day", kind: "number", step: "0.1" },
+  { field: "swap_short", label: "Swap short /lot/day", kind: "number", step: "0.1" },
+  { field: "min_lot", label: "Min lot", kind: "number", step: "0.01" },
+  { field: "max_lot", label: "Max lot", kind: "number", step: "1" },
+  { field: "spread_markup", label: "Spread markup (pts)", kind: "number", step: "0.1" },
+  { field: "is_active", label: "Trading enabled", kind: "bool" },
+  { field: "enforce_sessions", label: "Session enforcement", kind: "bool" },
+  { field: "routing_mode", label: "Routing", kind: "routing" },
+];
+
+// Coerce a group-apply value the same way the server does, for optimistic state.
+function coerceForState(kind: GroupFieldKind, raw: string): string | number | boolean {
+  if (kind === "number") return Number(raw);
+  if (kind === "bool") return raw === "true";
+  return raw;
+}
 
 function TradingBlocksCard({
   blocks, onSaved, onError,
@@ -142,6 +163,88 @@ function NumberCell({
   );
 }
 
+function GroupStandardsCard({
+  groups, onApply, pending,
+}: {
+  groups: { type: string; count: number }[];
+  onApply: (group: string, field: string, kind: GroupFieldKind, value: string) => void;
+  pending: boolean;
+}) {
+  const [group, setGroup] = useState(groups[0]?.type ?? "");
+  const [field, setField] = useState(GROUP_FIELDS[0].field);
+  const [num, setNum] = useState("");
+  const [bool, setBool] = useState("true");
+  const [routing, setRouting] = useState("a_book");
+
+  const meta = GROUP_FIELDS.find((f) => f.field === field)!;
+  const count = groups.find((g) => g.type === group)?.count ?? 0;
+  const valueFor = () => (meta.kind === "number" ? num : meta.kind === "bool" ? bool : routing);
+  const readable = () =>
+    meta.kind === "number" ? num
+    : meta.kind === "bool" ? (bool === "true" ? "ON" : "OFF")
+    : routing === "a_book" ? "A-Book" : routing === "b_book" ? "B-Book" : "Hybrid";
+
+  const apply = () => {
+    if (!group) return;
+    if (meta.kind === "number" && !(num.trim() !== "" && Number.isFinite(Number(num)))) return;
+    if (!window.confirm(`Apply ${meta.label} = ${readable()} to all ${count} "${group}" symbol(s)? Every change is audited.`)) return;
+    onApply(group, field, meta.kind, valueFor());
+  };
+  const canApply = !pending && !!group && (meta.kind !== "number" || (num.trim() !== "" && Number.isFinite(Number(num))));
+
+  return (
+    <Card>
+      <CardBody>
+        <div className="mb-1 flex items-center gap-2 text-sm font-semibold text-navy">
+          <Layers className="h-4 w-4 text-sky" /> Group standards — apply to a whole group
+        </div>
+        <p className="mb-3 text-[11px] text-steel">
+          Set one field for every symbol in a group at once (e.g. commission for all metals, or routing for all forex).
+          This is a bulk shortcut over the per-symbol table below — each symbol is written and audited individually, and
+          you can still override any single symbol afterwards.
+        </p>
+        <div className="flex flex-wrap items-end gap-2">
+          <label className="text-[10px] uppercase tracking-wide text-steel">Group
+            <select value={group} onChange={(e) => setGroup(e.target.value)}
+              className="mt-0.5 block rounded border border-steel/25 bg-white px-2 py-1 text-[11px] capitalize text-navy outline-none focus:border-sky">
+              {groups.map((g) => <option key={g.type} value={g.type}>{g.type} ({g.count})</option>)}
+            </select>
+          </label>
+          <label className="text-[10px] uppercase tracking-wide text-steel">Field
+            <select value={field} onChange={(e) => setField(e.target.value)}
+              className="mt-0.5 block rounded border border-steel/25 bg-white px-2 py-1 text-[11px] text-navy outline-none focus:border-sky">
+              {GROUP_FIELDS.map((f) => <option key={f.field} value={f.field}>{f.label}</option>)}
+            </select>
+          </label>
+          <label className="text-[10px] uppercase tracking-wide text-steel">Value
+            {meta.kind === "number" ? (
+              <input value={num} step={meta.step} inputMode="decimal" onChange={(e) => setNum(e.target.value)} placeholder="0"
+                className="mt-0.5 block w-24 rounded border border-steel/25 px-2 py-1 text-right font-mono text-[11px] text-navy outline-none focus:border-sky" />
+            ) : meta.kind === "bool" ? (
+              <select value={bool} onChange={(e) => setBool(e.target.value)}
+                className="mt-0.5 block rounded border border-steel/25 bg-white px-2 py-1 text-[11px] text-navy outline-none focus:border-sky">
+                <option value="true">On</option>
+                <option value="false">Off</option>
+              </select>
+            ) : (
+              <select value={routing} onChange={(e) => setRouting(e.target.value)}
+                className="mt-0.5 block rounded border border-steel/25 bg-white px-2 py-1 text-[11px] text-navy outline-none focus:border-sky">
+                <option value="a_book">A-Book</option>
+                <option value="b_book">B-Book</option>
+                <option value="hybrid">Hybrid</option>
+              </select>
+            )}
+          </label>
+          <button onClick={apply} disabled={!canApply}
+            className="rounded bg-sky px-3 py-1.5 text-[11px] font-bold text-white disabled:opacity-40">
+            Apply to {count} symbol{count === 1 ? "" : "s"}
+          </button>
+        </div>
+      </CardBody>
+    </Card>
+  );
+}
+
 export function BrokerControls({
   instruments, audit, blocks,
 }: {
@@ -186,6 +289,25 @@ export function BrokerControls({
       } else failed(res.error ?? "Update failed");
     });
 
+  // Distinct groups (instrument type) with counts, for the bulk-apply card + headers.
+  const groups = (() => {
+    const counts = new Map<string, number>();
+    for (const r of rows) counts.set(r.type, (counts.get(r.type) ?? 0) + 1);
+    return [...counts.entries()].map(([type, count]) => ({ type, count })).sort((a, b) => a.type.localeCompare(b.type));
+  })();
+  // Rows sorted by group then symbol so group header rows can be injected.
+  const sortedRows = [...rows].sort((a, b) => (a.type === b.type ? a.symbol.localeCompare(b.symbol) : a.type.localeCompare(b.type)));
+
+  const applyGroup = (group: string, field: string, kind: GroupFieldKind, value: string) =>
+    startTransition(async () => {
+      const res = await updateBrokerGroup(group, field, value);
+      if (res.ok) {
+        const next = coerceForState(kind, value);
+        setRows((prev) => prev.map((x) => (x.type === group ? { ...x, [field]: next } : x)));
+        saved(`${res.updated} ${group} symbol(s) · ${field} → ${value}${res.failed ? ` (${res.failed} failed)` : ""}`);
+      } else failed(res.error ?? "Group update failed");
+    });
+
   if (instruments == null) {
     return (
       <div className="space-y-4">
@@ -213,8 +335,11 @@ export function BrokerControls({
         </div>
       )}
 
+      <GroupStandardsCard groups={groups} onApply={applyGroup} pending={pending} />
+
       <Card>
         <CardBody className="overflow-x-auto p-0">
+          <div className="px-3 pt-3 text-[11px] font-semibold text-navy">Per-symbol overrides</div>
           <table className="w-full min-w-[900px] text-left text-[12px]">
             <thead>
               <tr className="border-b border-steel/25 text-[10px] uppercase tracking-wide text-steel">
@@ -231,8 +356,19 @@ export function BrokerControls({
               </tr>
             </thead>
             <tbody>
-              {rows.map((r) => (
-                <tr key={r.symbol} className="border-b border-steel/10 hover:bg-sky/5">
+              {sortedRows.map((r, i) => {
+                const showHeader = i === 0 || sortedRows[i - 1].type !== r.type;
+                const groupCount = groups.find((g) => g.type === r.type)?.count ?? 0;
+                return (
+                <Fragment key={r.symbol}>
+                {showHeader && (
+                  <tr className="bg-steel/5">
+                    <td colSpan={10} className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-steel">
+                      {r.type} <span className="font-normal text-steel/70">· {groupCount} symbol{groupCount === 1 ? "" : "s"}</span>
+                    </td>
+                  </tr>
+                )}
+                <tr className="border-b border-steel/10 hover:bg-sky/5">
                   <td className="px-3 py-2">
                     <div className="font-semibold text-navy">{r.symbol}</div>
                     <div className="text-[10px] capitalize text-steel">{r.type}{r.session_hours ? ` · ${r.session_hours}` : ""}</div>
@@ -284,7 +420,9 @@ export function BrokerControls({
                     </select>
                   </td>
                 </tr>
-              ))}
+                </Fragment>
+                );
+              })}
             </tbody>
           </table>
         </CardBody>

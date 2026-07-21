@@ -60,6 +60,31 @@ const EDITABLE: Record<string, { min?: number; max?: number; kind: "number" | "b
   routing_mode: { kind: "routing" },
 };
 
+// Validate + coerce a value against the EDITABLE rules. Single source of truth
+// shared by the per-symbol and group (bulk) writers so bounds never diverge.
+function coerceEditable(
+  field: string,
+  value: string | number | boolean,
+): { ok: true; v: string | number | boolean } | { ok: false; error: string } {
+  const rule = EDITABLE[field];
+  if (!rule) return { ok: false, error: `Field "${field}" is not editable.` };
+  if (rule.kind === "number") {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return { ok: false, error: "Enter a valid number." };
+    if (rule.min != null && n < rule.min) return { ok: false, error: `Minimum is ${rule.min}.` };
+    if (rule.max != null && n > rule.max) return { ok: false, error: `Maximum is ${rule.max}.` };
+    return { ok: true, v: n };
+  }
+  if (rule.kind === "boolean") return { ok: true, v: value === true || value === "true" };
+  if (rule.kind === "routing") {
+    if (!["a_book", "b_book", "hybrid"].includes(String(value))) {
+      return { ok: false, error: "Routing must be a_book, b_book or hybrid." };
+    }
+    return { ok: true, v: String(value) };
+  }
+  return { ok: false, error: `Field "${field}" is not editable.` };
+}
+
 async function requireBrokerAccess(): Promise<{ ok: true; actor: string } | { ok: false; error: string }> {
   const user = await getCurrentUser();
   const role = user?.profile?.role;
@@ -149,24 +174,9 @@ export async function updateBrokerInstrument(
   const gate = await requireBrokerAccess();
   if (!gate.ok) return { ok: false, error: gate.error };
 
-  const rule = EDITABLE[field];
-  if (!rule) return { ok: false, error: `Field "${field}" is not editable.` };
-
-  let v: string | number | boolean = value;
-  if (rule.kind === "number") {
-    const n = Number(value);
-    if (!Number.isFinite(n)) return { ok: false, error: "Enter a valid number." };
-    if (rule.min != null && n < rule.min) return { ok: false, error: `Minimum is ${rule.min}.` };
-    if (rule.max != null && n > rule.max) return { ok: false, error: `Maximum is ${rule.max}.` };
-    v = n;
-  } else if (rule.kind === "boolean") {
-    v = value === true || value === "true";
-  } else if (rule.kind === "routing") {
-    if (!["a_book", "b_book", "hybrid"].includes(String(value))) {
-      return { ok: false, error: "Routing must be a_book, b_book or hybrid." };
-    }
-    v = String(value);
-  }
+  const coerced = coerceEditable(field, value);
+  if (!coerced.ok) return coerced;
+  const v = coerced.v;
 
   // Read the current value first so the audit row is truthful.
   const cur = await terminalSelect<Record<string, unknown>>(
@@ -186,4 +196,44 @@ export async function updateBrokerInstrument(
 
   revalidatePath("/staff/broker");
   return { ok: true };
+}
+
+// ── Group standards (bulk apply) ──────────────────────────────────────
+// Apply ONE field to every instrument in a group (its `type`) in one action —
+// e.g. set commission for all metals, or routing for all forex. Each symbol is
+// patched and audited individually, so the audit trail stays per-symbol and
+// truthful, and the same EDITABLE bounds apply as the per-symbol editor.
+export async function updateBrokerGroup(
+  groupType: string,
+  field: string,
+  value: string | number | boolean,
+): Promise<{ ok: boolean; error?: string; updated?: number; failed?: number }> {
+  const gate = await requireBrokerAccess();
+  if (!gate.ok) return { ok: false, error: gate.error };
+
+  const coerced = coerceEditable(field, value);
+  if (!coerced.ok) return { ok: false, error: coerced.error };
+  const v = coerced.v;
+
+  const rows = await terminalSelect<Record<string, unknown>>(
+    `instruments?type=eq.${encodeURIComponent(groupType)}&select=symbol,${encodeURIComponent(field)}`,
+  );
+  if (!rows || rows.length === 0) return { ok: false, error: `No instruments in group "${groupType}".` };
+
+  let updated = 0, failed = 0;
+  for (const row of rows) {
+    const symbol = String(row.symbol);
+    const res = await terminalPatch(`instruments?symbol=eq.${encodeURIComponent(symbol)}`, { [field]: v });
+    if (!res.ok) { failed++; continue; }
+    await terminalInsert("broker_config_audit", {
+      actor: gate.actor, symbol, field,
+      old_value: row[field] == null ? null : String(row[field]),
+      new_value: String(v),
+    });
+    updated++;
+  }
+
+  revalidatePath("/staff/broker");
+  if (updated === 0) return { ok: false, error: `Could not update any ${groupType} symbols.`, updated, failed };
+  return { ok: true, updated, failed };
 }
