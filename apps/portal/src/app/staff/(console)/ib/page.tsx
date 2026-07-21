@@ -1,15 +1,17 @@
 import { Card, CardBody, CardHeader, CardTitle, StatTile } from "@gio4x/ui";
 import { PageHeader } from "@/components/PageHeader";
 import { loadUnsettledIbs, loadIbTree } from "@/lib/ib-actions";
+import { loadCommissionPlans } from "@/lib/commission-plan-actions";
 import { formatMoney } from "@/lib/fee-constants";
 import { SettleButton, LinkIbTool, PromoteIbTool } from "./ib-tools";
+import { CommissionPlansTool } from "./commission-plans-tool";
 import { IbTree } from "./ib-tree";
 import { Network, Coins, Users, Wallet } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export default async function StaffIbPage() {
-  const [unsettled, ibNodes] = await Promise.all([loadUnsettledIbs(), loadIbTree()]);
+  const [unsettled, ibNodes, plans] = await Promise.all([loadUnsettledIbs(), loadIbTree(), loadCommissionPlans()]);
   const totalPending = unsettled.reduce((s, x) => s + x.pending, 0);
   const ibCount = new Set(unsettled.map((x) => x.ib_user_id)).size;
 
@@ -36,6 +38,19 @@ export default async function StaffIbPage() {
           <StatTile key={t.label} icon={t.icon} label={t.label} value={t.value} unit={t.unit} />
         ))}
       </div>
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Commission plans</CardTitle>
+        </CardHeader>
+        <CardBody>
+          <p className="mb-3 text-xs text-steel">
+            Tiered rebate plans the commission engine reads — a per-lot rate plus the share each sub-IB level keeps.
+            Set a default that applies to every IB without an explicit plan.
+          </p>
+          <CommissionPlansTool plans={plans} />
+        </CardBody>
+      </Card>
 
       <Card className="mb-6">
         <CardHeader>
