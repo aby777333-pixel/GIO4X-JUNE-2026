@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
+  Gauge,
   MessagesSquare,
   Ticket,
   Users,
@@ -33,6 +34,7 @@ type Item = { key: string; label: string; href: string; icon: LucideIcon };
 
 const nav: Item[] = [
   { key: "dashboard", label: "Dashboard", href: "/staff", icon: LayoutDashboard },
+  { key: "command", label: "Command Centre", href: "/staff/command", icon: Gauge },
   { key: "chats", label: "Live Chats", href: "/staff/chats", icon: MessagesSquare },
   { key: "tickets", label: "Tickets", href: "/staff/tickets", icon: Ticket },
   { key: "crm", label: "Leads & CRM", href: "/staff/crm", icon: Contact },

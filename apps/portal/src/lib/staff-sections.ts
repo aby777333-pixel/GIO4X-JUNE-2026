@@ -11,6 +11,7 @@ export type StaffSection = {
 
 export const STAFF_SECTIONS: StaffSection[] = [
   { key: "dashboard", href: "/staff", label: "Dashboard" },
+  { key: "command", href: "/staff/command", label: "Command Centre", adminOnly: true },
   { key: "chats", href: "/staff/chats", label: "Live Chats" },
   { key: "tickets", href: "/staff/tickets", label: "Tickets" },
   { key: "crm", href: "/staff/crm", label: "Leads & CRM" },
