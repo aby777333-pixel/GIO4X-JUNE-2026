@@ -17,6 +17,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      legal_documents: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          key: string
+          published: boolean
+          title: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          id?: string
+          key: string
+          published?: boolean
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          key?: string
+          published?: boolean
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
       account_types: {
         Row: {
           active: boolean

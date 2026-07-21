@@ -4,8 +4,10 @@ import { Card, CardBody, CardHeader, CardTitle } from "@gio4x/ui";
 import { PageHeader } from "@/components/PageHeader";
 import { loadFeatureFlags } from "@/lib/config-actions";
 import { loadAccountTypes } from "@/lib/account-type-actions";
+import { loadLegalDocs } from "@/lib/legal-actions";
 import { FlagsClient } from "./flags-client";
 import { AccountTypesClient } from "./account-types-client";
+import { LegalClient } from "./legal-client";
 import {
   Landmark, Receipt, Network, ShieldCheck, Gauge, ScanSearch, FileBarChart, Server, ArrowRight,
 } from "lucide-react";
@@ -29,7 +31,7 @@ const CONFIG_MAP: Entry[] = [
 ];
 
 export default async function ConfigPage() {
-  const [flags, accountTypes] = await Promise.all([loadFeatureFlags(), loadAccountTypes()]);
+  const [flags, accountTypes, legalDocs] = await Promise.all([loadFeatureFlags(), loadAccountTypes(), loadLegalDocs()]);
 
   return (
     <div className="space-y-5">
@@ -56,6 +58,17 @@ export default async function ConfigPage() {
             live account-open form. Admin-only.
           </p>
           <AccountTypesClient rows={accountTypes} />
+        </CardBody>
+      </Card>
+
+      <Card>
+        <CardHeader><CardTitle>Legal documents</CardTitle></CardHeader>
+        <CardBody>
+          <p className="mb-3 text-xs text-steel">
+            Terms, risk disclosure and privacy — write and publish them here. Published docs are public at
+            /legal/&lt;key&gt; and linked from signup. Admin-only.
+          </p>
+          <LegalClient docs={legalDocs} />
         </CardBody>
       </Card>
 

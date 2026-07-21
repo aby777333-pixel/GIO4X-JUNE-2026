@@ -151,8 +151,11 @@ export default function SignupPage() {
         ) : null}
 
         <div className="text-[11px] text-steel-light">
-          By creating an account you agree to GIO4X&apos;s terms and acknowledge the
-          risk disclosure. Trading leveraged products carries significant risk.
+          By creating an account you agree to GIO4X&apos;s{" "}
+          <a href="/legal/terms" target="_blank" rel="noreferrer" className="text-sky hover:underline">terms</a>{" "}
+          and acknowledge the{" "}
+          <a href="/legal/risk_disclosure" target="_blank" rel="noreferrer" className="text-sky hover:underline">risk disclosure</a>.
+          Trading leveraged products carries significant risk.
         </div>
 
         <Button variant="primary" type="submit" className="w-full" disabled={pending}>
