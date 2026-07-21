@@ -7,8 +7,9 @@
 
 import { getCurrentUser } from "@/lib/session";
 import { getSupabaseServer } from "@/lib/supabase-server";
+import { RESOLUTION_LABEL } from "@/lib/ticket-constants";
 
-export type ReportType = "trades" | "revenue" | "ib" | "funds" | "clients";
+export type ReportType = "trades" | "revenue" | "ib" | "funds" | "clients" | "support";
 
 export type ReportResult = {
   title: string;
@@ -24,6 +25,7 @@ export const REPORT_TYPES: { key: ReportType; label: string; desc: string }[] = 
   { key: "ib", label: "IB commissions", desc: "Commission ledger lines accrued in the window." },
   { key: "funds", label: "Deposits & withdrawals", desc: "Cashier transactions in the window." },
   { key: "clients", label: "Clients", desc: "Registrations and KYC status in the window." },
+  { key: "support", label: "Support & CSAT", desc: "Ticket volume, resolution mix, CSAT and time-to-resolution." },
 ];
 
 const money = (n: unknown) => Number(n ?? 0);
@@ -125,6 +127,40 @@ export async function runReport(type: ReportType, fromDate: string, toDate: stri
       title: "Deposits & withdrawals", summary: `${rows.length} transaction(s) · ${windowLabel}`,
       columns: ["Type", "Amount", "Currency", "Status", "Gateway", "Created (UTC)"], rows,
     };
+  }
+
+  if (type === "support") {
+    const { data, error } = await supabase
+      .from("support_tickets")
+      .select("status, csat_score, resolution_code, created_at, resolved_at")
+      .gte("created_at", fromIso).lte("created_at", toIso).limit(20000);
+    if (error) return { title: "Support & CSAT", columns: [], rows: [], error: error.message };
+    const t = data ?? [];
+    const resolved = t.filter((r) => r.status === "resolved" || r.status === "closed");
+    const rated = t.filter((r) => r.csat_score != null);
+    const avgCsat = rated.length ? rated.reduce((a, r) => a + Number(r.csat_score ?? 0), 0) / rated.length : 0;
+    const withRes = t.filter((r) => r.resolved_at);
+    const avgHours = withRes.length
+      ? withRes.reduce((a, r) => a + (new Date(r.resolved_at as string).getTime() - new Date(r.created_at).getTime()), 0) / withRes.length / 3_600_000
+      : 0;
+    // Resolution-code breakdown.
+    const byCode = new Map<string, number>();
+    for (const r of resolved) {
+      const c = r.resolution_code ?? "(none)";
+      byCode.set(c, (byCode.get(c) ?? 0) + 1);
+    }
+    const rows: (string | number)[][] = [
+      ["Tickets created", t.length],
+      ["Resolved / closed", resolved.length],
+      ["CSAT responses", rated.length],
+      ["Average CSAT (1-5)", rated.length ? Number(avgCsat.toFixed(2)) : "—"],
+      ["Avg time to resolution (h)", withRes.length ? Number(avgHours.toFixed(1)) : "—"],
+      ["—", "—"],
+      ...[...byCode.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .map(([code, n]) => [`Resolution · ${RESOLUTION_LABEL[code] ?? code}`, n] as (string | number)[]),
+    ];
+    return { title: "Support & CSAT", summary: windowLabel, columns: ["Metric", "Value"], rows };
   }
 
   // clients
