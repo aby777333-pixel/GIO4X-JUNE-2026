@@ -27,6 +27,7 @@ export function StaffTicketPanel({
   resolutionCode,
   resolutionNote,
   resolvedAt,
+  csatScore,
   customer,
 }: {
   ticketId: string;
@@ -36,6 +37,7 @@ export function StaffTicketPanel({
   resolutionCode: string;
   resolutionNote: string;
   resolvedAt: string | null;
+  csatScore: number | null;
   customer: { name: string; email: string | null; country: string | null };
 }) {
   const router = useRouter();
@@ -177,6 +179,11 @@ export function StaffTicketPanel({
           {resolvedAt ? (
             <p className="text-[11px] text-steel">Resolved {new Date(resolvedAt).toLocaleString()}</p>
           ) : null}
+          {csatScore != null ? (
+            <p className="text-[11px] font-medium text-navy">Customer rating: {csatScore}/5 ★</p>
+          ) : (
+            <p className="text-[11px] text-steel">No customer rating yet.</p>
+          )}
         </div>
       ) : null}
 

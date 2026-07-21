@@ -8,6 +8,7 @@ import { ArrowLeft, ShieldCheck, UserCircle2 } from "lucide-react";
 import { getCurrentUser } from "@/lib/session";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { ReplyForm } from "./reply-form";
+import { CsatForm } from "./csat-form";
 
 type Status = "open" | "in_progress" | "waiting_customer" | "resolved" | "closed";
 
@@ -29,7 +30,7 @@ export default async function TicketDetailPage({ params }: { params: { id: strin
   const supabase = getSupabaseServer();
   const { data: ticket } = await supabase
     .from("support_tickets")
-    .select("id, ticket_ref, subject, status, priority, category, created_at, updated_at, user_id")
+    .select("id, ticket_ref, subject, status, priority, category, created_at, updated_at, user_id, csat_score")
     .eq("id", params.id)
     .maybeSingle();
 
@@ -104,6 +105,14 @@ export default async function TicketDetailPage({ params }: { params: { id: strin
           ))}
         </CardBody>
       </Card>
+
+      {status === "closed" ? (
+        <Card className="mt-4">
+          <CardBody>
+            <CsatForm ticketId={ticket.id} existing={ticket.csat_score ?? null} />
+          </CardBody>
+        </Card>
+      ) : null}
 
       <Card className="mt-4">
         <CardBody>

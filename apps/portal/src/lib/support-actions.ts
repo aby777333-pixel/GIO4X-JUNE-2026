@@ -49,6 +49,22 @@ export async function createSupportTicket(input: {
   return { ok: true, message: "Ticket created.", id: ticket.id, ref: ticket.ticket_ref };
 }
 
+export async function submitCsat(ticketId: string, score: number): Promise<ActionResult> {
+  const user = await requireUser().catch(() => null);
+  if (!user) return { ok: false, error: "Not signed in." };
+  if (!Number.isInteger(score) || score < 1 || score > 5) return { ok: false, error: "Pick a rating from 1 to 5." };
+  const supabase = getSupabaseServer();
+  // RLS (tickets_self_update) allows this only on the customer's OWN, CLOSED ticket.
+  const { error } = await supabase
+    .from("support_tickets")
+    .update({ csat_score: score })
+    .eq("id", ticketId)
+    .eq("user_id", user.id);
+  if (error) return { ok: false, error: error.message };
+  revalidatePath(`/support/${ticketId}`);
+  return { ok: true, message: "Thanks for your feedback." };
+}
+
 export async function replyToTicket(ticketId: string, body: string): Promise<ActionResult> {
   const user = await requireUser().catch(() => null);
   if (!user) return { ok: false, error: "Not signed in." };
